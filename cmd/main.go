@@ -24,41 +24,65 @@ import (
 	texttospeechpb "google.golang.org/genproto/googleapis/cloud/texttospeech/v1"
 )
 
-var in string
-var templatePath string
-var deckName string
+const deckName = "new-practical-chinese-reader"
+
+var lesson string
 
 func main() {
-	flag.StringVar(&in, "i", "", "raw input")
-	flag.StringVar(&deckName, "d", "", "deck name")
+	flag.StringVar(&lesson, "l", "", "lesson name")
 	flag.Parse()
 
-	ignorePath := filepath.Join(in, "..", "..", "ignore")
-	ignored := loadIgnored(ignorePath)
-	sentences := loadSentences(in)
-	dialog := Dialog{
-		Chinese:   strings.Join(sentences, " "),
-		Sentences: getSentences(ignored, sentences),
-		Deck:      deckName,
-		Tags:      []string{"hsk1", "new-practical-chinese-reader-01"},
+	cwd, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
-	translationsPath := filepath.Join(in, "..", "..", "translations")
+	ignorePath := filepath.Join(cwd, "data", "ignore")
+	ignored := loadIgnored(ignorePath)
+
+	sentences := loadSentences(filepath.Join(cwd, "data", lesson, "input"))
+	dialogues := getDialogues(sentences, ignored)
+
+	translationsPath := filepath.Join(cwd, "data", "translations")
 	translations := loadTranslations(translationsPath)
-	translateNew(translations, &dialog)
-	translateAll(translations, &dialog)
 
-	audioDirPath := filepath.Join(in, "..", "audio")
-	getAudio(audioDirPath, &dialog)
+	for _, dialog := range dialogues {
+		translateNew(translations, &dialog)
+		translateAll(translations, &dialog)
+	}
 
-	dialogPath := filepath.Join(in, "..", "dialog.yaml")
-	writeDialog(dialog, dialogPath)
-	writeIgnored(ignored, ignorePath)
-	writeTranslations(translations, translationsPath)
+	audioDirPath := filepath.Join(cwd, "data", lesson, "audio")
+	for _, dialog := range dialogues {
+		getAudio(audioDirPath, &dialog)
+	}
 
-	templatePath = filepath.Join(in, "..", "..", "tmpl", deckName+".tmpl")
-	outPath := filepath.Join(in, "..", "cards.md")
-	exportSentences(&dialog, deckName, templatePath, outPath)
+	for i, dialog := range dialogues {
+		dialogPath := filepath.Join(cwd, "data", lesson, fmt.Sprintf("dialog_%02d.yaml", i+1))
+		writeDialog(dialog, dialogPath)
+		writeIgnored(ignored, ignorePath)
+		writeTranslations(translations, translationsPath)
+	}
+
+	templatePath := filepath.Join(cwd, "tmpl", deckName+".tmpl")
+	outPath := filepath.Join(cwd, "data", lesson, "cards.md")
+	_ = os.Remove(outPath)
+	for _, dialog := range dialogues {
+		appendToAnkiCards(&dialog, deckName, templatePath, outPath)
+	}
+}
+
+func getDialogues(sentences [][]string, ignored Ignored) []Dialog {
+	var dialogues []Dialog
+	for _, dialogSentences := range sentences {
+		dialogues = append(dialogues, Dialog{
+			Chinese:   strings.Join(dialogSentences, " "),
+			Sentences: getSentences(ignored, dialogSentences),
+			Deck:      deckName,
+			Tags:      []string{"hsk1", "new-practical-chinese-reader-01"},
+		})
+	}
+	return dialogues
 }
 
 // parse
@@ -186,7 +210,7 @@ func getNewChars(ignore Ignored, allChars []Char) []Char {
 	return newChars
 }
 
-func loadSentences(path string) []string {
+func loadSentences(path string) [][]string {
 	file, err := os.Open(path)
 	if err != nil {
 		fmt.Printf("could not open dialogues file: %v", err)
@@ -195,15 +219,18 @@ func loadSentences(path string) []string {
 	defer file.Close()
 
 	var lines []string
+	var dialogues [][]string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		if line == " " {
+		if line == "---" {
+			dialogues = append(dialogues, lines)
+			lines = []string{}
 			continue
 		}
 		lines = append(lines, line)
 	}
-	return lines
+	return dialogues
 }
 
 func loadIgnored(path string) Ignored {
@@ -428,15 +455,20 @@ func getAudio(audioDirPath string, d *Dialog) {
 	}
 }
 
-func fetchAudio(ctx context.Context, query, dir, filename string) (string, error) {
-	if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+func fetchAudio(ctx context.Context, query, audioDir, filename string) (string, error) {
+	if err := os.MkdirAll(audioDir, os.ModePerm); err != nil {
 		return "", err
 	}
 	filename = filename + ".mp3"
-	path := filepath.Join(dir, filename)
+	path := filepath.Join(audioDir, filename)
+	globalPath := filepath.Join(audioDir, "..", "..", "audio", filename)
 
 	if _, err := os.Stat(path); err == nil {
 		fmt.Printf("audio file exists: %s\n", path)
+		return filename, nil
+	}
+	if _, err := os.Stat(globalPath); err == nil {
+		fmt.Printf("audio file exists: %s\n", globalPath)
 		return filename, nil
 	}
 
@@ -477,6 +509,10 @@ func fetchAudio(ctx context.Context, query, dir, filename string) (string, error
 	if err != nil {
 		return "", err
 	}
+	err = ioutil.WriteFile(globalPath, resp.AudioContent, 0644)
+	if err != nil {
+		return "", err
+	}
 
 	fmt.Printf("%v\n", query)
 	fmt.Printf("audio content written to file: %v\n", path)
@@ -485,13 +521,23 @@ func fetchAudio(ctx context.Context, query, dir, filename string) (string, error
 
 // export
 
-func exportSentences(d *Dialog, deckName, templatePath, outPath string) {
-	formatted, err := fillTemplate(d, deckName, templatePath)
+func appendToAnkiCards(d *Dialog, deckName, templatePath, outPath string) {
+	text, err := fillTemplate(d, deckName, templatePath)
 	if err != nil {
-		fmt.Printf("could not format hanzi: %v\n", err)
+		fmt.Printf("could not fill template: %v\n", err)
 		os.Exit(1)
 	}
-	writeFile(formatted, outPath)
+
+	f, err := os.OpenFile(outPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		fmt.Printf("could not open anki cards file: %v\n", err)
+		os.Exit(1)
+	}
+	defer f.Close()
+
+	if _, err = f.WriteString(text); err != nil {
+		fmt.Printf("could not append to anki cards file: %v\n", err)
+	}
 }
 
 func writeFile(data, outPath string) {

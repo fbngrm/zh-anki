@@ -1,10 +1,12 @@
-data_dir=./data/new-practical-chinese-reader/$(lesson)
-audio_dir=./data/new-practical-chinese-reader/$(lesson)/audio
+data_dir=./data/$(lesson)
+audio_dir=./data/$(lesson)/audio
+
+.PHONY: gen-cards
+gen-cards:
+	go run cmd/main.go -l $(lesson)
 
 .PHONY: gen
-gen:
-	go run main.go -i $(data_dir)/input -d new-practical-chinese-reader
-	update-ignore
+gen: gen-cards commit-ignore
 
 .PHONY: add
 add:
@@ -22,17 +24,26 @@ sync: gen add cp-audio
 	apy check-media
 	apy sync
 
+.PHONY: commit-ignore
 ignore_path=$(data_dir)/../ignore
-prev_ignore_path=$(data_dir)/../prev_ignore_commit
-.PHONY: update-ignore
-update-ignore:
-	$(shell git add $(ignore_path) && git commit -m "update ignore for lesson $(lesson)")
-	$(shell git rev-parse HEAD > prev_ignore_path)
+prev_ignore_path=./data/prev_ignore_commit
+commit-ignore:
+	$(shell git add $(ignore_path))
+	$(shell git commit -m "commit ignore for lesson $(lesson)")
+	$(shell git rev-parse HEAD > $(prev_ignore_path))
 
 .PHONY: reset-ignore
 reset-ignore:
 	@echo $(prev_ignore_path)
-	$(shell git revert < cat $(prev_ignore_path))
+	$(shell git revert $(shell cat $(prev_ignore_path)))
+	rm $(prev_ignore_path)
+
+.PHONY: reset-files
+reset-files:
+	rm $(data_dir)/cards.md $(data_dir)/dialog*
+
+.PHONY: reset
+reset: reset-ignore reset-files
 
 .PHONY: concat-audio
 out_dir=$(audio_dir)/concat/
