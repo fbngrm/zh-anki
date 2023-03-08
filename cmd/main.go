@@ -41,45 +41,60 @@ func main() {
 	ignorePath := filepath.Join(cwd, "data", "ignore")
 	ignored := loadIgnored(ignorePath)
 
-	sentences := loadSentences(filepath.Join(cwd, "data", lesson, "input"))
+	sentences := loadSentences(filepath.Join(cwd, "data", lesson, "input", "dialog"))
 	dialogues := getDialogues(sentences, ignored)
 
 	translationsPath := filepath.Join(cwd, "data", "translations")
 	translations := loadTranslations(translationsPath)
 
 	for _, dialog := range dialogues {
-		translateNew(translations, &dialog)
-		translateAll(translations, &dialog)
+		translateNew(translations, dialog)
+		translateAll(translations, dialog)
 	}
 
 	audioDirPath := filepath.Join(cwd, "data", lesson, "audio")
 	for _, dialog := range dialogues {
-		getAudio(audioDirPath, &dialog)
+		getAudio(audioDirPath, dialog)
 	}
 
 	for i, dialog := range dialogues {
-		dialogPath := filepath.Join(cwd, "data", lesson, fmt.Sprintf("dialog_%02d.yaml", i+1))
-		writeDialog(dialog, dialogPath)
-		writeIgnored(ignored, ignorePath)
-		writeTranslations(translations, translationsPath)
+		dialogPath := filepath.Join(cwd, "data", lesson, "output", fmt.Sprintf("dialog_%02d.yaml", i+1))
+		writeToFile(dialog, dialogPath)
 	}
 
-	templatePath := filepath.Join(cwd, "tmpl", deckName+".tmpl")
-	outPath := filepath.Join(cwd, "data", lesson, "cards.md")
+	vocabSentences := loadVocab(filepath.Join(cwd, "data", lesson, "input", "vocab"))
+	vocab := getSentences(ignored, vocabSentences)
+	vocab = translateNewWords(translations, vocab)
+	vocab = translateAllWords(translations, vocab)
+	vocab = getSentenceAudio(context.Background(), audioDirPath, vocab)
+	vocabPath := filepath.Join(cwd, "data", lesson, "output", "vocab.yaml")
+	writeToFile(vocab, vocabPath)
+
+	writeIgnored(ignored, ignorePath)
+	writeTranslations(translations, translationsPath)
+
+	templatePath := filepath.Join(cwd, "tmpl")
+	outPath := filepath.Join(cwd, "data", lesson, "output", "cards.md")
 	_ = os.Remove(outPath)
 	for _, dialog := range dialogues {
-		appendToAnkiCards(&dialog, deckName, templatePath, outPath)
+		appendToAnkiCards(dialog, deckName, templatePath, outPath)
 	}
+	appendToAnkiCards(
+		&Dialog{
+			Sentences: vocab,
+			Deck:      deckName,
+			Tags:      []string{"hsk1", "new-practical-chinese-reader-01", lesson},
+		}, deckName, templatePath, outPath)
 }
 
-func getDialogues(sentences [][]string, ignored Ignored) []Dialog {
-	var dialogues []Dialog
+func getDialogues(sentences [][]string, ignored Ignored) []*Dialog {
+	var dialogues []*Dialog
 	for _, dialogSentences := range sentences {
-		dialogues = append(dialogues, Dialog{
+		dialogues = append(dialogues, &Dialog{
 			Chinese:   strings.Join(dialogSentences, " "),
 			Sentences: getSentences(ignored, dialogSentences),
 			Deck:      deckName,
-			Tags:      []string{"hsk1", "new-practical-chinese-reader-01"},
+			Tags:      []string{"hsk1", "new-practical-chinese-reader-01", lesson},
 		})
 	}
 	return dialogues
@@ -129,7 +144,7 @@ func getSentences(ignore Ignored, sentences []string) []Sentence {
 		if sentence == "" {
 			continue
 		}
-		allWords, newWords := getWords(ignore, sentence)
+		allWords, newWords := getWords(sentence, ignore)
 		results = append(results, Sentence{
 			Chinese:  sentence,
 			Audio:    hash(sentence),
@@ -140,7 +155,7 @@ func getSentences(ignore Ignored, sentences []string) []Sentence {
 	return results
 }
 
-func getWords(ignore Ignored, sentence string) ([]Word, []Word) {
+func getWords(sentence string, ignore Ignored) ([]Word, []Word) {
 	sentence = strings.ReplaceAll(sentence, "。", " ")
 	sentence = strings.ReplaceAll(sentence, ".", " ")
 	sentence = strings.ReplaceAll(sentence, "，", " ")
@@ -233,6 +248,26 @@ func loadSentences(path string) [][]string {
 	return dialogues
 }
 
+func loadVocab(path string) []string {
+	file, err := os.Open(path)
+	if err != nil {
+		fmt.Printf("could not open vocab file: %v", err)
+		os.Exit(1)
+	}
+	defer file.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" {
+			continue
+		}
+		lines = append(lines, line)
+	}
+	return lines
+}
+
 func loadIgnored(path string) Ignored {
 	b, err := os.ReadFile(path)
 	if err != nil {
@@ -259,8 +294,8 @@ func writeIgnored(i Ignored, path string) {
 	}
 }
 
-func writeDialog(d Dialog, path string) {
-	data, err := yaml.Marshal(d)
+func writeToFile(i any, path string) {
+	data, err := yaml.Marshal(i)
 	if err != nil {
 		fmt.Printf("could not marshal dialog file: %v", err)
 		os.Exit(1)
@@ -290,8 +325,11 @@ func translateNew(t Translations, d *Dialog) {
 	}
 	d.English = translation
 	t.update(d.Chinese, d.English)
+	d.Sentences = translateNewWords(t, d.Sentences)
+}
 
-	for i, sentence := range d.Sentences {
+func translateNewWords(t Translations, sentences []Sentence) []Sentence {
+	for i, sentence := range sentences {
 		translation, ok := t[sentence.Chinese]
 		if !ok {
 			var err error
@@ -330,12 +368,17 @@ func translateNew(t Translations, d *Dialog) {
 			}
 			sentence.NewWords[y] = word
 		}
-		d.Sentences[i] = sentence
+		sentences[i] = sentence
 	}
+	return sentences
 }
 
 func translateAll(t Translations, d *Dialog) {
-	for i, sentence := range d.Sentences {
+	d.Sentences = translateAllWords(t, d.Sentences)
+}
+
+func translateAllWords(t Translations, sentences []Sentence) []Sentence {
+	for i, sentence := range sentences {
 		for y, word := range sentence.AllWords {
 			translation, ok := t[word.Chinese]
 			if !ok {
@@ -363,8 +406,9 @@ func translateAll(t Translations, d *Dialog) {
 			}
 			sentence.AllWords[y] = word
 		}
-		d.Sentences[i] = sentence
+		sentences[i] = sentence
 	}
+	return sentences
 }
 
 func translateText(targetLanguage, text string) (string, error) {
@@ -435,8 +479,11 @@ func getAudio(audioDirPath string, d *Dialog) {
 		fmt.Println(err)
 	}
 	d.Audio = filename
+	d.Sentences = getSentenceAudio(ctx, audioDirPath, d.Sentences)
+}
 
-	for i, sentence := range d.Sentences {
+func getSentenceAudio(ctx context.Context, audioDirPath string, sentences []Sentence) []Sentence {
+	for i, sentence := range sentences {
 		filename, err := fetchAudio(ctx, sentence.Chinese, audioDirPath, hash(sentence.Chinese))
 		if err != nil {
 			fmt.Println(err)
@@ -451,8 +498,9 @@ func getAudio(audioDirPath string, d *Dialog) {
 			word.Audio = filename
 			sentence.NewWords[y] = word
 		}
-		d.Sentences[i] = sentence
+		sentences[i] = sentence
 	}
+	return sentences
 }
 
 func fetchAudio(ctx context.Context, query, audioDir, filename string) (string, error) {
@@ -522,7 +570,7 @@ func fetchAudio(ctx context.Context, query, audioDir, filename string) (string, 
 // export
 
 func appendToAnkiCards(d *Dialog, deckName, templatePath, outPath string) {
-	text, err := fillTemplate(d, deckName, templatePath)
+	text, err := fillDialogTemplate(d, deckName, templatePath)
 	if err != nil {
 		fmt.Printf("could not fill template: %v\n", err)
 		os.Exit(1)
@@ -540,14 +588,14 @@ func appendToAnkiCards(d *Dialog, deckName, templatePath, outPath string) {
 	}
 }
 
-func writeFile(data, outPath string) {
+func writeCardsToFile(data, outPath string) {
 	if err := os.WriteFile(outPath, []byte(data), 0644); err != nil {
 		fmt.Printf("could not write anki cards: %v", err)
 		os.Exit(1)
 	}
 }
 
-func fillTemplate(d *Dialog, deckName, tmplPath string) (string, error) {
+func fillDialogTemplate(d *Dialog, deckName, tmplPath string) (string, error) {
 	tplFuncMap := make(template.FuncMap)
 	tplFuncMap["audio"] = func(query string) string {
 		return "[sound:" + hash(query) + ".mp3]"
@@ -555,7 +603,8 @@ func fillTemplate(d *Dialog, deckName, tmplPath string) (string, error) {
 	tplFuncMap["removeSpaces"] = func(s string) string {
 		return strings.ReplaceAll(s, " ", "")
 	}
-	tmpl, err := template.New(deckName + ".tmpl").Funcs(tplFuncMap).ParseFiles(tmplPath)
+	tmpl, err := template.New(deckName + ".tmpl").Funcs(tplFuncMap).
+		ParseFiles(filepath.Join(tmplPath, deckName+".tmpl"))
 	if err != nil {
 		return "", err
 	}

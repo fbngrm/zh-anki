@@ -1,16 +1,14 @@
 data_dir=./data/$(lesson)
 audio_dir=./data/$(lesson)/audio
 
-.PHONY: gen-cards
-gen-cards:
-	go run cmd/main.go -l $(lesson)
-
 .PHONY: gen
-gen: gen-cards commit-ignore
+gen:
+	mkdir $(data_dir)/output/
+	go run cmd/main.go -l $(lesson)
 
 .PHONY: add
 add:
-	apy add-from-file $(data_dir)/cards.md
+	apy add-from-file $(data_dir)/output/cards.md
 	@printf "Done. Don't forget to sync: make sync\n"
 
 anki_audio_dir="/home/f/.local/share/Anki2/User 1/collection.media/"
@@ -23,27 +21,28 @@ cp-audio:
 sync: gen add cp-audio
 	apy check-media
 	apy sync
+	@echo "don't forget to commit ignore file!"
 
-.PHONY: commit-ignore
-ignore_path=$(data_dir)/../ignore
-prev_ignore_path=./data/prev_ignore_commit
-commit-ignore:
-	$(shell git add $(ignore_path))
-	$(shell git commit -m "commit ignore for lesson $(lesson)")
-	$(shell git rev-parse HEAD > $(prev_ignore_path))
+# .PHONY: commit-ignore
+# ignore_path=$(data_dir)/../ignore
+# prev_ignore_path=./data/prev_ignore_commit
+# commit-ignore:
+# 	$(shell git add $(ignore_path))
+# 	$(shell git commit -m "commit ignore for lesson $(lesson)")
+# 	$(shell git rev-parse HEAD > $(prev_ignore_path))
 
-.PHONY: reset-ignore
-reset-ignore:
-	@echo $(prev_ignore_path)
-	$(shell git revert $(shell cat $(prev_ignore_path)))
-	rm $(prev_ignore_path)
+# .PHONY: reset-ignore
+# reset-ignore:
+# 	@echo $(prev_ignore_path)
+# 	$(shell git revert $(shell cat $(prev_ignore_path)))
+# 	rm $(prev_ignore_path)
 
-.PHONY: reset-files
-reset-files:
-	rm $(data_dir)/cards.md $(data_dir)/dialog*
+# .PHONY: reset-files
+# reset-files:
+# 	rm $(data_dir)/cards.md $(data_dir)/dialog*
 
-.PHONY: reset
-reset: reset-ignore reset-files
+# .PHONY: reset
+# reset: reset-ignore reset-files
 
 .PHONY: concat-audio
 out_dir=$(audio_dir)/concat/

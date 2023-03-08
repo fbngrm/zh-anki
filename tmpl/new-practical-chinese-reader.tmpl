@@ -52,6 +52,7 @@ tags: {{$.Tags}}
 {{end}}
 {{end}}
 {{end}}
+{{ if not (eq .Chinese "") }}
 # Note
 model: npcr-ch-en-audio
 deck: {{$.Deck}}
@@ -70,4 +71,4 @@ tags: {{$.Tags}}
 {{end}}
 {{end}}
 ## Examples
-
+{{end}}
