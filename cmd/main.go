@@ -124,11 +124,12 @@ type Word struct {
 }
 
 type Sentence struct {
-	Chinese  string `yaml:"chinese"`
-	English  string `yaml:"english"`
-	Audio    string `yaml:"audio"`
-	NewWords []Word `yaml:"newWords"`
-	AllWords []Word `yaml:"allWords"`
+	Chinese      string `yaml:"chinese"`
+	English      string `yaml:"english"`
+	Audio        string `yaml:"audio"`
+	NewWords     []Word `yaml:"newWords"`
+	AllWords     []Word `yaml:"allWords"`
+	IsSingleRune bool   `yaml:"isSingleRune"`
 }
 
 type Dialog struct {
@@ -148,10 +149,11 @@ func getSentences(ignore Ignored, sentences []string) []Sentence {
 		}
 		allWords, newWords := getWords(sentence, ignore)
 		results = append(results, Sentence{
-			Chinese:  sentence,
-			Audio:    hash(sentence),
-			AllWords: allWords,
-			NewWords: newWords,
+			Chinese:      sentence,
+			Audio:        hash(sentence),
+			AllWords:     allWords,
+			NewWords:     newWords,
+			IsSingleRune: utf8.RuneCountInString(sentence) == 1,
 		})
 	}
 	return results
