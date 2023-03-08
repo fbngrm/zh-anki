@@ -430,16 +430,18 @@ func translateText(targetLanguage, text string) (string, error) {
 	}
 	defer client.Close()
 
+	fmt.Printf("translate: %s...\n", text)
 	resp, err := client.Translate(ctx, []string{text}, lang, nil)
 	if err != nil {
-		return "", fmt.Errorf("Translate: %v", err)
+		return "", fmt.Errorf("translate: %v", err)
 	}
 	if len(resp) == 0 {
-		return "", fmt.Errorf("Translate returned empty response to text: %s", text)
+		return "", fmt.Errorf("translate returned empty response to text: %s", text)
 	}
-	fmt.Printf("translate: %s...\n", text)
-	fmt.Println(resp[0].Text)
-	return resp[0].Text, nil
+	trans := resp[0].Text
+	trans = strings.ReplaceAll(trans, "&#39;", "'")
+	fmt.Println(trans)
+	return trans, nil
 }
 
 func loadTranslations(path string) Translations {
