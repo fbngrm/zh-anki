@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"cloud.google.com/go/translate"
 	"golang.org/x/text/language"
@@ -114,11 +115,12 @@ type Char struct {
 }
 
 type Word struct {
-	Chinese  string `yaml:"chinese"`
-	English  string `yaml:"english"`
-	Audio    string `yaml:"audio"`
-	NewChars []Char `yaml:"newChars"`
-	AllChars []Char `yaml:"allChars"`
+	Chinese      string `yaml:"chinese"`
+	English      string `yaml:"english"`
+	Audio        string `yaml:"audio"`
+	NewChars     []Char `yaml:"newChars"`
+	AllChars     []Char `yaml:"allChars"`
+	IsSingleRune bool   `yaml:"isSingleRune"`
 }
 
 type Sentence struct {
@@ -181,9 +183,10 @@ func getWords(sentence string, ignore Ignored) ([]Word, []Word) {
 		}
 		allChars := getAllChars(word)
 		allWords = append(allWords, Word{
-			Chinese:  word,
-			Audio:    hash(word),
-			AllChars: allChars,
+			Chinese:      word,
+			Audio:        hash(word),
+			AllChars:     allChars,
+			IsSingleRune: utf8.RuneCountInString(word) == 1,
 		})
 	}
 
