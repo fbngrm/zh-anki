@@ -1,6 +1,10 @@
 {{range .Sentences}}
 # Note
+{{ if not .IsSingleRune }}
 model: npcr-ch-en-audio
+{{else}}
+model: npcr-ch-en
+{{end}}
 deck: {{$.Deck}}
 tags: {{$.Tags}}
 
@@ -48,8 +52,6 @@ tags: {{$.Tags}}
 {{ removeSpaces .Chinese}}
 ## English
 {{.English}}
-## Audio
-{{audio .Chinese}}
 ## Components
 ## Kangxi
 ## Equivalents
