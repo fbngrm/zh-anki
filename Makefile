@@ -3,6 +3,7 @@ audio_dir=./data/$(lesson)/audio
 
 .PHONY: gen
 gen:
+	rm -r -f $(data_dir)/output/
 	mkdir $(data_dir)/output/
 	go run cmd/main.go -l $(lesson)
 

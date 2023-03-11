@@ -13,11 +13,13 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
 
 	"cloud.google.com/go/translate"
+	"github.com/fgrimme/zh/internal/cedict"
 	"golang.org/x/text/language"
 	"gopkg.in/yaml.v3"
 
@@ -25,83 +27,14 @@ import (
 	texttospeechpb "google.golang.org/genproto/googleapis/cloud/texttospeech/v1"
 )
 
-const deckName = "new-practical-chinese-reader"
+const idsSrc = "../../lib/cjkvi/ids.txt"
+const cedictSrc = "../../lib/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
+const wordFrequencySrc = "../../lib/word_frequencies/global_wordfreq.release_UTF-8.txt"
+const deckName = "new-practical-chinese-reader-01"
+
+var tags = []string{"hsk1", deckName}
 
 var lesson string
-
-func main() {
-	flag.StringVar(&lesson, "l", "", "lesson name")
-	flag.Parse()
-
-	cwd, err := os.Getwd()
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	ignorePath := filepath.Join(cwd, "data", "ignore")
-	ignored := loadIgnored(ignorePath)
-
-	sentences := loadSentences(filepath.Join(cwd, "data", lesson, "input", "dialog"))
-	dialogues := getDialogues(sentences, ignored)
-
-	translationsPath := filepath.Join(cwd, "data", "translations")
-	translations := loadTranslations(translationsPath)
-
-	for _, dialog := range dialogues {
-		translateNew(translations, dialog)
-		translateAll(translations, dialog)
-	}
-
-	audioDirPath := filepath.Join(cwd, "data", lesson, "audio")
-	for _, dialog := range dialogues {
-		getAudio(audioDirPath, dialog)
-	}
-
-	for i, dialog := range dialogues {
-		dialogPath := filepath.Join(cwd, "data", lesson, "output", fmt.Sprintf("dialog_%02d.yaml", i+1))
-		writeToFile(dialog, dialogPath)
-	}
-
-	vocabSentences := loadVocab(filepath.Join(cwd, "data", lesson, "input", "vocab"))
-	vocab := getSentences(ignored, vocabSentences)
-	vocab = translateNewWords(translations, vocab)
-	vocab = translateAllWords(translations, vocab)
-	vocab = getSentenceAudio(context.Background(), audioDirPath, vocab)
-	vocabPath := filepath.Join(cwd, "data", lesson, "output", "vocab.yaml")
-	writeToFile(vocab, vocabPath)
-
-	writeIgnored(ignored, ignorePath)
-	writeTranslations(translations, translationsPath)
-
-	templatePath := filepath.Join(cwd, "tmpl")
-	outPath := filepath.Join(cwd, "data", lesson, "output", "cards.md")
-	_ = os.Remove(outPath)
-	for _, dialog := range dialogues {
-		appendToAnkiCards(dialog, deckName, templatePath, outPath)
-	}
-	appendToAnkiCards(
-		&Dialog{
-			Sentences: vocab,
-			Deck:      deckName,
-			Tags:      []string{"hsk1", "new-practical-chinese-reader-01", lesson},
-		}, deckName, templatePath, outPath)
-}
-
-func getDialogues(sentences [][]string, ignored Ignored) []*Dialog {
-	var dialogues []*Dialog
-	for _, dialogSentences := range sentences {
-		dialogues = append(dialogues, &Dialog{
-			Chinese:   strings.Join(dialogSentences, " "),
-			Sentences: getSentences(ignored, dialogSentences),
-			Deck:      deckName,
-			Tags:      []string{"hsk1", "new-practical-chinese-reader-01", lesson},
-		})
-	}
-	return dialogues
-}
-
-// parse
 
 type Ignored map[string]struct{}
 
@@ -110,12 +43,15 @@ func (i Ignored) update(s string) {
 }
 
 type Char struct {
-	Chinese string `yaml:"chinese"`
-	English string `yaml:"english"`
+	Chinese      string `yaml:"chinese"`
+	English      string `yaml:"english"`
+	Audio        string `yaml:"audio"`
+	IsSingleRune bool   `yaml:"isSingleRune"`
 }
 
 type Word struct {
 	Chinese      string `yaml:"chinese"`
+	Pinyin       string `yaml:"pinyin"`
 	English      string `yaml:"english"`
 	Audio        string `yaml:"audio"`
 	NewChars     []Char `yaml:"newChars"`
@@ -125,6 +61,7 @@ type Word struct {
 
 type Sentence struct {
 	Chinese      string `yaml:"chinese"`
+	Pinyin       string `yaml:"pinyin"`
 	English      string `yaml:"english"`
 	Audio        string `yaml:"audio"`
 	NewWords     []Word `yaml:"newWords"`
@@ -136,10 +73,205 @@ type Dialog struct {
 	Deck      string     `yaml:"deck"`
 	Tags      []string   `yaml:"tags"`
 	Chinese   string     `yaml:"chinese"`
+	Pinyin    string     `yaml:"pinyin"`
 	English   string     `yaml:"english"`
 	Audio     string     `yaml:"audio"`
 	Sentences []Sentence `yaml:"sentences"`
 }
+
+func main() {
+	flag.StringVar(&lesson, "l", "", "lesson name")
+	flag.Parse()
+
+	tags = append(tags, lesson)
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	ignorePath := filepath.Join(cwd, "data", "ignore")
+	ignored := loadIgnored(ignorePath)
+
+	translationsPath := filepath.Join(cwd, "data", "translations")
+	translations := loadTranslations(translationsPath)
+
+	audioDirPath := filepath.Join(cwd, "data", lesson, "audio")
+
+	// load dialogues from file
+	dialogLines := loadDialogs(filepath.Join(cwd, "data", lesson, "input", "dialogues"))
+	dialogues := getDialogues(dialogLines, ignored)
+	for i, dialog := range dialogues {
+		addPinyin(dialog)
+		translateDialogNew(translations, dialog)
+		translateDialog(translations, dialog)
+		getAudio(audioDirPath, dialog)
+		dialogPath := filepath.Join(cwd, "data", lesson, "output", fmt.Sprintf("dialog_%02d.yaml", i+1))
+		writeToFile(dialog, dialogPath)
+	}
+
+	// load sentences from file
+	sentenceLines := loadFile(filepath.Join(cwd, "data", lesson, "input", "sentences"))
+	sentences := getSentences(ignored, sentenceLines)
+	sentences = translateNewWordsInSentences(translations, sentences)
+	sentences = translateAllWordsInSentences(translations, sentences)
+	sentences = getSentenceAudio(context.Background(), audioDirPath, sentences)
+	sentencesPath := filepath.Join(cwd, "data", lesson, "output", "sentences.yaml")
+	writeToFile(sentences, sentencesPath)
+
+	// load words from file
+	var newWords []Word
+	wordLines := loadFile(filepath.Join(cwd, "data", lesson, "input", "words"))
+	for _, word := range wordLines {
+		_, newWord := getWords(word, ignored)
+		newWords = append(newWords, newWord...)
+	}
+	newWords = translateAllWords(translations, newWords)
+
+	// write cards
+	templatePath := filepath.Join(cwd, "tmpl")
+	outPath := filepath.Join(cwd, "data", lesson, "output", "cards.md")
+	_ = os.Remove(outPath)
+	// add dialogs
+	for _, dialog := range dialogues {
+		writeDialogCards(dialog, deckName, templatePath, outPath)
+	}
+	// add from sentence list
+	writeSentenceCards(sentences, deckName, templatePath, outPath)
+	// add from vocab list
+	writeWordsCards(newWords, deckName, templatePath, outPath)
+
+	// write newly ignored words
+	writeIgnored(ignored, ignorePath)
+	writeTranslations(translations, translationsPath)
+}
+
+func getDialogues(sentences [][]string, ignored Ignored) []*Dialog {
+	var dialogues []*Dialog
+	for _, dialogSentences := range sentences {
+		dialogues = append(dialogues, &Dialog{
+			Chinese:   strings.Join(dialogSentences, " "),
+			Sentences: getSentences(ignored, dialogSentences),
+			Deck:      deckName,
+		})
+	}
+	return dialogues
+}
+
+func addPinyin(d *Dialog) {
+	dict, err := cedict.BySimplifiedHanzi(cedictSrc)
+	if err != nil {
+		fmt.Printf("could not init cedict: %v\n", err)
+		os.Exit(1)
+	}
+	for i, sentence := range d.Sentences {
+		for y, word := range sentence.AllWords {
+			entries, _ := dict[word.Chinese]
+			readings := make([]string, 0)
+			for _, entry := range entries {
+				readings = append(readings, entry.Readings...)
+			}
+			pinyin := "xxx"
+			if len(readings) == 0 {
+				fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+				fmt.Printf("no readings found for word \"%s\", please enter pinyin or skip to use %s\n", word.Chinese, pinyin)
+				pinyin = getPinyinFromUser(sentence.Chinese, nil)
+			}
+			if len(readings) > 1 {
+				fmt.Println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+				fmt.Printf("more than 1 readings found for word \"%s\" please choose\n", word.Chinese)
+				pinyin = getPinyinFromUser(sentence.Chinese, readings)
+			}
+			if len(readings) == 1 {
+				pinyin = readings[0]
+			}
+			d.Sentences[i].AllWords[y].Pinyin = pinyin
+		}
+	}
+
+	// dict, err := cedict.NewDict(cedictSrc)
+
+	// idsDecomposer, err := cjkvi.NewIDSDecomposer(idsSrc)
+	// if err != nil {
+	// 	fmt.Printf("could not initialize ids decompose: %v\n", err)
+	// 	os.Exit(1)
+	// }
+
+	// // we provide a word frequency index which needs to be initialized before first use.
+	// frequencyIndex := frequency.NewWordIndex(wordFrequencySrc)
+
+	// decomposer := hanzi.NewDecomposer(
+	// 	dict,
+	// 	kangxi.NewDict(),
+	// 	search.NewSearcher(finder.NewFinder(dict)),
+	// 	idsDecomposer,
+	// 	nil,
+	// 	frequencyIndex,
+	// )
+
+	// for _, sentence := range d.Sentences {
+	// 	for _, word := range sentence.AllWords {
+	// 		decomposition, err := decomposer.Decompose(word.Chinese, 3, 0)
+	// 		if err != nil {
+	// 			os.Stderr.WriteString(fmt.Sprintf("error decomposing %s: %v\n", word.Chinese, err))
+	// 		}
+	// 		if len(decomposition.Errs) != 0 {
+	// 			for _, e := range decomposition.Errs {
+	// 				os.Stderr.WriteString(fmt.Sprintf("errors decomposing %s: %v\n", word.Chinese, e))
+	// 			}
+	// 		}
+	// 		if len(decomposition.Hanzi) != 1 {
+	// 			os.Stderr.WriteString(fmt.Sprintf("expect exactly 1 decomposition for word: %s", word.Chinese))
+	// 			os.Exit(1)
+	// 		}
+	// 		spew.Dump(decomposition.Hanzi[0].Readings)
+	// 		// spew.Dump(decomposition)
+	// 	}
+	// }
+}
+
+func getPinyinFromUser(sentence string, options []string) string {
+	if len(options) > 1 {
+		fmt.Printf("s = skip / e = enter pinyin / o = choose option / c = cancel \n")
+	} else {
+		fmt.Printf("s = skip / e = enter pinyin / c = cancel \n")
+	}
+	fmt.Printf("sentence: %s\n", sentence)
+	scanner := bufio.NewScanner(os.Stdin)
+	for scanner.Scan() {
+		text := scanner.Text()
+		switch text {
+		case "o":
+			for i, o := range options {
+				fmt.Printf("option %d: %s\n", i+1, o)
+			}
+			scanner.Scan()
+			i, err := strconv.Atoi(scanner.Text())
+			if err != nil {
+				fmt.Println(err)
+				os.Exit(1)
+			}
+			return options[i-1]
+		case "e":
+			scanner.Scan()
+			return scanner.Text()
+		case "s":
+			return "xxx"
+		case "c":
+			os.Exit(1)
+		default:
+		}
+		fmt.Printf("s = skip / e = enter pinyin / c = cancel \n")
+	}
+	if err := scanner.Err(); err != nil {
+		fmt.Printf("could not read input: %v\n", err)
+		os.Exit(1)
+	}
+	return ""
+}
+
+// parse
 
 func getSentences(ignore Ignored, sentences []string) []Sentence {
 	var results []Sentence
@@ -212,7 +344,8 @@ func getAllChars(word string) []Char {
 	allChars := make([]Char, 0)
 	for _, char := range word {
 		allChars = append(allChars, Char{
-			Chinese: string(char),
+			Chinese:      string(char),
+			IsSingleRune: true,
 		})
 	}
 	return allChars
@@ -230,7 +363,7 @@ func getNewChars(ignore Ignored, allChars []Char) []Char {
 	return newChars
 }
 
-func loadSentences(path string) [][]string {
+func loadDialogs(path string) [][]string {
 	file, err := os.Open(path)
 	if err != nil {
 		fmt.Printf("could not open dialogues file: %v", err)
@@ -253,7 +386,7 @@ func loadSentences(path string) [][]string {
 	return dialogues
 }
 
-func loadVocab(path string) []string {
+func loadFile(path string) []string {
 	file, err := os.Open(path)
 	if err != nil {
 		fmt.Printf("could not open vocab file: %v", err)
@@ -319,7 +452,7 @@ func (t Translations) update(ch, en string) {
 	t[ch] = en
 }
 
-func translateNew(t Translations, d *Dialog) {
+func translateDialogNew(t Translations, d *Dialog) {
 	translation, ok := t[d.Chinese]
 	if !ok {
 		var err error
@@ -330,10 +463,10 @@ func translateNew(t Translations, d *Dialog) {
 	}
 	d.English = translation
 	t.update(d.Chinese, d.English)
-	d.Sentences = translateNewWords(t, d.Sentences)
+	d.Sentences = translateNewWordsInSentences(t, d.Sentences)
 }
 
-func translateNewWords(t Translations, sentences []Sentence) []Sentence {
+func translateNewWordsInSentences(t Translations, sentences []Sentence) []Sentence {
 	for i, sentence := range sentences {
 		translation, ok := t[sentence.Chinese]
 		if !ok {
@@ -378,42 +511,48 @@ func translateNewWords(t Translations, sentences []Sentence) []Sentence {
 	return sentences
 }
 
-func translateAll(t Translations, d *Dialog) {
-	d.Sentences = translateAllWords(t, d.Sentences)
+func translateDialog(t Translations, d *Dialog) {
+	d.Sentences = translateAllWordsInSentences(t, d.Sentences)
 }
 
-func translateAllWords(t Translations, sentences []Sentence) []Sentence {
+func translateAllWordsInSentences(t Translations, sentences []Sentence) []Sentence {
 	for i, sentence := range sentences {
-		for y, word := range sentence.AllWords {
-			translation, ok := t[word.Chinese]
-			if !ok {
-				var err error
-				translation, err = translateText("en-US", word.Chinese)
-				if err != nil {
-					log.Fatalf("could not translate word \"%s\": %v", word.Chinese, err)
-				}
-			}
-			word.English = translation
-			t.update(word.Chinese, word.English)
-
-			for z, char := range word.AllChars {
-				translation, ok := t[char.Chinese]
-				if !ok {
-					var err error
-					translation, err = translateText("en-US", char.Chinese)
-					if err != nil {
-						log.Fatalf("could not translate char \"%s\": %v", char.Chinese, err)
-					}
-				}
-				char.English = translation
-				t.update(char.Chinese, char.English)
-				word.AllChars[z] = char
-			}
-			sentence.AllWords[y] = word
-		}
+		sentence.AllWords = translateAllWords(t, sentence.AllWords)
 		sentences[i] = sentence
 	}
 	return sentences
+}
+
+func translateAllWords(t Translations, words []Word) []Word {
+	var translated []Word
+	for _, word := range words {
+		translation, ok := t[word.Chinese]
+		if !ok {
+			var err error
+			translation, err = translateText("en-US", word.Chinese)
+			if err != nil {
+				log.Fatalf("could not translate word \"%s\": %v", word.Chinese, err)
+			}
+		}
+		word.English = translation
+		t.update(word.Chinese, word.English)
+
+		for z, char := range word.AllChars {
+			translation, ok := t[char.Chinese]
+			if !ok {
+				var err error
+				translation, err = translateText("en-US", char.Chinese)
+				if err != nil {
+					log.Fatalf("could not translate char \"%s\": %v", char.Chinese, err)
+				}
+			}
+			char.English = translation
+			t.update(char.Chinese, char.English)
+			word.AllChars[z] = char
+		}
+		translated = append(translated, word)
+	}
+	return translated
 }
 
 func translateText(targetLanguage, text string) (string, error) {
@@ -490,7 +629,7 @@ func getAudio(audioDirPath string, d *Dialog) {
 }
 
 func getSentenceAudio(ctx context.Context, audioDirPath string, sentences []Sentence) []Sentence {
-	for i, sentence := range sentences {
+	for x, sentence := range sentences {
 		filename, err := fetchAudio(ctx, sentence.Chinese, audioDirPath, hash(sentence.Chinese))
 		if err != nil {
 			fmt.Println(err)
@@ -503,9 +642,18 @@ func getSentenceAudio(ctx context.Context, audioDirPath string, sentences []Sent
 				fmt.Println(err)
 			}
 			word.Audio = filename
+
+			for z, ch := range word.NewChars {
+				filename, err := fetchAudio(ctx, ch.Chinese, audioDirPath, hash(ch.Chinese))
+				if err != nil {
+					fmt.Println(err)
+				}
+				ch.Audio = filename
+				word.NewChars[z] = ch
+			}
 			sentence.NewWords[y] = word
 		}
-		sentences[i] = sentence
+		sentences[x] = sentence
 	}
 	return sentences
 }
@@ -576,13 +724,33 @@ func fetchAudio(ctx context.Context, query, audioDir, filename string) (string, 
 
 // export
 
-func appendToAnkiCards(d *Dialog, deckName, templatePath, outPath string) {
+func writeDialogCards(d *Dialog, deckName, templatePath, outPath string) {
 	text, err := fillDialogTemplate(d, deckName, templatePath)
 	if err != nil {
 		fmt.Printf("could not fill template: %v\n", err)
 		os.Exit(1)
 	}
+	appendToAnkiCards(text, outPath)
+}
 
+func writeSentenceCards(s []Sentence, deckName, templatePath, outPath string) {
+	text, err := fillSentencesTemplate(s, deckName, templatePath)
+	if err != nil {
+		fmt.Printf("could not fill template: %v\n", err)
+		os.Exit(1)
+	}
+	appendToAnkiCards(text, outPath)
+}
+
+func writeWordsCards(w []Word, deckName, templatePath, outPath string) {
+	text, err := fillWordsTemplate(w, deckName, templatePath)
+	if err != nil {
+		fmt.Printf("could not fill template: %v\n", err)
+		os.Exit(1)
+	}
+	appendToAnkiCards(text, outPath)
+}
+func appendToAnkiCards(text string, outPath string) {
 	f, err := os.OpenFile(outPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		fmt.Printf("could not open anki cards file: %v\n", err)
@@ -595,31 +763,63 @@ func appendToAnkiCards(d *Dialog, deckName, templatePath, outPath string) {
 	}
 }
 
-func writeCardsToFile(data, outPath string) {
-	if err := os.WriteFile(outPath, []byte(data), 0644); err != nil {
-		fmt.Printf("could not write anki cards: %v", err)
-		os.Exit(1)
-	}
+var tplFuncMap = template.FuncMap{
+	"audio": func(query string) string {
+		return "[sound:" + hash(query) + ".mp3]"
+	},
+	"removeSpaces": func(s string) string {
+		return strings.ReplaceAll(s, " ", "")
+	},
+	"deckName": func() string {
+		return deckName
+	},
+	"tags": func() string {
+		return strings.Join(tags, ", ")
+	},
 }
 
 func fillDialogTemplate(d *Dialog, deckName, tmplPath string) (string, error) {
-	tplFuncMap := make(template.FuncMap)
-	tplFuncMap["audio"] = func(query string) string {
-		return "[sound:" + hash(query) + ".mp3]"
-	}
-	tplFuncMap["removeSpaces"] = func(s string) string {
-		return strings.ReplaceAll(s, " ", "")
-	}
-	tmpl, err := template.New(deckName + ".tmpl").Funcs(tplFuncMap).
-		ParseFiles(filepath.Join(tmplPath, deckName+".tmpl"))
+	tmpl, err := template.New("dialog.tmpl").Funcs(tplFuncMap).ParseGlob(tmplPath + "/*.tmpl")
 	if err != nil {
 		return "", err
 	}
-
 	buf := new(bytes.Buffer)
 	err = tmpl.Execute(buf, d)
 	if err != nil {
 		return "", err
 	}
 	return buf.String(), nil
+}
+
+func fillSentencesTemplate(s []Sentence, deckName, tmplPath string) (string, error) {
+	tmpl, err := template.New("sentences.tmpl").Funcs(tplFuncMap).ParseGlob(tmplPath + "/*.tmpl")
+	if err != nil {
+		return "", err
+	}
+	buf := new(bytes.Buffer)
+	err = tmpl.Execute(buf, s)
+	if err != nil {
+		return "", err
+	}
+	return buf.String(), nil
+}
+
+func fillWordsTemplate(s []Word, deckName, tmplPath string) (string, error) {
+	tmpl, err := template.New("words.tmpl").Funcs(tplFuncMap).ParseGlob(tmplPath + "/*.tmpl")
+	if err != nil {
+		return "", err
+	}
+	buf := new(bytes.Buffer)
+	err = tmpl.Execute(buf, s)
+	if err != nil {
+		return "", err
+	}
+	return buf.String(), nil
+}
+
+func writeCardsToFile(data, outPath string) {
+	if err := os.WriteFile(outPath, []byte(data), 0644); err != nil {
+		fmt.Printf("could not write anki cards: %v", err)
+		os.Exit(1)
+	}
 }
