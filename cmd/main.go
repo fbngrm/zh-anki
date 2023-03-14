@@ -218,20 +218,38 @@ func addPinyinToSentences(pinyinIndex Pinyin, sentences []Sentence) []Sentence {
 			continue
 		}
 		for _, word := range sentence.AllWords {
+			if p, ok := pinyinIndex[word.Chinese]; ok {
+				pinyin += p
+				pinyin += " "
+				continue
+			}
 			entries, _ := cedictDict[word.Chinese]
-			readings := make([]string, 0)
+			allReadings := make(map[string]struct{})
 			for _, entry := range entries {
-				readings = append(readings, entry.Readings...)
+				for _, reading := range entry.Readings {
+					allReadings[reading] = struct{}{}
+				}
+			}
+			readings := make([]string, 0)
+			for reading := range allReadings {
+				readings = append(readings, reading)
+			}
+			if len(readings) == utf8.RuneCountInString(word.Chinese) {
+				pinyin += strings.Join(readings, "")
+				pinyin += " "
+				continue
 			}
 			if len(readings) == 0 {
 				fmt.Println("===============================================")
-				fmt.Printf("no readings found for word \"%s\", please enter pinyin or skip to use %s\n", word.Chinese, pinyin)
+				fmt.Printf("sentence: %s\n", sentence.Chinese)
+				fmt.Printf("no readings found for word \"%s\", please enter pinyin\n", word.Chinese)
 				pinyin += getPinyinFromUser(sentence.Chinese, nil)
 				pinyin += " "
 				continue
 			}
 			if len(readings) > 1 {
 				fmt.Println("===============================================")
+				fmt.Printf("sentence: %s\n", sentence.Chinese)
 				fmt.Printf("more than 1 readings found for word \"%s\" please choose\n", word.Chinese)
 				pinyin += getPinyinFromUser(sentence.Chinese, readings)
 				pinyin += " "
@@ -295,43 +313,37 @@ func addPinyinToSentences(pinyinIndex Pinyin, sentences []Sentence) []Sentence {
 // }
 
 func getPinyinFromUser(sentence string, options []string) string {
-	if len(options) > 1 {
-		fmt.Printf("s = skip / e = enter pinyin / o = choose option / c = cancel \n")
-	} else {
-		fmt.Printf("s = skip / e = enter pinyin / c = cancel \n")
-	}
-	fmt.Printf("sentence: %s\n", sentence)
 	scanner := bufio.NewScanner(os.Stdin)
-	for scanner.Scan() {
-		text := scanner.Text()
-		switch text {
-		case "o":
-			for i, o := range options {
-				fmt.Printf("option %d: %s\n", i+1, o)
-			}
-			scanner.Scan()
-			i, err := strconv.Atoi(scanner.Text())
-			if err != nil {
-				fmt.Println(err)
-				os.Exit(1)
-			}
-			return options[i-1]
-		case "e":
-			scanner.Scan()
-			return scanner.Text()
-		case "s":
-			return "xxx"
-		case "c":
-			os.Exit(1)
-		default:
+	if len(options) > 1 {
+		for i, o := range options {
+			fmt.Printf("option %d: %s\n", i+1, o)
 		}
-		fmt.Printf("s = skip / e = enter pinyin / c = cancel \n")
+		scanner.Scan()
+		key := scanner.Text()
+		if err := scanner.Err(); err != nil {
+			fmt.Printf("could not read input: %v\n", err)
+			os.Exit(1)
+		}
+		i, err := strconv.Atoi(key)
+		if err != nil {
+			fmt.Println(err)
+			fmt.Println("invalid index")
+			return getPinyinFromUser(sentence, options)
+		}
+		if i-1 < 0 || i-1 >= len(options) {
+			fmt.Println("invalid index")
+			return getPinyinFromUser(sentence, options)
+		}
+		return options[i-1]
+	} else {
+		scanner.Scan()
+		text := scanner.Text()
+		if err := scanner.Err(); err != nil {
+			fmt.Printf("could not read input: %v\n", err)
+			os.Exit(1)
+		}
+		return text
 	}
-	if err := scanner.Err(); err != nil {
-		fmt.Printf("could not read input: %v\n", err)
-		os.Exit(1)
-	}
-	return ""
 }
 
 // parse
