@@ -49,6 +49,7 @@ Back:
 <div class="back" lang="zh-Hans">
 <span class="medium japanese">{{Chinese}}</span>
 <hr>
+<span class="small">{{Pinyin}}</span>
 <span class="small">{{English}}</span>
 <hr>
 <span class="tiny japanese">{{Audio}}</span>
@@ -74,6 +75,7 @@ Back:
 <div class="back" lang="zh-Hans">
 <span class="medium japanese">{{Chinese}}</span>
 <hr>
+<span class="small">{{Pinyin}}</span>
 <span class="small">{{English}}</span>
 <hr>
 <span class="tiny japanese">{{Audio}}</span>
@@ -99,6 +101,7 @@ Back:
 <div class="back" lang="zh-Hans">
 <span class="medium japanese">{{Chinese}}</span>
 <hr>
+<span class="small">{{Pinyin}}</span>
 <span class="small">{{English}}</span>
 <hr>
 <span class="tiny japanese">{{Audio}}</span>
@@ -137,6 +140,7 @@ Back:
 <div class="back" lang="zh-Hans">
 <span class="medium japanese">{{Chinese}}</span>
 <hr>
+<span class="small">{{Pinyin}}</span>
 <span class="small">{{English}}</span>
 <hr>
 <span class="tiny japanese">{{Audio}}</span>
@@ -162,6 +166,7 @@ Back:
 <div class="back" lang="zh-Hans">
 <span class="medium japanese">{{Chinese}}</span>
 <hr>
+<span class="small">{{Pinyin}}</span>
 <span class="small">{{English}}</span>
 <hr>
 <span class="tiny japanese">{{Audio}}</span>

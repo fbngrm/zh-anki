@@ -1,11 +1,11 @@
-data_dir=./data/$(lesson)
-audio_dir=./data/$(lesson)/audio
+data_dir=./data/$(deck)/$(lesson)
+audio_dir=./data/$(deck)/$(lesson)/audio
 
 .PHONY: gen
 gen:
 	rm -r -f $(data_dir)/output/
 	mkdir $(data_dir)/output/
-	go run cmd/main.go -l $(lesson)
+	go run cmd/main.go -l $(lesson) -d $(deck)
 
 .PHONY: add
 add:
@@ -23,6 +23,13 @@ sync: gen add cp-audio
 	apy check-media
 	apy sync
 	@echo "don't forget to commit ignore file!"
+
+.PHONY: new
+new:
+	mkdir -p $(data_dir)
+	touch  $(data_dir)/dialog
+	touch  $(data_dir)/sentences
+	touch  $(data_dir)/words
 
 # .PHONY: commit-ignore
 # ignore_path=$(data_dir)/../ignore
