@@ -111,7 +111,8 @@ func main() {
 		os.Exit(1)
 	}
 	deckname = m.deckname
-	tags = m.tags
+	tags = append(m.tags, lesson)
+	tags = append(tags, deckname)
 	path = m.path
 
 	var err error
@@ -684,6 +685,19 @@ func translateAllWords(t Translations, words []Word) []Word {
 			char.English = translation
 			t.update(char.Chinese, char.English)
 			word.AllChars[z] = char
+		}
+		for z, char := range word.NewChars {
+			translation, ok := t[char.Chinese]
+			if !ok {
+				var err error
+				translation, err = translateText("en-US", char.Chinese)
+				if err != nil {
+					log.Fatalf("could not translate char \"%s\": %v", char.Chinese, err)
+				}
+			}
+			char.English = translation
+			t.update(char.Chinese, char.English)
+			word.NewChars[z] = char
 		}
 		translated = append(translated, word)
 	}

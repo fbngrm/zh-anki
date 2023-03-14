@@ -1,4 +1,5 @@
 data_dir=./data/$(deck)/$(lesson)
+
 audio_dir=./data/$(deck)/$(lesson)/audio
 
 .PHONY: gen
