@@ -1,5 +1,4 @@
 data_dir=./data/$(deck)/$(lesson)
-
 audio_dir=./data/$(deck)/$(lesson)/audio
 
 .PHONY: gen
@@ -53,10 +52,10 @@ new:
 # .PHONY: reset
 # reset: reset-ignore reset-files
 
-.PHONY: concat-audio
-out_dir=$(audio_dir)/concat/
-silence=./data/new-practical-chinese-reader/audio/silence_64kb.mp3
-concat-audio:
+.PHONY: audio
+out_dir=../../../../data//$(deck)/$(lesson)/audio/concat
+silence=../../../../data/silence_64kb.mp3
+audio:
 	mkdir -p $(out_dir)
 	cd $(audio_dir); for i in *.mp3; do ffmpeg -i "$$i" -filter:a "atempo=0.85" /tmp/"$${i%.*}_slow.mp3"; done
 	cd $(audio_dir); for i in *.mp3; do ffmpeg -i "concat:$$i|$(silence)|/tmp/$${i%.*}_slow.mp3|$(silence)|$$i|$(silence)|/tmp/$${i%.*}_slow.mp3|$(silence)|$$i|$(silence)|$(silence)" -acodec copy $(out_dir)/"$${i%.*}_concat.mp3"; done
