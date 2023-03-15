@@ -111,7 +111,7 @@ func main() {
 		os.Exit(1)
 	}
 	deckname = m.deckname
-	tags = append(m.tags, lesson)
+	tags = append(m.tags, "lesson-"+lesson)
 	tags = append(tags, deckname)
 	path = m.path
 
@@ -168,6 +168,7 @@ func main() {
 		_, newWord := getWords(word, ignored)
 		newWords = append(newWords, newWord...)
 	}
+	newWords = getWordsAudio(context.Background(), audioDirPath, newWords)
 	newWords = translateAllWords(translations, newWords)
 
 	// write cards
@@ -783,28 +784,30 @@ func getSentenceAudio(ctx context.Context, audioDirPath string, sentences []Sent
 		if err != nil {
 			fmt.Println(err)
 		}
-		sentence.Audio = filename
+		sentences[x].Audio = filename
+		sentences[x].NewWords = getWordsAudio(ctx, audioDirPath, sentence.NewWords)
+	}
+	return sentences
+}
 
-		for y, word := range sentence.NewWords {
-			filename, err := fetchAudio(ctx, word.Chinese, audioDirPath, hash(word.Chinese))
+func getWordsAudio(ctx context.Context, audioDirPath string, words []Word) []Word {
+	for y, word := range words {
+		filename, err := fetchAudio(ctx, word.Chinese, audioDirPath, hash(word.Chinese))
+		if err != nil {
+			fmt.Println(err)
+		}
+		words[y].Audio = filename
+
+		for z, ch := range word.NewChars {
+			filename, err := fetchAudio(ctx, ch.Chinese, audioDirPath, hash(ch.Chinese))
 			if err != nil {
 				fmt.Println(err)
 			}
-			word.Audio = filename
-
-			for z, ch := range word.NewChars {
-				filename, err := fetchAudio(ctx, ch.Chinese, audioDirPath, hash(ch.Chinese))
-				if err != nil {
-					fmt.Println(err)
-				}
-				ch.Audio = filename
-				word.NewChars[z] = ch
-			}
-			sentence.NewWords[y] = word
+			ch.Audio = filename
+			words[y].NewChars[z] = ch
 		}
-		sentences[x] = sentence
 	}
-	return sentences
+	return words
 }
 
 func fetchAudio(ctx context.Context, query, audioDir, filename string) (string, error) {
