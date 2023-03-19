@@ -860,11 +860,11 @@ func fetchAudio(ctx context.Context, query, audioDir, filename string) (string, 
 	}
 
 	// The resp's AudioContent is binary.
-	err = ioutil.WriteFile(path, resp.AudioContent, 0644)
+	err = ioutil.WriteFile(path, resp.AudioContent, os.ModeType)
 	if err != nil {
 		return "", err
 	}
-	err = ioutil.WriteFile(globalPath, resp.AudioContent, 0644)
+	err = ioutil.WriteFile(globalPath, resp.AudioContent, os.ModeType)
 	if err != nil {
 		return "", err
 	}
