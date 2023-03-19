@@ -19,16 +19,16 @@ import (
 	"unicode/utf8"
 
 	"cloud.google.com/go/translate"
-	"github.com/fgrimme/zh/internal/cedict"
 	"golang.org/x/text/language"
 	"gopkg.in/yaml.v3"
 
 	texttospeech "cloud.google.com/go/texttospeech/apiv1"
+	"github.com/fbngrm/zh/lib/cedict"
 	texttospeechpb "google.golang.org/genproto/googleapis/cloud/texttospeech/v1"
 )
 
 const idsSrc = "../../lib/cjkvi/ids.txt"
-const cedictSrc = "../../lib/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
+const cedictSrc = "/home/f/work/src/github.com/fbngrm/zh/lib/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
 const wordFrequencySrc = "../../lib/word_frequencies/global_wordfreq.release_UTF-8.txt"
 
 var meta = map[string]struct {
@@ -930,6 +930,9 @@ var tplFuncMap = template.FuncMap{
 	},
 	"join": func(s []string) string {
 		return strings.Join(s, " | ")
+	},
+	"joinWord": func(s []string) string {
+		return strings.Join(s, "")
 	},
 }
 
