@@ -53,9 +53,17 @@ new:
 # reset: reset-ignore reset-files
 
 .PHONY: audio
-out_dir=../../../../data//$(deck)/$(lesson)/audio/concat
-silence=../../../../data/silence_64kb.mp3
+out_dir=./data/$(deck)/$(lesson)/audio/concat
+silence=../../../silence_64kb.mp3
 audio:
 	mkdir -p $(out_dir)
 	cd $(audio_dir); for i in *.mp3; do ffmpeg -i "$$i" -filter:a "atempo=0.85" /tmp/"$${i%.*}_slow.mp3"; done
-	cd $(audio_dir); for i in *.mp3; do ffmpeg -i "concat:$$i|$(silence)|/tmp/$${i%.*}_slow.mp3|$(silence)|$$i|$(silence)|/tmp/$${i%.*}_slow.mp3|$(silence)|$$i|$(silence)|$(silence)" -acodec copy $(out_dir)/"$${i%.*}_concat.mp3"; done
+	cd $(audio_dir); for i in *.mp3; do ffmpeg -i "concat:$$i|$(silence)|/tmp/$${i%.*}_slow.mp3|$(silence)|$$i|$(silence)|/tmp/$${i%.*}_slow.mp3|$(silence)|$$i|$(silence)|$(silence)" -acodec copy ./concat/"$${i%.*}_concat.mp3"; done
+
+.PHONY: mv-audio
+src=./data/$(deck)/$(lesson)/audio/concat
+dst=/home/f/data/rslsync/zh/$(deck)/$(lesson)
+mv-audio:
+	mkdir -p $(dst)
+	cp $(src)/*concat.mp3 $(dst)/
+
