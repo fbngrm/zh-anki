@@ -4,9 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strings"
 )
 
-func load(path string) [][]string {
+func load(path string) []string {
 	file, err := os.Open(path)
 	if err != nil {
 		fmt.Printf("could not open dialogues file: %v", err)
@@ -14,17 +15,19 @@ func load(path string) [][]string {
 	}
 	defer file.Close()
 
-	var lines []string
-	var dialogues [][]string
+	var dialogues []string
+	var dialog string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
 		if line == "---" {
-			dialogues = append(dialogues, lines)
-			lines = []string{}
+			dialogues = append(dialogues, strings.TrimSpace(dialog))
+			dialog = ""
 			continue
 		}
-		lines = append(lines, line)
+		dialog += " "
+		dialog += line
 	}
+	dialogues = append(dialogues, dialog)
 	return dialogues
 }

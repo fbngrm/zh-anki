@@ -13,14 +13,18 @@ import (
 )
 
 type Downloader struct {
-	AudioDir string
+	IgnoreChars []string
+	AudioDir    string
 }
 
 func (p *Downloader) Fetch(ctx context.Context, query, filename string) (string, error) {
+	filename = filename + ".mp3"
+	if contains(p.IgnoreChars, query) {
+		return filename, nil
+	}
 	if err := os.MkdirAll(p.AudioDir, os.ModePerm); err != nil {
 		return "", err
 	}
-	filename = filename + ".mp3"
 	path := filepath.Join(p.AudioDir, filename)
 	globalPath := filepath.Join(p.AudioDir, "..", "..", "..", "audio", filename)
 
@@ -66,11 +70,11 @@ func (p *Downloader) Fetch(ctx context.Context, query, filename string) (string,
 	}
 
 	// The resp's AudioContent is binary.
-	err = ioutil.WriteFile(path, resp.AudioContent, os.ModeType)
+	err = ioutil.WriteFile(path, resp.AudioContent, os.ModePerm)
 	if err != nil {
 		return "", err
 	}
-	err = ioutil.WriteFile(globalPath, resp.AudioContent, os.ModeType)
+	err = ioutil.WriteFile(globalPath, resp.AudioContent, os.ModePerm)
 	if err != nil {
 		return "", err
 	}
@@ -78,4 +82,13 @@ func (p *Downloader) Fetch(ctx context.Context, query, filename string) (string,
 	fmt.Printf("%v\n", query)
 	fmt.Printf("audio content written to file: %v\n", path)
 	return filename, nil
+}
+
+func contains[T comparable](s []T, e T) bool {
+	for _, v := range s {
+		if v == e {
+			return true
+		}
+	}
+	return false
 }

@@ -8,7 +8,9 @@ import (
 	"strings"
 )
 
-const systemMessage = `Add pinyin to the following sentences written in simplified Chinese. Format the result into a JSON object. The original sentence should be stored in a field called chinese, the English translation should be stored in a field called english and the pinyin should be stored in a field called piniyin. Also split each sentence into words and add JSON array with those words in a field called words. Each word should be a JSON object, the original Chinese word is stored in a field called ch, the English translation is stored in a field called en and the pinyin is stored in a field called pi.`
+const dialogSystemMessage = `Add pinyin to the following sentences written in simplified Chinese. Format the result into a JSON object. The original sentence should be stored in a field called chinese, the English translation should be stored in a field called english and the pinyin should be stored in a field called piniyin. Also split each sentence into words and add JSON array with those words in a field called words. Each word should be a JSON object, the original Chinese word is stored in a field called ch, the English translation is stored in a field called en and the pinyin is stored in a field called pi.`
+
+const sentenceSystemMessage = `Add pinyin to the following sentence written in simplified Chinese. Format the result into a JSON object. The original sentence should be stored in a field called chinese, the English translation should be stored in a field called english and the pinyin should be stored in a field called piniyin. Also split the sentence into words and add JSON array with those words in a field called words. Each word should be a JSON object, the original Chinese word is stored in a field called ch, the English translation is stored in a field called en and the pinyin is stored in a field called pi.`
 
 type Message struct {
 	Role    string `json:"role"`
@@ -71,13 +73,33 @@ func NewClient(apiKey string) *Client {
 	}
 }
 
-// dialog := "现在几点了？现在已经十二点了。我们去吃午饭吧？我还有一点儿工作，要㩐一下。没关系，我等你。我们今天吃什么?你想吃什么？前面开了一个新饭店。我们去那个新饭店怎么样？好，新饭店在哪儿？新饭店就在商场旁边。"
+func (c *Client) DecomposeSentence(sentence string) Sentence {
+	messages := []Message{
+		{
+			Role:    "system",
+			Content: dialogSystemMessage,
+		},
+		{
+			Role:    "user",
+			Content: sentence,
+		},
+	}
+
+	content := c.fetch(messages)
+
+	var result Sentence
+	err := json.Unmarshal([]byte(content), &result)
+	if err != nil {
+		log.Printf("Error parsing JSON for input %s: %v", content, err)
+	}
+	return result
+}
 
 func (c *Client) Decompose(dialog string) Decomposition {
 	messages := []Message{
 		{
 			Role:    "system",
-			Content: systemMessage,
+			Content: dialogSystemMessage,
 		},
 		{
 			Role:    "user",
@@ -85,6 +107,28 @@ func (c *Client) Decompose(dialog string) Decomposition {
 		},
 	}
 
+	content := c.fetch(messages)
+
+	if strings.Contains(content, "\"sentences\": [") {
+		var decomp Decomposition
+		err := json.Unmarshal([]byte(content), &decomp)
+		if err != nil {
+			log.Printf("Error parsing JSON for input %s: %v", content, err)
+		}
+		return decomp
+	}
+
+	var sentences []Sentence
+	err := json.Unmarshal([]byte(content), &sentences)
+	if err != nil {
+		log.Printf("Error parsing JSON for input %s: %v", content, err)
+	}
+	return Decomposition{
+		Sentences: sentences,
+	}
+}
+
+func (c *Client) fetch(messages []Message) string {
 	payload := Request{
 		Model:    c.model,
 		Messages: messages,
@@ -125,21 +169,5 @@ func (c *Client) Decompose(dialog string) Decomposition {
 	content = strings.TrimPrefix(result.Choices[0].Message.Content, "json")
 	content = strings.TrimSuffix(content, "```")
 
-	if strings.Contains(content, "\"sentences\": [") {
-		var decomp Decomposition
-		err = json.Unmarshal([]byte(content), &decomp)
-		if err != nil {
-			log.Printf("Error parsing JSON for input %s: %v", content, err)
-		}
-		return decomp
-	}
-
-	var sentences []Sentence
-	err = json.Unmarshal([]byte(content), &sentences)
-	if err != nil {
-		log.Printf("Error parsing JSON for input %s: %v", result.Choices[0].Message.Content, err)
-	}
-	return Decomposition{
-		Sentences: sentences,
-	}
+	return content
 }

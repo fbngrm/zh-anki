@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -12,6 +13,7 @@ import (
 	"github.com/fbngrm/nprc/pkg/char"
 	"github.com/fbngrm/nprc/pkg/dialog"
 	ignore_dict "github.com/fbngrm/nprc/pkg/ignore"
+	"github.com/fbngrm/nprc/pkg/openai"
 	pinyin_dict "github.com/fbngrm/nprc/pkg/pinyin"
 	"github.com/fbngrm/nprc/pkg/sentence"
 	"github.com/fbngrm/nprc/pkg/template"
@@ -23,6 +25,8 @@ import (
 const idsSrc = "../../lib/cjkvi/ids.txt"
 const cedictSrc = "/home/f/work/src/github.com/fbngrm/zh/lib/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
 const wordFrequencySrc = "../../lib/word_frequencies/global_wordfreq.release_UTF-8.txt"
+
+var ignoreChars = []string{"!", "！", "？", "?", "，", ",", ".", "。", "", " "}
 
 var meta = map[string]struct {
 	deckname string
@@ -50,6 +54,11 @@ var path string
 var cedictDict map[string][]cedict.Entry
 
 func main() {
+	apiKey := os.Getenv("OPENAI_API_KEY")
+	if apiKey == "" {
+		log.Fatal("Environment variable OPENAI_API_KEY is not set")
+	}
+
 	flag.StringVar(&lesson, "l", "", "lesson name")
 	flag.StringVar(&deck, "d", "", "dec name [npcr|sc]")
 	flag.Parse()
@@ -77,7 +86,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	ignorePath := filepath.Join(cwd, "data", deck, "ignore")
+	ignorePath := filepath.Join(cwd, "data", "ignore")
 	ignored := ignore_dict.Load(ignorePath)
 
 	pinyinPath := filepath.Join(cwd, "data", "pinyin")
@@ -87,7 +96,8 @@ func main() {
 	translations := translate.Load(translationsPath)
 
 	audioDownloader := audio.Downloader{
-		AudioDir: filepath.Join(cwd, "data", deck, lesson, "audio"),
+		IgnoreChars: ignoreChars,
+		AudioDir:    filepath.Join(cwd, "data", deck, lesson, "audio"),
 	}
 
 	ankiExporter := anki.Exporter{
@@ -100,58 +110,42 @@ func main() {
 	}
 
 	charProcessor := char.Processor{
-		Cedict: cedictDict,
-		Audio:  audioDownloader,
+		IgnoreChars: ignoreChars,
+		Cedict:      cedictDict,
+		Audio:       audioDownloader,
 	}
 	wordProcessor := word.Processor{
-		Cedict: cedictDict,
-		Chars:  charProcessor,
-		Audio:  audioDownloader,
+		Cedict:      cedictDict,
+		Chars:       charProcessor,
+		Audio:       audioDownloader,
+		IgnoreChars: ignoreChars,
 	}
 	sentenceProcessor := sentence.Processor{
-		Words: wordProcessor,
-		Audio: audioDownloader,
+		Client:   openai.NewClient(apiKey),
+		Words:    wordProcessor,
+		Audio:    audioDownloader,
+		Exporter: ankiExporter,
 	}
 	dialogProcessor := dialog.Processor{
+		Client:    openai.NewClient(apiKey),
 		Sentences: sentenceProcessor,
 		Audio:     audioDownloader,
 		Exporter:  ankiExporter,
 	}
 
+	outDir := filepath.Join(cwd, "data", deck, lesson, "output")
+
 	// load dialogues from file
 	dialogPath := filepath.Join(cwd, "data", deck, lesson, "input", "dialogues")
-	dialogues := dialogProcessor.Get(dialogPath, deckname, ignored, pinyin, translations)
+	dialogues := dialogProcessor.Decompose(dialogPath, outDir, deckname, ignored, pinyin, translations)
 
 	// load sentences from file
-	// sentenceInput := loadFile(filepath.Join(cwd, "data", deck, lesson, "input", "sentences"))
-	// sentences := getSentences(ignored, sentenceInput)
-	// sentences = addPinyinToSentences(pinyin, sentences)
-	// sentences = translateNewWordsInSentences(translations, sentences)
-	// sentences = translateAllWordsInSentences(translations, sentences)
-	// sentences = getSentenceAudio(context.Background(), audioDirPath, sentences)
-	// sentencesPath := filepath.Join(cwd, "data", deck, lesson, "output", "sentences.yaml")
-	// writeToFile(sentences, sentencesPath)
-
-	// // load words from file
-	// var newWords []Word
-	// wordLines := loadFile(filepath.Join(cwd, "data", deck, lesson, "input", "words"))
-	// for _, word := range wordLines {
-	// 	_, newWord := getWords(word, ignored)
-	// 	newWords = append(newWords, newWord...)
-	// }
-	// newWords = getWordsAudio(context.Background(), audioDirPath, newWords)
-	// newWords = translateAllWords(translations, newWords)
+	sentencePath := filepath.Join(cwd, "data", deck, lesson, "input", "sentences")
+	sentences := sentenceProcessor.Decompose(sentencePath, outDir, deckname, ignored, pinyin, translations)
 
 	// write cards
-	outPath := filepath.Join(cwd, "data", deck, lesson, "output", "cards.md")
-	_ = os.Remove(outPath)
-	// add dialogs
-	dialogProcessor.Export(dialogues)
-
-	// add from sentence list
-	// writeSentenceCards(sentences, deckname, templatePath, outPath)
-	// add from vocab list
-	// writeWordsCards(newWords, deckname, templatePath, outPath)
+	dialogProcessor.ExportCards(dialogues, outDir)
+	sentenceProcessor.ExportCards(sentences, outDir)
 
 	// write newly ignored words
 	ignored.Write(ignorePath)
@@ -177,4 +171,5 @@ func loadFile(path string) []string {
 		lines = append(lines, line)
 	}
 	return lines
+
 }

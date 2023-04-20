@@ -13,7 +13,12 @@ type Exporter struct {
 	TmplProcessor *template.Processor
 }
 
-func CreateOrAppendAnkiCards(text string, outPath string) {
+func (e *Exporter) CreateOrAppendAnkiCards(a any, termplateName, outPath string) {
+	text, err := e.TmplProcessor.Fill(a, termplateName)
+	if err != nil {
+		fmt.Printf("could not fill template file: %v\n", err)
+		os.Exit(1)
+	}
 	f, err := os.OpenFile(outPath, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
 		fmt.Printf("could not open anki cards file: %v\n", err)
@@ -26,7 +31,7 @@ func CreateOrAppendAnkiCards(text string, outPath string) {
 	}
 }
 
-func WriteYAMLFile(i any, path string) {
+func (e *Exporter) WriteYAMLFile(i any, path string) {
 	data, err := yaml.Marshal(i)
 	if err != nil {
 		fmt.Printf("could not marshal interface: %v", err)

@@ -19,8 +19,8 @@ func load(path string) []string {
 	var sentence string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		line := scanner.Text()
-		if line == "" {
+		sentence = scanner.Text()
+		if sentence == "" {
 			continue
 		}
 		sentences = append(sentences, strings.TrimSpace(sentence))

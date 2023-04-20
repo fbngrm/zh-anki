@@ -9,7 +9,8 @@ gen:
 
 .PHONY: add
 add:
-	apy add-from-file $(data_dir)/output/cards.md
+	# apy add-from-file $(data_dir)/output/cards.md
+	apy add-from-file $(data_dir)/output/sentence_cards.md
 	@printf "Done. Don't forget to sync: make sync\n"
 
 anki_audio_dir="/home/f/.local/share/Anki2/User 1/collection.media/"
@@ -19,7 +20,13 @@ cp-audio:
 	$(shell find . -type f -name '*.mp3' -exec cp {} $(anki_audio_dir) \;)
 
 .PHONY: sync
-sync: gen add cp-audio
+sync:
+	apy check-media
+	apy sync
+	@echo "don't forget to commit ignore file!"
+
+.PHONY: anki
+anki: gen add cp-audio
 	apy check-media
 	apy sync
 	@echo "don't forget to commit ignore file!"

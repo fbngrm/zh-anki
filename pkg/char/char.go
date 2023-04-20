@@ -3,7 +3,7 @@ package char
 import (
 	"context"
 	"fmt"
-	"log"
+	"strings"
 
 	"github.com/fbngrm/nprc/pkg/audio"
 	"github.com/fbngrm/nprc/pkg/hash"
@@ -14,39 +14,30 @@ import (
 
 type Char struct {
 	Chinese      string   `yaml:"chinese"`
-	Pinyin       []string `yaml:"pinyin"`
+	Pinyin       string   `yaml:"pinyin"`
 	English      string   `yaml:"english"`
 	Audio        string   `yaml:"audio"`
 	IsSingleRune bool     `yaml:"isSingleRune"`
+	Components   []string `yaml:"components"`
 }
 
 type Processor struct {
-	Cedict map[string][]cedict.Entry
-	Audio  audio.Downloader
+	IgnoreChars []string
+	Cedict      map[string][]cedict.Entry
+	Audio       audio.Downloader
 }
 
-func (p *Processor) GetAll(word string, t translate.Translations) []Char {
+func (p *Processor) GetAll(ch, en string, t translate.Translations) []Char {
 	allChars := make([]Char, 0)
-	for _, char := range word {
-		entries, _ := p.Cedict[string(char)]
-		readings := make(map[string]struct{})
-		for _, entry := range entries {
-			for _, reading := range entry.Readings {
-				readings[reading] = struct{}{}
-			}
-		}
-		// FIXME: filter redundant readings
-		pinyin := make([]string, 0)
-		for reading := range readings {
-			pinyin = append(pinyin, reading)
-		}
+	for _, char := range ch {
 		allChars = append(allChars, Char{
 			Chinese:      string(char),
-			Pinyin:       pinyin,
+			English:      p.translateChar(ch, en, t),
+			Pinyin:       p.getPinyin(ch),
 			IsSingleRune: true,
 		})
 	}
-	return p.getAudio(translateChars(allChars, t))
+	return p.getAudio(allChars)
 }
 
 func (p *Processor) GetNew(i ignore.Ignored, allChars []Char) []Char {
@@ -61,6 +52,36 @@ func (p *Processor) GetNew(i ignore.Ignored, allChars []Char) []Char {
 	return newChars
 }
 
+// func (p *Processor) getComponents(ch string) string {
+// 	entries, _ := p.Cedict[string(ch)]
+// 	readings := make(map[string]struct{})
+// 	for _, entry := range entries {
+// 		for _, reading := range entry.Readings {
+// 			readings[reading] = struct{}{}
+// 		}
+// 	}
+// 	pinyin := make([]string, 0)
+// 	for reading := range readings {
+// 		pinyin = append(pinyin, reading)
+// 	}
+// 	return strings.Join(pinyin, ", ")
+// }
+
+func (p *Processor) getPinyin(ch string) string {
+	entries, _ := p.Cedict[string(ch)]
+	readings := make(map[string]struct{})
+	for _, entry := range entries {
+		for _, reading := range entry.Readings {
+			readings[reading] = struct{}{}
+		}
+	}
+	pinyin := make([]string, 0)
+	for reading := range readings {
+		pinyin = append(pinyin, reading)
+	}
+	return strings.Join(pinyin, ", ")
+}
+
 func (p *Processor) getAudio(chars []Char) []Char {
 	for y, char := range chars {
 		filename, err := p.Audio.Fetch(context.Background(), char.Chinese, hash.Sha1(char.Chinese))
@@ -72,23 +93,14 @@ func (p *Processor) getAudio(chars []Char) []Char {
 	return chars
 }
 
-func translateChars(chars []Char, t translate.Translations) []Char {
-	for i, char := range chars {
-		chars[i] = translateChar(char, t)
-	}
-	return chars
-}
-
-func translateChar(char Char, t translate.Translations) Char {
-	translation, ok := t[char.Chinese]
+func (p *Processor) translateChar(ch, en string, t translate.Translations) string {
+	translation, ok := t[ch]
 	if !ok {
-		var err error
-		translation, err = translate.Translate("en-US", char.Chinese)
-		if err != nil {
-			log.Fatalf("could not translate word \"%s\": %v", char.Chinese, err)
+		definitions := []string{en}
+		for _, entry := range p.Cedict[ch] {
+			definitions = append(definitions, entry.Definitions...)
 		}
 	}
-	char.English = translation
-	t.Update(char.Chinese, char.English)
-	return char
+	t.Update(ch, translation)
+	return translation
 }
