@@ -15,10 +15,8 @@ import (
 	ignore_dict "github.com/fbngrm/nprc/pkg/ignore"
 	"github.com/fbngrm/nprc/pkg/openai"
 	pinyin_dict "github.com/fbngrm/nprc/pkg/pinyin"
-	"github.com/fbngrm/nprc/pkg/sentence"
 	"github.com/fbngrm/nprc/pkg/template"
 	"github.com/fbngrm/nprc/pkg/translate"
-	"github.com/fbngrm/nprc/pkg/word"
 	"github.com/fbngrm/zh/lib/cedict"
 )
 
@@ -109,28 +107,33 @@ func main() {
 		),
 	}
 
+	cacheDir := filepath.Join(cwd, "data", "cache")
+	cache := dialog.NewCache(cacheDir)
+
 	charProcessor := char.Processor{
 		IgnoreChars: ignoreChars,
 		Cedict:      cedictDict,
 		Audio:       audioDownloader,
 	}
-	wordProcessor := word.Processor{
+	wordProcessor := dialog.WordProcessor{
 		Cedict:      cedictDict,
 		Chars:       charProcessor,
 		Audio:       audioDownloader,
 		IgnoreChars: ignoreChars,
 	}
-	sentenceProcessor := sentence.Processor{
+	sentenceProcessor := dialog.SentenceProcessor{
 		Client:   openai.NewClient(apiKey),
 		Words:    wordProcessor,
 		Audio:    audioDownloader,
 		Exporter: ankiExporter,
+		Cache:    cache,
 	}
-	dialogProcessor := dialog.Processor{
+	dialogProcessor := dialog.DialogProcessor{
 		Client:    openai.NewClient(apiKey),
 		Sentences: sentenceProcessor,
 		Audio:     audioDownloader,
 		Exporter:  ankiExporter,
+		Cache:     cache,
 	}
 
 	outDir := filepath.Join(cwd, "data", deck, lesson, "output")

@@ -1,4 +1,4 @@
-package word
+package dialog
 
 import (
 	"context"
@@ -16,25 +16,14 @@ import (
 	"github.com/fbngrm/zh/lib/cedict"
 )
 
-type Word struct {
-	Chinese      string      `yaml:"chinese"`
-	Traditional  string      `yaml:"traditional"`
-	Pinyin       string      `yaml:"pinyin"`
-	English      string      `yaml:"english"`
-	Audio        string      `yaml:"audio"`
-	NewChars     []char.Char `yaml:"newChars"`
-	AllChars     []char.Char `yaml:"allChars"`
-	IsSingleRune bool        `yaml:"isSingleRune"`
-}
-
-type Processor struct {
+type WordProcessor struct {
 	Cedict      map[string][]cedict.Entry
 	Chars       char.Processor
 	Audio       audio.Downloader
 	IgnoreChars []string
 }
 
-func (p *Processor) GetWords(words []openai.Word, i ignore.Ignored, t translate.Translations) ([]Word, []Word) {
+func (p *WordProcessor) Decompose(words []openai.Word, i ignore.Ignored, t translate.Translations) ([]Word, []Word) {
 	var allWords []Word
 	for _, word := range words {
 		if word.Ch == "" {
@@ -75,7 +64,7 @@ func (p *Processor) GetWords(words []openai.Word, i ignore.Ignored, t translate.
 	return allWords, newWords
 }
 
-func (p *Processor) getAudio(words []Word) []Word {
+func (p *WordProcessor) getAudio(words []Word) []Word {
 	for y, word := range words {
 		filename, err := p.Audio.Fetch(context.Background(), word.Chinese, hash.Sha1(word.Chinese))
 		if err != nil {

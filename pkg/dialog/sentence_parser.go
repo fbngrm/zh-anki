@@ -1,4 +1,4 @@
-package sentence
+package dialog
 
 import (
 	"bufio"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func load(path string) []string {
+func loadSentences(path string) []string {
 	file, err := os.Open(path)
 	if err != nil {
 		fmt.Printf("could not open sentences file: %v", err)

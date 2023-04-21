@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func load(path string) []string {
+func loadDialogues(path string) []string {
 	file, err := os.Open(path)
 	if err != nil {
 		fmt.Printf("could not open dialogues file: %v", err)
