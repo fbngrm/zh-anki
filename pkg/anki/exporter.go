@@ -13,8 +13,8 @@ type Exporter struct {
 	TmplProcessor *template.Processor
 }
 
-func (e *Exporter) CreateOrAppendAnkiCards(a any, termplateName, outPath string) {
-	text, err := e.TmplProcessor.Fill(a, termplateName)
+func (e *Exporter) CreateOrAppendAnkiCards(a any, templateName, outPath string) {
+	text, err := e.TmplProcessor.Fill(a, templateName)
 	if err != nil {
 		fmt.Printf("could not fill template file: %v\n", err)
 		os.Exit(1)

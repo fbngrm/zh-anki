@@ -4,14 +4,18 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"strings"
 	"unicode/utf8"
 
+	"github.com/fbngrm/nprc/pkg/anki"
 	"github.com/fbngrm/nprc/pkg/audio"
 	"github.com/fbngrm/nprc/pkg/char"
 	"github.com/fbngrm/nprc/pkg/hash"
 	"github.com/fbngrm/nprc/pkg/ignore"
 	"github.com/fbngrm/nprc/pkg/openai"
+	"github.com/fbngrm/nprc/pkg/pinyin"
 	"github.com/fbngrm/nprc/pkg/translate"
 	"github.com/fbngrm/zh/lib/cedict"
 )
@@ -21,9 +25,63 @@ type WordProcessor struct {
 	Chars       char.Processor
 	Audio       audio.Downloader
 	IgnoreChars []string
+	Client      *openai.Client
+	Exporter    anki.Exporter
 }
 
-func (p *WordProcessor) Decompose(words []openai.Word, i ignore.Ignored, t translate.Translations) ([]Word, []Word) {
+func (p *WordProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, pinyinDict pinyin.Dict, t translate.Translations) []Word {
+	words := loadWords(path)
+
+	var newWords []Word
+	for _, word := range words {
+		if word == "" {
+			continue
+		}
+		if contains(p.IgnoreChars, word) {
+			continue
+		}
+		if _, ok := i[word]; ok {
+			fmt.Println("word exists: ", word)
+			continue
+		}
+
+		i.Update(word)
+
+		definitions := []string{}
+		for _, entry := range p.Cedict[word] {
+			definitions = append(definitions, entry.Definitions...)
+		}
+
+		allChars := p.Chars.GetAll(word, t)
+		newWords = append(newWords, Word{
+			Chinese:      word,
+			Pinyin:       p.getPinyin(word),
+			English:      strings.ReplaceAll(strings.Join(definitions, ", "), "&#39;", "'"),
+			Audio:        hash.Sha1(word),
+			AllChars:     allChars,
+			NewChars:     p.Chars.GetNew(i, allChars),
+			IsSingleRune: utf8.RuneCountInString(word) == 1,
+		})
+	}
+	return p.getAudio(newWords)
+}
+
+func (p *WordProcessor) getPinyin(ch string) string {
+	entries, _ := p.Cedict[string(ch)]
+	readings := make(map[string]struct{})
+	for _, entry := range entries {
+		for _, reading := range entry.Readings {
+			readings[reading] = struct{}{}
+		}
+	}
+	pinyin := make([]string, 0)
+	for reading := range readings {
+		pinyin = append(pinyin, reading)
+	}
+	return strings.Join(pinyin, ", ")
+}
+
+func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.Translations) ([]Word, []Word) {
 	var allWords []Word
 	for _, word := range words {
 		if word.Ch == "" {
@@ -42,7 +100,7 @@ func (p *WordProcessor) Decompose(words []openai.Word, i ignore.Ignored, t trans
 			Pinyin:       word.Pi,
 			English:      strings.ReplaceAll(strings.Join(definitions, ", "), "&#39;", "'"),
 			Audio:        hash.Sha1(word.Ch),
-			AllChars:     p.Chars.GetAll(word.Ch, word.En, t),
+			AllChars:     p.Chars.GetAll(word.Ch, t),
 			IsSingleRune: utf8.RuneCountInString(word.Ch) == 1,
 		})
 	}
@@ -73,6 +131,12 @@ func (p *WordProcessor) getAudio(words []Word) []Word {
 		words[y].Audio = filename
 	}
 	return words
+}
+
+func (p *WordProcessor) ExportCards(words []Word, outDir string) {
+	os.Mkdir(outDir, os.ModePerm)
+	outPath := filepath.Join(outDir, "cards.md")
+	p.Exporter.CreateOrAppendAnkiCards(words, "words.tmpl", outPath)
 }
 
 func translateWords(words []Word, t translate.Translations) []Word {

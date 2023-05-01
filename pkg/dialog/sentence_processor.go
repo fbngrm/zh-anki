@@ -35,7 +35,7 @@ func (p *SentenceProcessor) Decompose(path, outdir, deckname string, i ignore.Ig
 
 		s := p.Client.DecomposeSentence(sentence)
 
-		allWords, newWords := p.Words.Decompose(s.Words, i, t)
+		allWords, newWords := p.Words.Get(s.Words, i, t)
 		sentence := &Sentence{
 			Chinese:      s.Chinese,
 			English:      s.English,
@@ -54,7 +54,7 @@ func (p *SentenceProcessor) Decompose(path, outdir, deckname string, i ignore.Ig
 func (p *SentenceProcessor) Get(sentences []openai.Sentence, i ignore.Ignored, t translate.Translations) []Sentence {
 	var results []Sentence
 	for _, s := range sentences {
-		allWords, newWords := p.Words.Decompose(s.Words, i, t)
+		allWords, newWords := p.Words.Get(s.Words, i, t)
 		results = append(results, Sentence{
 			Chinese:      s.Chinese,
 			English:      s.English,

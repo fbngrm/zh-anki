@@ -27,12 +27,12 @@ type Processor struct {
 	Audio       audio.Downloader
 }
 
-func (p *Processor) GetAll(ch, en string, t translate.Translations) []Char {
+func (p *Processor) GetAll(ch string, t translate.Translations) []Char {
 	allChars := make([]Char, 0)
 	for _, char := range ch {
 		allChars = append(allChars, Char{
 			Chinese:      string(char),
-			English:      p.translateChar(string(char), en, t),
+			English:      p.translateChar(string(char), t),
 			Pinyin:       p.getPinyin(string(char)),
 			IsSingleRune: true,
 		})
@@ -93,7 +93,7 @@ func (p *Processor) getAudio(chars []Char) []Char {
 	return chars
 }
 
-func (p *Processor) translateChar(ch, en string, t translate.Translations) string {
+func (p *Processor) translateChar(ch string, t translate.Translations) string {
 	translation, ok := t[ch]
 	if !ok {
 		definitions := []string{}
