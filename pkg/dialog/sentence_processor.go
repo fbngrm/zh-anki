@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"unicode/utf8"
 
 	"github.com/fbngrm/nprc/pkg/anki"
@@ -21,18 +22,14 @@ type SentenceProcessor struct {
 	Words    WordProcessor
 	Audio    audio.Downloader
 	Exporter anki.Exporter
-	Cache    *Cache
 }
 
 func (p *SentenceProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, pinyinDict pinyin.Dict, t translate.Translations) []Sentence {
 	sentences := loadSentences(path)
 
 	var results []Sentence
-	for y, sentence := range sentences {
-		if s, ok := p.Cache.lookupSentence(sentence); ok {
-			results = append(results, *s)
-			continue
-		}
+	for _, sentence := range sentences {
+		sentence = strings.ReplaceAll(sentence, " ", "")
 		fmt.Println("decompose sentence:")
 		fmt.Println(sentence)
 
@@ -49,8 +46,7 @@ func (p *SentenceProcessor) Decompose(path, outdir, deckname string, i ignore.Ig
 			IsSingleRune: utf8.RuneCountInString(s.Chinese) == 1,
 		}
 		results = append(results, *sentence)
-		p.Cache.AddSentence(sentence)
-		p.ExportSentence(*sentence, outdir, fmt.Sprintf("sentence_%02d.yaml", y+1))
+
 	}
 	return p.getAudio(results)
 }
@@ -84,15 +80,7 @@ func (p *SentenceProcessor) getAudio(sentences []Sentence) []Sentence {
 }
 
 func (p *SentenceProcessor) ExportCards(sentences []Sentence, outDir string) {
-	os.Mkdir(outDir, os.FileMode(0522))
-	outPath := filepath.Join(outDir, "sentence_cards.md")
-	_ = os.Remove(outPath)
+	os.Mkdir(outDir, os.ModePerm)
+	outPath := filepath.Join(outDir, "cards.md")
 	p.Exporter.CreateOrAppendAnkiCards(sentences, "sentences.tmpl", outPath)
-}
-
-func (p *SentenceProcessor) ExportSentence(sentence Sentence, outdir, filename string) {
-	os.Mkdir(outdir, os.FileMode(0522))
-	outpath := filepath.Join(outdir, filename)
-	_ = os.Remove(outpath)
-	p.Exporter.WriteYAMLFile(sentence, outpath)
 }

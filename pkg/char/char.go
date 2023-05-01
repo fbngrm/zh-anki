@@ -32,8 +32,8 @@ func (p *Processor) GetAll(ch, en string, t translate.Translations) []Char {
 	for _, char := range ch {
 		allChars = append(allChars, Char{
 			Chinese:      string(char),
-			English:      p.translateChar(ch, en, t),
-			Pinyin:       p.getPinyin(ch),
+			English:      p.translateChar(string(char), en, t),
+			Pinyin:       p.getPinyin(string(char)),
 			IsSingleRune: true,
 		})
 	}
@@ -96,10 +96,11 @@ func (p *Processor) getAudio(chars []Char) []Char {
 func (p *Processor) translateChar(ch, en string, t translate.Translations) string {
 	translation, ok := t[ch]
 	if !ok {
-		definitions := []string{en}
+		definitions := []string{}
 		for _, entry := range p.Cedict[ch] {
 			definitions = append(definitions, entry.Definitions...)
 		}
+		translation = strings.Join(definitions, ", ")
 	}
 	t.Update(ch, translation)
 	return translation

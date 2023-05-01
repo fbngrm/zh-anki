@@ -3,9 +3,12 @@ package openai
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/fbngrm/nprc/pkg/hash"
 )
 
 const dialogSystemMessage = `Add pinyin to the following sentences written in simplified Chinese. Format the result into a JSON object. The original sentence should be stored in a field called chinese, the English translation should be stored in a field called english and the pinyin should be stored in a field called piniyin. Also split each sentence into words and add JSON array with those words in a field called words. Each word should be a JSON object, the original Chinese word is stored in a field called ch, the English translation is stored in a field called en and the pinyin is stored in a field called pi.`
@@ -63,57 +66,37 @@ type Client struct {
 	endpoint string
 	apiKey   string
 	model    string
+	cache    *Cache
 }
 
-func NewClient(apiKey string) *Client {
+func NewClient(apiKey string, cache *Cache) *Client {
 	return &Client{
 		endpoint: "https://api.openai.com/v1/chat/completions",
 		apiKey:   apiKey,
 		model:    "gpt-3.5-turbo",
+		cache:    cache,
 	}
 }
 
 func (c *Client) DecomposeSentence(sentence string) Sentence {
-	messages := []Message{
-		{
-			Role:    "system",
-			Content: dialogSystemMessage,
-		},
-		{
-			Role:    "user",
-			Content: sentence,
-		},
-	}
-
-	content := c.fetch(messages)
+	content := c.fetch(sentence)
 
 	var result Sentence
 	err := json.Unmarshal([]byte(content), &result)
 	if err != nil {
-		log.Printf("Error parsing JSON for input %s: %v", content, err)
+		log.Printf("Error parsing JSON for sentences input %s: %v", content, err)
 	}
 	return result
 }
 
 func (c *Client) Decompose(dialog string) Decomposition {
-	messages := []Message{
-		{
-			Role:    "system",
-			Content: dialogSystemMessage,
-		},
-		{
-			Role:    "user",
-			Content: dialog,
-		},
-	}
-
-	content := c.fetch(messages)
+	content := c.fetch(dialog)
 
 	if strings.Contains(content, "\"sentences\": [") {
 		var decomp Decomposition
 		err := json.Unmarshal([]byte(content), &decomp)
 		if err != nil {
-			log.Printf("Error parsing JSON for input %s: %v", content, err)
+			log.Printf("Error parsing JSON sentences for dialog input %s: %v", content, err)
 		}
 		return decomp
 	}
@@ -121,14 +104,31 @@ func (c *Client) Decompose(dialog string) Decomposition {
 	var sentences []Sentence
 	err := json.Unmarshal([]byte(content), &sentences)
 	if err != nil {
-		log.Printf("Error parsing JSON for input %s: %v", content, err)
+		log.Printf("Error parsing JSON for dialog input %s: %v", content, err)
 	}
 	return Decomposition{
 		Sentences: sentences,
 	}
 }
 
-func (c *Client) fetch(messages []Message) string {
+func (c *Client) fetch(query string) string {
+	fmt.Println("lookup query: ", query)
+	if content, ok := c.cache.Lookup(query); ok {
+		fmt.Println("found file in cache: ", hash.Sha1(query))
+		return content
+	}
+	fmt.Println("did not find file in cache: ", hash.Sha1(query))
+
+	messages := []Message{
+		{
+			Role:    "system",
+			Content: dialogSystemMessage,
+		},
+		{
+			Role:    "user",
+			Content: query,
+		},
+	}
 	payload := Request{
 		Model:    c.model,
 		Messages: messages,
@@ -168,6 +168,8 @@ func (c *Client) fetch(messages []Message) string {
 	content := strings.TrimPrefix(result.Choices[0].Message.Content, "```")
 	content = strings.TrimPrefix(result.Choices[0].Message.Content, "json")
 	content = strings.TrimSuffix(content, "```")
+
+	c.cache.Add(query, content)
 
 	return content
 }

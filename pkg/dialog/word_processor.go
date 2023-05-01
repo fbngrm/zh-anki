@@ -40,7 +40,7 @@ func (p *WordProcessor) Decompose(words []openai.Word, i ignore.Ignored, t trans
 		allWords = append(allWords, Word{
 			Chinese:      word.Ch,
 			Pinyin:       word.Pi,
-			English:      strings.Join(definitions, ", "),
+			English:      strings.ReplaceAll(strings.Join(definitions, ", "), "&#39;", "'"),
 			Audio:        hash.Sha1(word.Ch),
 			AllChars:     p.Chars.GetAll(word.Ch, word.En, t),
 			IsSingleRune: utf8.RuneCountInString(word.Ch) == 1,

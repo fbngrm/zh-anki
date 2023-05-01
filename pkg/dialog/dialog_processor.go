@@ -20,20 +20,13 @@ type DialogProcessor struct {
 	Sentences SentenceProcessor
 	Audio     audio.Downloader
 	Exporter  anki.Exporter
-	Cache     *Cache
 }
 
 func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, pinyinDict pinyin.Dict, t translate.Translations) []*Dialog {
 	dialogues := loadDialogues(path)
 
 	var results []*Dialog
-	for y, dialog := range dialogues {
-		if d, ok := p.Cache.lookupDialog(dialog); ok {
-			p.fetchAudio(d)
-			results = append(results, d)
-			continue
-		}
-
+	for _, dialog := range dialogues {
 		decompositon := p.Client.Decompose(dialog)
 		pinyin := ""
 		english := ""
@@ -51,8 +44,6 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Igno
 			Audio:     hash.Sha1(dialog),
 			Sentences: p.Sentences.Get(decompositon.Sentences, i, t),
 		}
-		p.ExportDialog(d, outdir, fmt.Sprintf("dialog_%02d.yaml", y+1))
-		p.Cache.AddDialog(d)
 		p.fetchAudio(d)
 		results = append(results, d)
 	}
@@ -70,15 +61,7 @@ func (p *DialogProcessor) fetchAudio(d *Dialog) {
 }
 
 func (p *DialogProcessor) ExportCards(dialogues []*Dialog, outdir string) {
-	os.Mkdir(outdir, os.FileMode(0522))
+	os.Mkdir(outdir, os.ModePerm)
 	outpath := filepath.Join(outdir, "cards.md")
-	_ = os.Remove(outpath)
 	p.Exporter.CreateOrAppendAnkiCards(dialogues, "dialog.tmpl", outpath)
-}
-
-func (p *DialogProcessor) ExportDialog(dialog *Dialog, outdir, filename string) {
-	os.Mkdir(outdir, os.FileMode(0522))
-	outpath := filepath.Join(outdir, filename)
-	_ = os.Remove(outpath)
-	p.Exporter.WriteYAMLFile(dialog, outpath)
 }
