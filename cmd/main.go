@@ -125,6 +125,7 @@ func main() {
 		Chars:       charProcessor,
 		Audio:       audioDownloader,
 		IgnoreChars: ignoreChars,
+		Exporter:    ankiExporter,
 	}
 	sentenceProcessor := dialog.SentenceProcessor{
 		Client:   openai.NewClient(apiKey, cache),
@@ -140,19 +141,27 @@ func main() {
 	}
 
 	outDir := filepath.Join(cwd, "data", deck, lesson, "output")
+	_ = os.Remove(outDir)
 
 	// load dialogues from file
 	dialogPath := filepath.Join(cwd, "data", deck, lesson, "input", "dialogues")
-	dialogues := dialogProcessor.Decompose(dialogPath, outDir, deckname, ignored, pinyin, translations)
+	if _, err := os.Stat(dialogPath); err == nil {
+		dialogues := dialogProcessor.Decompose(dialogPath, outDir, deckname, ignored, pinyin, translations)
+		dialogProcessor.ExportCards(dialogues, outDir)
+	}
 
 	// load sentences from file
 	sentencePath := filepath.Join(cwd, "data", deck, lesson, "input", "sentences")
-	sentences := sentenceProcessor.Decompose(sentencePath, outDir, deckname, ignored, pinyin, translations)
+	if _, err := os.Stat(sentencePath); err == nil {
+		sentences := sentenceProcessor.Decompose(sentencePath, outDir, deckname, ignored, pinyin, translations)
+		sentenceProcessor.ExportCards(sentences, outDir)
+	}
 
-	// write cards
-	_ = os.Remove(outDir)
-	dialogProcessor.ExportCards(dialogues, outDir)
-	sentenceProcessor.ExportCards(sentences, outDir)
+	wordPath := filepath.Join(cwd, "data", deck, lesson, "input", "words")
+	if _, err := os.Stat(wordPath); err == nil {
+		words := wordProcessor.Decompose(wordPath, outDir, deckname, ignored, pinyin, translations)
+		wordProcessor.ExportCards(words, outDir)
+	}
 
 	// write newly ignored words
 	ignored.Write(ignorePath)
