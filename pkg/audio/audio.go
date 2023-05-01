@@ -29,11 +29,9 @@ func (p *Downloader) Fetch(ctx context.Context, query, filename string) (string,
 	globalPath := filepath.Join(p.AudioDir, "..", "..", "..", "audio", filename)
 
 	if _, err := os.Stat(path); err == nil {
-		fmt.Printf("audio file exists: %s\n", path)
 		return filename, nil
 	}
 	if _, err := os.Stat(globalPath); err == nil {
-		fmt.Printf("audio file exists: %s\n", globalPath)
 		return filename, nil
 	}
 
