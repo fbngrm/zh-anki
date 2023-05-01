@@ -10,7 +10,6 @@ gen:
 .PHONY: add
 add:
 	apy add-from-file $(data_dir)/output/cards.md
-	apy add-from-file $(data_dir)/output/sentence_cards.md
 	@printf "Done. Don't forget to sync: make sync\n"
 
 anki_audio_dir="/home/f/.local/share/Anki2/User 1/collection.media/"

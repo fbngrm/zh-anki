@@ -41,6 +41,11 @@ var meta = map[string]struct {
 		tags:     []string{"hsk2"},
 		path:     "super-chinese_02",
 	},
+	"var": {
+		deckname: "var",
+		tags:     []string{"daily-life"},
+		path:     "var",
+	},
 }
 
 var lesson string
@@ -108,7 +113,7 @@ func main() {
 	}
 
 	cacheDir := filepath.Join(cwd, "data", "cache")
-	cache := dialog.NewCache(cacheDir)
+	cache := openai.NewCache(cacheDir, &ankiExporter)
 
 	charProcessor := char.Processor{
 		IgnoreChars: ignoreChars,
@@ -122,18 +127,16 @@ func main() {
 		IgnoreChars: ignoreChars,
 	}
 	sentenceProcessor := dialog.SentenceProcessor{
-		Client:   openai.NewClient(apiKey),
+		Client:   openai.NewClient(apiKey, cache),
 		Words:    wordProcessor,
 		Audio:    audioDownloader,
 		Exporter: ankiExporter,
-		Cache:    cache,
 	}
 	dialogProcessor := dialog.DialogProcessor{
-		Client:    openai.NewClient(apiKey),
+		Client:    openai.NewClient(apiKey, cache),
 		Sentences: sentenceProcessor,
 		Audio:     audioDownloader,
 		Exporter:  ankiExporter,
-		Cache:     cache,
 	}
 
 	outDir := filepath.Join(cwd, "data", deck, lesson, "output")
@@ -147,6 +150,7 @@ func main() {
 	sentences := sentenceProcessor.Decompose(sentencePath, outDir, deckname, ignored, pinyin, translations)
 
 	// write cards
+	_ = os.Remove(outDir)
 	dialogProcessor.ExportCards(dialogues, outDir)
 	sentenceProcessor.ExportCards(sentences, outDir)
 
