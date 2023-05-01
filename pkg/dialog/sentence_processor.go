@@ -33,7 +33,11 @@ func (p *SentenceProcessor) Decompose(path, outdir, deckname string, i ignore.Ig
 		fmt.Println("decompose sentence:")
 		fmt.Println(sentence)
 
-		s := p.Client.DecomposeSentence(sentence)
+		s, err := p.Client.DecomposeSentence(sentence)
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
 
 		allWords, newWords := p.Words.Get(s.Words, i, t)
 		sentence := &Sentence{

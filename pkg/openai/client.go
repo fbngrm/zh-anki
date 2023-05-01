@@ -78,27 +78,27 @@ func NewClient(apiKey string, cache *Cache) *Client {
 	}
 }
 
-func (c *Client) DecomposeSentence(sentence string) Sentence {
+func (c *Client) DecomposeSentence(sentence string) (*Sentence, error) {
 	content := c.fetch(sentence)
 
-	var result Sentence
-	err := json.Unmarshal([]byte(content), &result)
+	var result *Sentence
+	err := json.Unmarshal([]byte(content), result)
 	if err != nil {
-		log.Printf("Error parsing JSON for sentences input %s: %v", content, err)
+		return nil, fmt.Errorf("Error parsing JSON for sentences input %s: %v", content, err)
 	}
-	return result
+	return result, nil
 }
 
-func (c *Client) Decompose(dialog string) Decomposition {
+func (c *Client) Decompose(dialog string) (*Decomposition, error) {
 	content := c.fetch(dialog)
 
 	if strings.Contains(content, "\"sentences\": [") {
-		var decomp Decomposition
-		err := json.Unmarshal([]byte(content), &decomp)
+		var decomp *Decomposition
+		err := json.Unmarshal([]byte(content), decomp)
 		if err != nil {
-			log.Printf("Error parsing JSON sentences for dialog input %s: %v", content, err)
+			return nil, fmt.Errorf("Error parsing JSON sentences for dialog input %s: %v", content, err)
 		}
-		return decomp
+		return decomp, nil
 	}
 
 	var sentences []Sentence
@@ -106,9 +106,9 @@ func (c *Client) Decompose(dialog string) Decomposition {
 	if err != nil {
 		log.Printf("Error parsing JSON for dialog input %s: %v", content, err)
 	}
-	return Decomposition{
+	return &Decomposition{
 		Sentences: sentences,
-	}
+	}, nil
 }
 
 func (c *Client) fetch(query string) string {

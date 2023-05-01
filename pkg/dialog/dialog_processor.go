@@ -27,7 +27,11 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Igno
 
 	var results []*Dialog
 	for _, dialog := range dialogues {
-		decompositon := p.Client.Decompose(dialog)
+		decompositon, err := p.Client.Decompose(dialog)
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
+		}
 		pinyin := ""
 		english := ""
 		for _, s := range decompositon.Sentences {
