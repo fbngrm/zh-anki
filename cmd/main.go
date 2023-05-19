@@ -8,21 +8,20 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/fbngrm/nprc/pkg/anki"
-	"github.com/fbngrm/nprc/pkg/audio"
-	"github.com/fbngrm/nprc/pkg/char"
-	"github.com/fbngrm/nprc/pkg/dialog"
-	ignore_dict "github.com/fbngrm/nprc/pkg/ignore"
-	"github.com/fbngrm/nprc/pkg/openai"
-	pinyin_dict "github.com/fbngrm/nprc/pkg/pinyin"
-	"github.com/fbngrm/nprc/pkg/template"
-	"github.com/fbngrm/nprc/pkg/translate"
+	"github.com/fbngrm/zh-anki/pkg/anki"
+	"github.com/fbngrm/zh-anki/pkg/audio"
+	"github.com/fbngrm/zh-anki/pkg/char"
+	"github.com/fbngrm/zh-anki/pkg/decomposition"
+	"github.com/fbngrm/zh-anki/pkg/dialog"
+	ignore_dict "github.com/fbngrm/zh-anki/pkg/ignore"
+	"github.com/fbngrm/zh-anki/pkg/openai"
+	pinyin_dict "github.com/fbngrm/zh-anki/pkg/pinyin"
+	"github.com/fbngrm/zh-anki/pkg/template"
+	"github.com/fbngrm/zh-anki/pkg/translate"
 	"github.com/fbngrm/zh/lib/cedict"
 )
 
-const idsSrc = "../../lib/cjkvi/ids.txt"
 const cedictSrc = "/home/f/work/src/github.com/fbngrm/zh/lib/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
-const wordFrequencySrc = "../../lib/word_frequencies/global_wordfreq.release_UTF-8.txt"
 
 var ignoreChars = []string{"!", "！", "？", "?", "，", ",", ".", "。", "", " "}
 
@@ -45,6 +44,11 @@ var meta = map[string]struct {
 		deckname: "var",
 		tags:     []string{"daily-life"},
 		path:     "var",
+	},
+	"tandem": {
+		deckname: "tandem",
+		tags:     []string{"tandem, daily-life"},
+		path:     "tandem",
 	},
 }
 
@@ -114,6 +118,7 @@ func main() {
 
 	cacheDir := filepath.Join(cwd, "data", "cache")
 	cache := openai.NewCache(cacheDir, &ankiExporter)
+	decomposer := decomposition.NewDecomposer()
 
 	charProcessor := char.Processor{
 		IgnoreChars: ignoreChars,
@@ -126,6 +131,7 @@ func main() {
 		Audio:       audioDownloader,
 		IgnoreChars: ignoreChars,
 		Exporter:    ankiExporter,
+		Decomposer:  decomposer,
 	}
 	sentenceProcessor := dialog.SentenceProcessor{
 		Client:   openai.NewClient(apiKey, cache),

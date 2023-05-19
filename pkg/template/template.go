@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"strings"
 
-	"github.com/fbngrm/nprc/pkg/hash"
+	"github.com/fbngrm/zh-anki/pkg/hash"
 )
 
 type Processor struct {

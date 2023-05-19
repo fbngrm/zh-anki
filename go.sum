@@ -24,8 +24,8 @@ github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1m
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/fatih/structs v1.1.0 h1:Q7juDM0QtcnhCpeyLGQKyg4TOIghuNXrkL32pHAUMxo=
 github.com/fatih/structs v1.1.0/go.mod h1:9NiDSp5zOcgEDl+j00MP/WkGVPOlPRLejGD8Ga6PJ7M=
-github.com/fbngrm/zh v1.0.0 h1:Np0P9OaayHSR8QIEfk0bOBAC+ueja3pNVcUSCBiACto=
-github.com/fbngrm/zh v1.0.0/go.mod h1:oUFCKZb2L56svPaND2+JiYrR/RmVTV5bckdSkZGxUgU=
+github.com/fbngrm/zh v1.0.4 h1:eIRLwydYrhwUA92w3tv8ROof7rs5KpCZj/TrDGPcMJI=
+github.com/fbngrm/zh v1.0.4/go.mod h1:oUFCKZb2L56svPaND2+JiYrR/RmVTV5bckdSkZGxUgU=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
 github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e h1:1r7pUrabqp18hOBcwBwiTsbnFeTZHV9eER/QT5JVZxY=
 github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e/go.mod h1:cIg4eruTrX1D+g88fzRXU5OdNfaM+9IcxsU14FzY7Hc=

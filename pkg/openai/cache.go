@@ -7,8 +7,8 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/fbngrm/nprc/pkg/anki"
-	"github.com/fbngrm/nprc/pkg/hash"
+	"github.com/fbngrm/zh-anki/pkg/anki"
+	"github.com/fbngrm/zh-anki/pkg/hash"
 )
 
 type Cache struct {

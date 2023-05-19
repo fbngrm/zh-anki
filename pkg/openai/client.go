@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/fbngrm/nprc/pkg/hash"
+	"github.com/fbngrm/zh-anki/pkg/hash"
 )
 
 const dialogSystemMessage = `Add pinyin to the following sentences written in simplified Chinese. Format the result into a JSON object. The original sentence should be stored in a field called chinese, the English translation should be stored in a field called english and the pinyin should be stored in a field called piniyin. Also split each sentence into words and add JSON array with those words in a field called words. Each word should be a JSON object, the original Chinese word is stored in a field called ch, the English translation is stored in a field called en and the pinyin is stored in a field called pi.`
@@ -81,24 +81,24 @@ func NewClient(apiKey string, cache *Cache) *Client {
 func (c *Client) DecomposeSentence(sentence string) (*Sentence, error) {
 	content := c.fetch(sentence)
 
-	var result *Sentence
-	err := json.Unmarshal([]byte(content), result)
+	var result Sentence
+	err := json.Unmarshal([]byte(content), &result)
 	if err != nil {
 		return nil, fmt.Errorf("Error parsing JSON for sentences input %s: %v", content, err)
 	}
-	return result, nil
+	return &result, nil
 }
 
 func (c *Client) Decompose(dialog string) (*Decomposition, error) {
 	content := c.fetch(dialog)
 
 	if strings.Contains(content, "\"sentences\": [") {
-		var decomp *Decomposition
-		err := json.Unmarshal([]byte(content), decomp)
+		var decomp Decomposition
+		err := json.Unmarshal([]byte(content), &decomp)
 		if err != nil {
 			return nil, fmt.Errorf("Error parsing JSON sentences for dialog input %s: %v", content, err)
 		}
-		return decomp, nil
+		return &decomp, nil
 	}
 
 	var sentences []Sentence

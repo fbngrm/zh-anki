@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fbngrm/nprc/pkg/template"
+	"github.com/fbngrm/zh-anki/pkg/template"
 	"gopkg.in/yaml.v2"
 )
 

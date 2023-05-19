@@ -9,14 +9,15 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/fbngrm/nprc/pkg/anki"
-	"github.com/fbngrm/nprc/pkg/audio"
-	"github.com/fbngrm/nprc/pkg/char"
-	"github.com/fbngrm/nprc/pkg/hash"
-	"github.com/fbngrm/nprc/pkg/ignore"
-	"github.com/fbngrm/nprc/pkg/openai"
-	"github.com/fbngrm/nprc/pkg/pinyin"
-	"github.com/fbngrm/nprc/pkg/translate"
+	"github.com/fbngrm/zh-anki/pkg/anki"
+	"github.com/fbngrm/zh-anki/pkg/audio"
+	"github.com/fbngrm/zh-anki/pkg/char"
+	"github.com/fbngrm/zh-anki/pkg/decomposition"
+	"github.com/fbngrm/zh-anki/pkg/hash"
+	"github.com/fbngrm/zh-anki/pkg/ignore"
+	"github.com/fbngrm/zh-anki/pkg/openai"
+	"github.com/fbngrm/zh-anki/pkg/pinyin"
+	"github.com/fbngrm/zh-anki/pkg/translate"
 	"github.com/fbngrm/zh/lib/cedict"
 )
 
@@ -27,6 +28,7 @@ type WordProcessor struct {
 	IgnoreChars []string
 	Client      *openai.Client
 	Exporter    anki.Exporter
+	Decomposer  *decomposition.Decomposer
 }
 
 func (p *WordProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, pinyinDict pinyin.Dict, t translate.Translations) []Word {
@@ -37,6 +39,9 @@ func (p *WordProcessor) Decompose(path, outdir, deckname string, i ignore.Ignore
 		if word == "" {
 			continue
 		}
+
+		p.Decomposer.Decompose(word)
+
 		if contains(p.IgnoreChars, word) {
 			continue
 		}

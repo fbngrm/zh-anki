@@ -1,6 +1,6 @@
 package dialog
 
-import "github.com/fbngrm/nprc/pkg/char"
+import "github.com/fbngrm/zh-anki/pkg/char"
 
 type Word struct {
 	Chinese      string      `yaml:"chinese"`

@@ -8,13 +8,13 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/fbngrm/nprc/pkg/anki"
-	"github.com/fbngrm/nprc/pkg/audio"
-	"github.com/fbngrm/nprc/pkg/hash"
-	"github.com/fbngrm/nprc/pkg/ignore"
-	"github.com/fbngrm/nprc/pkg/openai"
-	"github.com/fbngrm/nprc/pkg/pinyin"
-	"github.com/fbngrm/nprc/pkg/translate"
+	"github.com/fbngrm/zh-anki/pkg/anki"
+	"github.com/fbngrm/zh-anki/pkg/audio"
+	"github.com/fbngrm/zh-anki/pkg/hash"
+	"github.com/fbngrm/zh-anki/pkg/ignore"
+	"github.com/fbngrm/zh-anki/pkg/openai"
+	"github.com/fbngrm/zh-anki/pkg/pinyin"
+	"github.com/fbngrm/zh-anki/pkg/translate"
 )
 
 type SentenceProcessor struct {
