@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"flag"
 	"fmt"
 	"log"
@@ -11,6 +10,7 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/anki"
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/char"
+	"github.com/fbngrm/zh-anki/pkg/component"
 	"github.com/fbngrm/zh-anki/pkg/decomposition"
 	"github.com/fbngrm/zh-anki/pkg/dialog"
 	ignore_dict "github.com/fbngrm/zh-anki/pkg/ignore"
@@ -44,11 +44,6 @@ var meta = map[string]struct {
 		deckname: "var",
 		tags:     []string{"daily-life"},
 		path:     "var",
-	},
-	"tandem": {
-		deckname: "tandem",
-		tags:     []string{"tandem, daily-life"},
-		path:     "tandem",
 	},
 }
 
@@ -120,10 +115,14 @@ func main() {
 	cache := openai.NewCache(cacheDir, &ankiExporter)
 	decomposer := decomposition.NewDecomposer()
 
+	componentProcessor := component.Processor{
+		Decomposer: decomposer,
+	}
 	charProcessor := char.Processor{
 		IgnoreChars: ignoreChars,
 		Cedict:      cedictDict,
 		Audio:       audioDownloader,
+		Components:  componentProcessor,
 	}
 	wordProcessor := dialog.WordProcessor{
 		Cedict:      cedictDict,
@@ -131,7 +130,7 @@ func main() {
 		Audio:       audioDownloader,
 		IgnoreChars: ignoreChars,
 		Exporter:    ankiExporter,
-		Decomposer:  decomposer,
+		Components:  componentProcessor,
 	}
 	sentenceProcessor := dialog.SentenceProcessor{
 		Client:   openai.NewClient(apiKey, cache),
@@ -173,25 +172,4 @@ func main() {
 	ignored.Write(ignorePath)
 	// write translations(translations, translationsPath)
 	pinyin.Write(pinyinPath)
-}
-
-func loadFile(path string) []string {
-	file, err := os.Open(path)
-	if err != nil {
-		fmt.Printf("could not open vocab file: %v", err)
-		os.Exit(1)
-	}
-	defer file.Close()
-
-	var lines []string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := scanner.Text()
-		if line == "" {
-			continue
-		}
-		lines = append(lines, line)
-	}
-	return lines
-
 }
