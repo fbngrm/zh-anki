@@ -1,6 +1,8 @@
 package dialog
 
-import "github.com/fbngrm/zh-anki/pkg/char"
+import (
+	"github.com/fbngrm/zh-anki/pkg/char"
+)
 
 type Word struct {
 	Chinese      string      `yaml:"chinese"`
@@ -11,4 +13,8 @@ type Word struct {
 	NewChars     []char.Char `yaml:"newChars"`
 	AllChars     []char.Char `yaml:"allChars"`
 	IsSingleRune bool        `yaml:"isSingleRune"`
+	Components   []string    `yaml:"components"`
+	Kangxi       []string    `yaml:"kangxi"`
+	Equivalents  string      `yaml:"equivalents"`
+	Example      string      `yaml:"example"`
 }

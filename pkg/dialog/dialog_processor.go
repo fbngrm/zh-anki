@@ -11,7 +11,6 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
-	"github.com/fbngrm/zh-anki/pkg/pinyin"
 	"github.com/fbngrm/zh-anki/pkg/translate"
 )
 
@@ -22,7 +21,7 @@ type DialogProcessor struct {
 	Exporter  anki.Exporter
 }
 
-func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, pinyinDict pinyin.Dict, t translate.Translations) []*Dialog {
+func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, t translate.Translations) []*Dialog {
 	dialogues := loadDialogues(path)
 
 	var results []*Dialog

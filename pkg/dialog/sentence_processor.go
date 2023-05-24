@@ -13,7 +13,6 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
-	"github.com/fbngrm/zh-anki/pkg/pinyin"
 	"github.com/fbngrm/zh-anki/pkg/translate"
 )
 
@@ -24,7 +23,7 @@ type SentenceProcessor struct {
 	Exporter anki.Exporter
 }
 
-func (p *SentenceProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, pinyinDict pinyin.Dict, t translate.Translations) []Sentence {
+func (p *SentenceProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, t translate.Translations) []Sentence {
 	sentences := loadSentences(path)
 
 	var results []Sentence

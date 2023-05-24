@@ -18,10 +18,30 @@ tags: {{ tags }}
 ## Audio
 {{ audio .Chinese }}
 ## Components
+{{ if .IsSingleRune }}
+Components:
+{{ range .Components }}
+{{ . }}
+<br/>
+{{ end }}
+## Kangxi
+Kangxi:
+{{ range .Kangxi }}
+{{ . }}
+<br/>
+{{ end }}
+## Equivalents
+Equivalents: {{ .Equivalents }}
+## Traditional
+Traditional: {{ .Traditional }}
+## Examples
+Examples: {{.Example}}
+{{ else }}
 {{ range .AllChars }}
 {{ removeSpaces .Chinese }}: {{ .English }}
 {{ end }}
-## Examples
-
+## Traditional
+Traditional: {{ .Traditional }}
+{{ end }}
 {{ template "chars.tmpl" .NewChars }}
 {{ end }}

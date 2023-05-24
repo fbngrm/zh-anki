@@ -35,7 +35,7 @@ func (p *Downloader) Fetch(ctx context.Context, query, filename string) (string,
 		return filename, nil
 	}
 
-	time.Sleep(1 * time.Second)
+	time.Sleep(100 * time.Millisecond)
 	client, err := texttospeech.NewClient(ctx)
 	if err != nil {
 		return "", err

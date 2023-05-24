@@ -16,7 +16,6 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
-	"github.com/fbngrm/zh-anki/pkg/pinyin"
 	"github.com/fbngrm/zh-anki/pkg/translate"
 	"github.com/fbngrm/zh/lib/cedict"
 )
@@ -31,7 +30,8 @@ type WordProcessor struct {
 	Decomposer  *decomposition.Decomposer
 }
 
-func (p *WordProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, pinyinDict pinyin.Dict, t translate.Translations) []Word {
+// used for simple words lists that need to lookup pinyin and translation in cedict.
+func (p *WordProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, t translate.Translations) []Word {
 	words := loadWords(path)
 
 	var newWords []Word
@@ -39,8 +39,6 @@ func (p *WordProcessor) Decompose(path, outdir, deckname string, i ignore.Ignore
 		if word == "" {
 			continue
 		}
-
-		p.Decomposer.Decompose(word)
 
 		if contains(p.IgnoreChars, word) {
 			continue
@@ -50,6 +48,8 @@ func (p *WordProcessor) Decompose(path, outdir, deckname string, i ignore.Ignore
 			continue
 		}
 
+		hanzi := p.Decomposer.Decompose(word)
+
 		i.Update(word)
 
 		definitions := []string{}
@@ -58,6 +58,7 @@ func (p *WordProcessor) Decompose(path, outdir, deckname string, i ignore.Ignore
 		}
 
 		allChars := p.Chars.GetAll(word, t)
+
 		newWords = append(newWords, Word{
 			Chinese:      word,
 			Pinyin:       p.getPinyin(word),
@@ -66,6 +67,13 @@ func (p *WordProcessor) Decompose(path, outdir, deckname string, i ignore.Ignore
 			AllChars:     allChars,
 			NewChars:     p.Chars.GetNew(i, allChars),
 			IsSingleRune: utf8.RuneCountInString(word) == 1,
+			Components:   decomposition.GetComponents(hanzi),
+			Kangxi:       decomposition.GetKangxi(hanzi),
+			// FIXME: remove redundant
+			Equivalents: strings.Join(hanzi.Equivalents, ", "),
+			Traditional: strings.Join(hanzi.IdeographsTraditional, ", "),
+			// FIXME: more most-frequent words for single hanzi words
+			// Example: word,
 		})
 	}
 	return p.getAudio(newWords)
@@ -86,6 +94,7 @@ func (p *WordProcessor) getPinyin(ch string) string {
 	return strings.Join(pinyin, ", ")
 }
 
+// used for openai data that contains the translation and pinyin
 func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.Translations) ([]Word, []Word) {
 	var allWords []Word
 	for _, word := range words {

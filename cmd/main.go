@@ -10,7 +10,6 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/anki"
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/char"
-	"github.com/fbngrm/zh-anki/pkg/component"
 	"github.com/fbngrm/zh-anki/pkg/decomposition"
 	"github.com/fbngrm/zh-anki/pkg/dialog"
 	ignore_dict "github.com/fbngrm/zh-anki/pkg/ignore"
@@ -44,6 +43,11 @@ var meta = map[string]struct {
 		deckname: "var",
 		tags:     []string{"daily-life"},
 		path:     "var",
+	},
+	"most-frequent": {
+		deckname: "10k-most-frequent-words",
+		tags:     []string{"10k-most-frequent-words"},
+		path:     "most-frequent",
 	},
 }
 
@@ -111,18 +115,16 @@ func main() {
 		),
 	}
 
+	// we cache responses from openai api and google text-to-speech
 	cacheDir := filepath.Join(cwd, "data", "cache")
 	cache := openai.NewCache(cacheDir, &ankiExporter)
 	decomposer := decomposition.NewDecomposer()
 
-	componentProcessor := component.Processor{
-		Decomposer: decomposer,
-	}
 	charProcessor := char.Processor{
 		IgnoreChars: ignoreChars,
 		Cedict:      cedictDict,
 		Audio:       audioDownloader,
-		Components:  componentProcessor,
+		Decomposer:  decomposer,
 	}
 	wordProcessor := dialog.WordProcessor{
 		Cedict:      cedictDict,
@@ -130,7 +132,7 @@ func main() {
 		Audio:       audioDownloader,
 		IgnoreChars: ignoreChars,
 		Exporter:    ankiExporter,
-		Components:  componentProcessor,
+		Decomposer:  decomposer,
 	}
 	sentenceProcessor := dialog.SentenceProcessor{
 		Client:   openai.NewClient(apiKey, cache),
@@ -151,20 +153,20 @@ func main() {
 	// load dialogues from file
 	dialogPath := filepath.Join(cwd, "data", deck, lesson, "input", "dialogues")
 	if _, err := os.Stat(dialogPath); err == nil {
-		dialogues := dialogProcessor.Decompose(dialogPath, outDir, deckname, ignored, pinyin, translations)
+		dialogues := dialogProcessor.Decompose(dialogPath, outDir, deckname, ignored, translations)
 		dialogProcessor.ExportCards(dialogues, outDir)
 	}
 
 	// load sentences from file
 	sentencePath := filepath.Join(cwd, "data", deck, lesson, "input", "sentences")
 	if _, err := os.Stat(sentencePath); err == nil {
-		sentences := sentenceProcessor.Decompose(sentencePath, outDir, deckname, ignored, pinyin, translations)
+		sentences := sentenceProcessor.Decompose(sentencePath, outDir, deckname, ignored, translations)
 		sentenceProcessor.ExportCards(sentences, outDir)
 	}
 
 	wordPath := filepath.Join(cwd, "data", deck, lesson, "input", "words")
 	if _, err := os.Stat(wordPath); err == nil {
-		words := wordProcessor.Decompose(wordPath, outDir, deckname, ignored, pinyin, translations)
+		words := wordProcessor.Decompose(wordPath, outDir, deckname, ignored, translations)
 		wordProcessor.ExportCards(words, outDir)
 	}
 

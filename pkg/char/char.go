@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
+	"github.com/fbngrm/zh-anki/pkg/decomposition"
 	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/translate"
@@ -14,27 +15,40 @@ import (
 
 type Char struct {
 	Chinese      string   `yaml:"chinese"`
+	Traditional  string   `yaml:"traditional"`
 	Pinyin       string   `yaml:"pinyin"`
 	English      string   `yaml:"english"`
 	Audio        string   `yaml:"audio"`
 	IsSingleRune bool     `yaml:"isSingleRune"`
 	Components   []string `yaml:"components"`
+	Kangxi       []string `yaml:"kangxi"`
+	Equivalents  string   `yaml:"equivalents"`
+	Example      string   `yaml:"example"`
 }
 
 type Processor struct {
 	IgnoreChars []string
 	Cedict      map[string][]cedict.Entry
 	Audio       audio.Downloader
+	Decomposer  *decomposition.Decomposer
 }
 
-func (p *Processor) GetAll(ch string, t translate.Translations) []Char {
+func (p *Processor) GetAll(word string, t translate.Translations) []Char {
 	allChars := make([]Char, 0)
-	for _, char := range ch {
+	for _, ch := range word {
+		hanzi := p.Decomposer.Decompose(string(ch))
 		allChars = append(allChars, Char{
-			Chinese:      string(char),
-			English:      p.translateChar(string(char), t),
-			Pinyin:       p.getPinyin(string(char)),
+			Chinese:      string(ch),
+			English:      p.translateChar(string(ch), t),
+			Pinyin:       p.getPinyin(string(ch)),
 			IsSingleRune: true,
+			Components:   decomposition.GetComponents(hanzi),
+			Kangxi:       decomposition.GetKangxi(hanzi),
+			// FIXME: remove redundant
+			Equivalents: strings.Join(hanzi.Equivalents, ", "),
+			Traditional: strings.Join(hanzi.IdeographsTraditional, ", "),
+			// FIXME: more most-frequent words
+			Example: word,
 		})
 	}
 	return p.getAudio(allChars)
@@ -51,21 +65,6 @@ func (p *Processor) GetNew(i ignore.Ignored, allChars []Char) []Char {
 	}
 	return newChars
 }
-
-// func (p *Processor) getComponents(ch string) string {
-// 	entries, _ := p.Cedict[string(ch)]
-// 	readings := make(map[string]struct{})
-// 	for _, entry := range entries {
-// 		for _, reading := range entry.Readings {
-// 			readings[reading] = struct{}{}
-// 		}
-// 	}
-// 	pinyin := make([]string, 0)
-// 	for reading := range readings {
-// 		pinyin = append(pinyin, reading)
-// 	}
-// 	return strings.Join(pinyin, ", ")
-// }
 
 func (p *Processor) getPinyin(ch string) string {
 	entries, _ := p.Cedict[string(ch)]
