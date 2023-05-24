@@ -14,7 +14,6 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/dialog"
 	ignore_dict "github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
-	pinyin_dict "github.com/fbngrm/zh-anki/pkg/pinyin"
 	"github.com/fbngrm/zh-anki/pkg/template"
 	"github.com/fbngrm/zh-anki/pkg/translate"
 	"github.com/fbngrm/zh/lib/cedict"
@@ -27,7 +26,7 @@ var ignoreChars = []string{"!", "！", "？", "?", "，", ",", ".", "。", "", "
 var meta = map[string]struct {
 	deckname string
 	tags     []string
-	path     string
+	path     string // relative to `zh-anki/data` dir
 }{
 	"npcr_01": {
 		deckname: "new-practical-chinese-reader-01",
@@ -94,9 +93,6 @@ func main() {
 
 	ignorePath := filepath.Join(cwd, "data", "ignore")
 	ignored := ignore_dict.Load(ignorePath)
-
-	pinyinPath := filepath.Join(cwd, "data", "pinyin")
-	pinyin := pinyin_dict.Load(pinyinPath)
 
 	translationsPath := filepath.Join(cwd, "data", "translations")
 	translations := translate.Load(translationsPath)
@@ -173,5 +169,4 @@ func main() {
 	// write newly ignored words
 	ignored.Write(ignorePath)
 	// write translations(translations, translationsPath)
-	pinyin.Write(pinyinPath)
 }
