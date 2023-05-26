@@ -6,12 +6,14 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/fbngrm/zh-anki/pkg/anki"
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/char"
 	"github.com/fbngrm/zh-anki/pkg/decomposition"
 	"github.com/fbngrm/zh-anki/pkg/dialog"
+	"github.com/fbngrm/zh-anki/pkg/frequency"
 	ignore_dict "github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
 	"github.com/fbngrm/zh-anki/pkg/template"
@@ -20,41 +22,19 @@ import (
 )
 
 const cedictSrc = "/home/f/work/src/github.com/fbngrm/zh/lib/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
+const wordFrequencySrc = "./lib/global_wordfreq.release_UTF-8.txt"
 
 var ignoreChars = []string{"!", "！", "？", "?", "，", ",", ".", "。", "", " "}
 
-var meta = map[string]struct {
-	deckname string
-	tags     []string
-	path     string // relative to `zh-anki/data` dir
-}{
-	"npcr_01": {
-		deckname: "new-practical-chinese-reader-01",
-		tags:     []string{"hsk1"},
-		path:     "npcr_01",
-	},
-	"sc_02": {
-		deckname: "super-chinese-02",
-		tags:     []string{"hsk2"},
-		path:     "super-chinese_02",
-	},
-	"var": {
-		deckname: "var",
-		tags:     []string{"daily-life"},
-		path:     "var",
-	},
-	"most-frequent": {
-		deckname: "10k-most-frequent-words",
-		tags:     []string{"10k-most-frequent-words"},
-		path:     "most-frequent",
-	},
-}
-
 var lesson string
 var deck string
-var tags []string
+var tags string
+var tagList []string
 var deckname string
 var path string
+
+// by default, skip rendering separate cards for all sentences in a dialog
+var renderSentences bool
 
 var cedictDict map[string][]cedict.Entry
 
@@ -65,18 +45,19 @@ func main() {
 	}
 
 	flag.StringVar(&lesson, "l", "", "lesson name")
-	flag.StringVar(&deck, "d", "", "dec name [npcr|sc]")
+	flag.BoolVar(&renderSentences, "s", false, "render sentences")
+	flag.StringVar(&deck, "d", "", "anki deck name")
+	flag.StringVar(&tags, "t", "", "comma separated list of anki tags")
 	flag.Parse()
 
-	m, ok := meta[deck]
-	if !ok {
-		fmt.Println("need deck name as parameter [npcr|sc]")
-		os.Exit(1)
+	deckname = deck
+	path = deck
+	if strings.Contains(tags, ",") {
+		tagList = strings.Split(tags, ",")
+	} else if len(tags) > 0 {
+		tagList = append(tagList, tags)
 	}
-	deckname = m.deckname
-	tags = append(m.tags, "lesson-"+lesson)
-	tags = append(tags, deckname)
-	path = m.path
+	tagList = append(tagList, deckname)
 
 	var err error
 	cedictDict, err = cedict.BySimplifiedHanzi(cedictSrc)
@@ -107,20 +88,28 @@ func main() {
 		TmplProcessor: template.NewProcessor(
 			deckname,
 			filepath.Join(cwd, "tmpl"),
-			tags,
+			tagList,
 		),
 	}
 
 	// we cache responses from openai api and google text-to-speech
 	cacheDir := filepath.Join(cwd, "data", "cache")
 	cache := openai.NewCache(cacheDir, &ankiExporter)
+
 	decomposer := decomposition.NewDecomposer()
+
+	wordIndex, err := frequency.NewWordIndex(wordFrequencySrc)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
 	charProcessor := char.Processor{
 		IgnoreChars: ignoreChars,
 		Cedict:      cedictDict,
 		Audio:       audioDownloader,
 		Decomposer:  decomposer,
+		WordIndex:   wordIndex,
 	}
 	wordProcessor := dialog.WordProcessor{
 		Cedict:      cedictDict,
@@ -129,6 +118,7 @@ func main() {
 		IgnoreChars: ignoreChars,
 		Exporter:    ankiExporter,
 		Decomposer:  decomposer,
+		WordIndex:   wordIndex,
 	}
 	sentenceProcessor := dialog.SentenceProcessor{
 		Client:   openai.NewClient(apiKey, cache),
@@ -150,7 +140,7 @@ func main() {
 	dialogPath := filepath.Join(cwd, "data", deck, lesson, "input", "dialogues")
 	if _, err := os.Stat(dialogPath); err == nil {
 		dialogues := dialogProcessor.Decompose(dialogPath, outDir, deckname, ignored, translations)
-		dialogProcessor.ExportCards(dialogues, outDir)
+		dialogProcessor.ExportCards(dialogues, renderSentences, outDir)
 	}
 
 	// load sentences from file

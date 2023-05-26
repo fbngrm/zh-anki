@@ -4,9 +4,11 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/decomposition"
+	"github.com/fbngrm/zh-anki/pkg/frequency"
 	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/translate"
@@ -31,24 +33,33 @@ type Processor struct {
 	Cedict      map[string][]cedict.Entry
 	Audio       audio.Downloader
 	Decomposer  *decomposition.Decomposer
+	WordIndex   *frequency.WordIndex
 }
 
 func (p *Processor) GetAll(word string, t translate.Translations) []Char {
 	allChars := make([]Char, 0)
 	for _, ch := range word {
-		hanzi := p.Decomposer.Decompose(string(ch))
+		c := string(ch)
+		hanzi := p.Decomposer.Decompose(c)
+
+		example := ""
+		isSingleRune := utf8.RuneCountInString(c) == 1
+		if isSingleRune {
+			examples := p.WordIndex.GetExamplesForHanzi(c, 4)
+			examples = append(examples, word)
+			example = strings.Join(examples, ", ")
+		}
+
 		allChars = append(allChars, Char{
-			Chinese:      string(ch),
-			English:      p.translateChar(string(ch), t),
-			Pinyin:       p.getPinyin(string(ch)),
+			Chinese:      c,
+			English:      p.translateChar(c, t),
+			Pinyin:       p.getPinyin(c),
 			IsSingleRune: true,
 			Components:   decomposition.GetComponents(hanzi),
 			Kangxi:       decomposition.GetKangxi(hanzi),
-			// FIXME: remove redundant
-			Equivalents: strings.Join(hanzi.Equivalents, ", "),
-			Traditional: strings.Join(hanzi.IdeographsTraditional, ", "),
-			// FIXME: more most-frequent words
-			Example: word,
+			Equivalents:  removeRedundant(hanzi.Equivalents),
+			Traditional:  removeRedundant(hanzi.IdeographsTraditional),
+			Example:      example,
 		})
 	}
 	return p.getAudio(allChars)
@@ -64,6 +75,19 @@ func (p *Processor) GetNew(i ignore.Ignored, allChars []Char) []Char {
 		i.Update(char.Chinese)
 	}
 	return newChars
+}
+
+// remove redundant
+func removeRedundant(in []string) string {
+	set := make(map[string]struct{})
+	for _, elem := range in {
+		set[elem] = struct{}{}
+	}
+	out := make([]string, 0)
+	for elem := range set {
+		out = append(out, elem)
+	}
+	return strings.Join(out, ", ")
 }
 
 func (p *Processor) getPinyin(ch string) string {
@@ -83,7 +107,7 @@ func (p *Processor) getPinyin(ch string) string {
 
 func (p *Processor) getAudio(chars []Char) []Char {
 	for y, char := range chars {
-		filename, err := p.Audio.Fetch(context.Background(), char.Chinese, hash.Sha1(char.Chinese))
+		filename, err := p.Audio.Fetch(context.Background(), char.Chinese, hash.Sha1(char.Chinese), false)
 		if err != nil {
 			fmt.Println(err)
 		}

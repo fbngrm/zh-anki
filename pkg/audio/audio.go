@@ -3,6 +3,7 @@ package audio
 import (
 	"context"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -17,7 +18,9 @@ type Downloader struct {
 	AudioDir    string
 }
 
-func (p *Downloader) Fetch(ctx context.Context, query, filename string) (string, error) {
+// download audio file from google text-to-speech api if it doesn't exist in cache dir.
+// we also store a sentenceAndDialogOnlyDir to create audio loops for which we want to exclude words and chars.
+func (p *Downloader) Fetch(ctx context.Context, query, filename string, isSentenceOrDialog bool) (string, error) {
 	filename = filename + ".mp3"
 	if contains(p.IgnoreChars, query) {
 		return filename, nil
@@ -25,14 +28,30 @@ func (p *Downloader) Fetch(ctx context.Context, query, filename string) (string,
 	if err := os.MkdirAll(p.AudioDir, os.ModePerm); err != nil {
 		return "", err
 	}
-	path := filepath.Join(p.AudioDir, filename)
-	globalPath := filepath.Join(p.AudioDir, "..", "..", "..", "audio", filename)
-
-	if _, err := os.Stat(path); err == nil {
-		return filename, nil
+	sentenceAndDialogOnlyDir := filepath.Join(p.AudioDir, "sentences_and_dialogs")
+	if err := os.MkdirAll(sentenceAndDialogOnlyDir, os.ModePerm); err != nil {
+		return "", err
 	}
-	if _, err := os.Stat(globalPath); err == nil {
-		return filename, nil
+	lessonPath := filepath.Join(p.AudioDir, filename)
+	cachePath := filepath.Join(p.AudioDir, "..", "..", "..", "audio", filename)
+	sentenceAndDialogOnlyPath := filepath.Join(sentenceAndDialogOnlyDir, filename)
+
+	// copy file from cache to lesson dir and to sentenceAndDialogOnlyDir
+	if _, err := os.Stat(cachePath); err == nil {
+		var hasErr bool
+		if err := copyFileContents(cachePath, lessonPath); err != nil {
+			hasErr = true
+			fmt.Printf("error copying cache file for query %s: %v\n", query, err)
+		}
+		if isSentenceOrDialog {
+			if err := copyFileContents(cachePath, sentenceAndDialogOnlyPath); err != nil {
+				hasErr = true
+				fmt.Printf("error copying cache file for query %s: %v\n", query, err)
+			}
+		}
+		if !hasErr {
+			return filename, nil
+		}
 	}
 
 	time.Sleep(100 * time.Millisecond)
@@ -68,17 +87,28 @@ func (p *Downloader) Fetch(ctx context.Context, query, filename string) (string,
 	}
 
 	// The resp's AudioContent is binary.
-	err = ioutil.WriteFile(path, resp.AudioContent, os.ModePerm)
+	err = ioutil.WriteFile(lessonPath, resp.AudioContent, os.ModePerm)
 	if err != nil {
 		return "", err
 	}
-	err = ioutil.WriteFile(globalPath, resp.AudioContent, os.ModePerm)
+	// for creating audio loops from sentences and dialogs only.
+	if isSentenceOrDialog {
+		err = ioutil.WriteFile(sentenceAndDialogOnlyPath, resp.AudioContent, os.ModePerm)
+		if err != nil {
+			return "", err
+		}
+	}
+	err = ioutil.WriteFile(cachePath, resp.AudioContent, os.ModePerm)
 	if err != nil {
 		return "", err
 	}
 
 	fmt.Printf("%v\n", query)
-	fmt.Printf("audio content written to file: %v\n", path)
+	if isSentenceOrDialog {
+		fmt.Printf("audio content written to files:\n%s\n%s\n%s\n", lessonPath, cachePath, sentenceAndDialogOnlyPath)
+	} else {
+		fmt.Printf("audio content written to files:\n%s\n%s\n", lessonPath, cachePath)
+	}
 	return filename, nil
 }
 
@@ -89,4 +119,27 @@ func contains[T comparable](s []T, e T) bool {
 		}
 	}
 	return false
+}
+
+func copyFileContents(src, dst string) (err error) {
+	in, err := os.Open(src)
+	if err != nil {
+		return
+	}
+	defer in.Close()
+	out, err := os.Create(dst)
+	if err != nil {
+		return
+	}
+	defer func() {
+		cerr := out.Close()
+		if err == nil {
+			err = cerr
+		}
+	}()
+	if _, err = io.Copy(out, in); err != nil {
+		return
+	}
+	err = out.Sync()
+	return
 }

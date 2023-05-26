@@ -1,5 +1,11 @@
-{{ range .}}
+{{ range .Dialogues }}
+{{ if $.RenderSentences }}
 {{ template "sentences.tmpl" .Sentences }}
+{{ else }}
+{{ range .Sentences }}
+{{ template "words.tmpl" .NewWords }}
+{{ end }}
+{{ end }}
 # Note
 model: ch-en-audio
 deck: {{ deckName }}
@@ -19,5 +25,5 @@ tags: {{ tags }}
 {{ removeSpaces .Chinese }}: {{ .English }}
 {{ end }}
 {{ end }}
-## Examples
+## Traditional
 {{ end }}

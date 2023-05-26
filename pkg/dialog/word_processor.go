@@ -13,6 +13,7 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/char"
 	"github.com/fbngrm/zh-anki/pkg/decomposition"
+	"github.com/fbngrm/zh-anki/pkg/frequency"
 	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
@@ -28,6 +29,7 @@ type WordProcessor struct {
 	Client      *openai.Client
 	Exporter    anki.Exporter
 	Decomposer  *decomposition.Decomposer
+	WordIndex   *frequency.WordIndex
 }
 
 // used for simple words lists that need to lookup pinyin and translation in cedict.
@@ -59,6 +61,12 @@ func (p *WordProcessor) Decompose(path, outdir, deckname string, i ignore.Ignore
 
 		allChars := p.Chars.GetAll(word, t)
 
+		example := ""
+		isSingleRune := utf8.RuneCountInString(word) == 1
+		if isSingleRune {
+			example = strings.Join(p.WordIndex.GetExamplesForHanzi(word, 5), ", ")
+		}
+
 		newWords = append(newWords, Word{
 			Chinese:      word,
 			Pinyin:       p.getPinyin(word),
@@ -66,14 +74,12 @@ func (p *WordProcessor) Decompose(path, outdir, deckname string, i ignore.Ignore
 			Audio:        hash.Sha1(word),
 			AllChars:     allChars,
 			NewChars:     p.Chars.GetNew(i, allChars),
-			IsSingleRune: utf8.RuneCountInString(word) == 1,
+			IsSingleRune: isSingleRune,
 			Components:   decomposition.GetComponents(hanzi),
 			Kangxi:       decomposition.GetKangxi(hanzi),
-			// FIXME: remove redundant
-			Equivalents: strings.Join(hanzi.Equivalents, ", "),
-			Traditional: strings.Join(hanzi.IdeographsTraditional, ", "),
-			// FIXME: more most-frequent words for single hanzi words
-			// Example: word,
+			Equivalents:  removeRedundant(hanzi.Equivalents),
+			Traditional:  removeRedundant(hanzi.IdeographsTraditional),
+			Example:      example,
 		})
 	}
 	return p.getAudio(newWords)
@@ -109,6 +115,14 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.T
 			definitions = append(definitions, entry.Definitions...)
 		}
 
+		hanzi := p.Decomposer.Decompose(word.Ch)
+
+		example := ""
+		isSingleRune := utf8.RuneCountInString(word.Ch) == 1
+		if isSingleRune {
+			example = strings.Join(p.WordIndex.GetExamplesForHanzi(word.Ch, 5), ", ")
+		}
+
 		allWords = append(allWords, Word{
 			Chinese:      word.Ch,
 			Pinyin:       word.Pi,
@@ -116,6 +130,11 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.T
 			Audio:        hash.Sha1(word.Ch),
 			AllChars:     p.Chars.GetAll(word.Ch, t),
 			IsSingleRune: utf8.RuneCountInString(word.Ch) == 1,
+			Components:   decomposition.GetComponents(hanzi),
+			Kangxi:       decomposition.GetKangxi(hanzi),
+			Equivalents:  removeRedundant(hanzi.Equivalents),
+			Traditional:  removeRedundant(hanzi.IdeographsTraditional),
+			Example:      example,
 		})
 	}
 	allWords = p.getAudio(allWords)
@@ -138,7 +157,7 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.T
 
 func (p *WordProcessor) getAudio(words []Word) []Word {
 	for y, word := range words {
-		filename, err := p.Audio.Fetch(context.Background(), word.Chinese, hash.Sha1(word.Chinese))
+		filename, err := p.Audio.Fetch(context.Background(), word.Chinese, hash.Sha1(word.Chinese), false)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -179,4 +198,17 @@ func contains[T comparable](s []T, e T) bool {
 		}
 	}
 	return false
+}
+
+// remove redundant
+func removeRedundant(in []string) string {
+	set := make(map[string]struct{})
+	for _, elem := range in {
+		set[elem] = struct{}{}
+	}
+	out := make([]string, 0)
+	for elem := range set {
+		out = append(out, elem)
+	}
+	return strings.Join(out, ", ")
 }

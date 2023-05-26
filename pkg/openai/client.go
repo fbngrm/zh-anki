@@ -79,7 +79,7 @@ func NewClient(apiKey string, cache *Cache) *Client {
 }
 
 func (c *Client) DecomposeSentence(sentence string) (*Sentence, error) {
-	content := c.fetch(sentence)
+	content := c.fetch(sentence, 2)
 
 	var result Sentence
 	err := json.Unmarshal([]byte(content), &result)
@@ -90,7 +90,7 @@ func (c *Client) DecomposeSentence(sentence string) (*Sentence, error) {
 }
 
 func (c *Client) Decompose(dialog string) (*Decomposition, error) {
-	content := c.fetch(dialog)
+	content := c.fetch(dialog, 2)
 
 	if strings.Contains(content, "\"sentences\": [") {
 		var decomp Decomposition
@@ -111,7 +111,12 @@ func (c *Client) Decompose(dialog string) (*Decomposition, error) {
 	}, nil
 }
 
-func (c *Client) fetch(query string) string {
+// implements a very simple retry. openai api sometimes fails to deliver a result or returns a invalid json
+// sub-sequent requests might succeed so we naively just try `retryCount` times.
+func (c *Client) fetch(query string, retryCount int) string {
+	if retryCount == -1 {
+		log.Fatalf("excceded retries for query: %s\n", query)
+	}
 	fmt.Println("lookup query: ", query)
 	if content, ok := c.cache.Lookup(query); ok {
 		fmt.Println("found file in cache: ", hash.Sha1(query))
@@ -136,13 +141,17 @@ func (c *Client) fetch(query string) string {
 
 	jsonPayload, err := json.Marshal(payload)
 	if err != nil {
-		log.Fatalf("Error marshalling JSON payload: %v", err)
+		fmt.Printf("error marshalling JSON payload: %v", err)
+		fmt.Println("retry...")
+		return c.fetch(query, retryCount-1)
 	}
 
 	// Set up the request object
 	req, err := http.NewRequest("POST", c.endpoint, bytes.NewBuffer(jsonPayload))
 	if err != nil {
-		log.Fatalf("Error creating request: %v", err)
+		fmt.Printf("error creating request: %v", err)
+		fmt.Println("retry...")
+		return c.fetch(query, retryCount-1)
 	}
 
 	// Set the request headers
@@ -153,7 +162,9 @@ func (c *Client) fetch(query string) string {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatalf("Error sending request: %v", err)
+		fmt.Printf("error sending request: %v", err)
+		fmt.Println("retry...")
+		return c.fetch(query, retryCount-1)
 	}
 	defer resp.Body.Close()
 
@@ -162,7 +173,14 @@ func (c *Client) fetch(query string) string {
 	var result Response
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
-		log.Fatalf("Error decoding JSON response: %v", err)
+		fmt.Printf("error decoding JSON response: %v\n", err)
+		fmt.Println("retry...")
+		return c.fetch(query, retryCount-1)
+	}
+
+	if len(result.Choices) == 0 {
+		fmt.Println("no result, retry...")
+		return c.fetch(query, retryCount-1)
 	}
 
 	content := strings.TrimPrefix(result.Choices[0].Message.Content, "```")

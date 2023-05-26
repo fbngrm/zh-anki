@@ -1,10 +1,6 @@
 {{ range . }}
 # Note
-{{ if not .IsSingleRune }}
-model: ch-en-audio
-{{ else}}
 model: ch-en
-{{ end }}
 deck: {{ deckName }}
 tags: {{ tags }}
 
@@ -18,7 +14,6 @@ tags: {{ tags }}
 ## Audio
 {{ audio .Chinese }}
 ## Components
-{{ if .IsSingleRune }}
 Components:
 {{ range .Components }}
 {{ . }}
@@ -36,11 +31,4 @@ Equivalents: {{ .Equivalents }}
 Traditional: {{ .Traditional }}
 ## Examples
 Examples: {{.Example}}
-{{ else }}
-{{ range .AllChars }}
-{{ removeSpaces .Chinese }}: {{ .English }}
-{{ end }}
-## Traditional
-Traditional: {{ .Traditional }}
-{{ end }}
 {{ end }}

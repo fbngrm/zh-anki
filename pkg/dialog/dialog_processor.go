@@ -21,12 +21,16 @@ type DialogProcessor struct {
 	Exporter  anki.Exporter
 }
 
-func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, t translate.Translations) []*Dialog {
-	dialogues := loadDialogues(path)
+func (p *DialogProcessor) Decompose(
+	path, outdir, deckname string,
+	i ignore.Ignored,
+	t translate.Translations,
+) []*Dialog {
 
+	dialogues := loadDialogues(path)
 	var results []*Dialog
 	for _, dialog := range dialogues {
-		decompositon, err := p.Client.Decompose(dialog)
+		decompositon, err := p.Client.Decompose(dialog.Text)
 		if err != nil {
 			fmt.Println(err.Error())
 			continue
@@ -41,10 +45,10 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Igno
 		}
 		d := &Dialog{
 			Deck:      deckname,
-			Chinese:   dialog,
+			Chinese:   dialog.Text,
 			English:   english,
 			Pinyin:    pinyin,
-			Audio:     hash.Sha1(dialog),
+			Audio:     hash.Sha1(dialog.Text),
 			Sentences: p.Sentences.Get(decompositon.Sentences, i, t),
 		}
 		p.fetchAudio(d)
@@ -56,15 +60,19 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Igno
 func (p *DialogProcessor) fetchAudio(d *Dialog) {
 	ctx := context.Background()
 
-	filename, err := p.Audio.Fetch(ctx, d.Chinese, hash.Sha1(d.Chinese))
+	filename, err := p.Audio.Fetch(ctx, d.Chinese, hash.Sha1(d.Chinese), true)
 	if err != nil {
 		fmt.Println(err)
 	}
 	d.Audio = filename
 }
 
-func (p *DialogProcessor) ExportCards(dialogues []*Dialog, outdir string) {
+func (p *DialogProcessor) ExportCards(dialogues []*Dialog, renderSentences bool, outdir string) {
 	os.Mkdir(outdir, os.ModePerm)
 	outpath := filepath.Join(outdir, "cards.md")
-	p.Exporter.CreateOrAppendAnkiCards(dialogues, "dialog.tmpl", outpath)
+	data := map[string]interface{}{
+		"Dialogues":       dialogues,
+		"RenderSentences": renderSentences,
+	}
+	p.Exporter.CreateOrAppendAnkiCards(data, "dialog.tmpl", outpath)
 }
