@@ -2,8 +2,8 @@ package template
 
 import (
 	"bytes"
-	"html/template"
 	"strings"
+	"text/template"
 
 	"github.com/fbngrm/zh-anki/pkg/hash"
 )

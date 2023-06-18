@@ -5,14 +5,14 @@ deck: {{ deckName }}
 tags: {{ tags }}
 
 ## Chinese
-{{ removeSpaces .Chinese }}
+<span class="chinese">{{ removeSpaces .Chinese }}</span>
 ## Pinyin
-{{ .Pinyin }}
+<span class="pinyin">{{ .Pinyin }}</span>
 <br>
 ## English
-{{ .English }}
+<span class="english">{{ .English }}</span>
 ## Audio
-{{ audio .Chinese }}
+<span class="audio">{{ audio .Chinese }}</span>
 ## Components
 Components:
 {{ range .Components }}

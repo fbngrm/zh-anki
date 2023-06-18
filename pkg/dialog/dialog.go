@@ -6,6 +6,5 @@ type Dialog struct {
 	Chinese   string     `yaml:"chinese"`
 	Pinyin    string     `yaml:"pinyin"`
 	English   string     `yaml:"english"`
-	Audio     string     `yaml:"audio"`
 	Sentences []Sentence `yaml:"sentences"`
 }

@@ -1,5 +1,4 @@
-- kangxi
-- exampels
-- words
-- separate data and code 
-
+- fix paths
+- for dialogs only words no sentences
+- different voices for dialogs
+- seperate note-types for dialog, sentence, word, char

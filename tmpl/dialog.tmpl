@@ -12,13 +12,13 @@ deck: {{ deckName }}
 tags: {{ tags }}
 
 ## Chinese
-{{ removeSpaces .Chinese}}
+<span class="chinese">{{ .Chinese}}</span>
 ## Pinyin
-{{ .Pinyin }}
+<span class="pinyin">{{ .Pinyin }}</span>
 ## English
-{{ .English }}
+<span class="english">{{ .English }}</span>
 ## Audio
-{{ audio .Chinese }}
+<span class="audio">{{ audio .Chinese }}</span>
 ## Components
 {{ range .Sentences }}
 {{ range .AllWords }}

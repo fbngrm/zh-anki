@@ -7,8 +7,17 @@ import (
 	"strings"
 )
 
+type DialogLine struct {
+	Speaker string
+	Text    string
+}
+
 type RawDialog struct {
-	Text string
+	Speakers           map[string]struct{}
+	Lines              []DialogLine
+	Text               string // one line without speaker prefixes
+	TextWithSpeaker    string
+	TextWithOutSpeaker string
 }
 
 func loadDialogues(path string) []RawDialog {
@@ -20,24 +29,70 @@ func loadDialogues(path string) []RawDialog {
 	defer file.Close()
 
 	var dialogues []RawDialog
-	var dialog string
+	speakers := make(map[string]struct{})
+	var lines []DialogLine
+	var textWithSpeaker, textWithOutSpeaker, text string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		line := scanner.Text()
-		if line == "---" {
+		rawLine := scanner.Text()
+		if rawLine == "---" {
 			dialogues = append(
 				dialogues,
-				RawDialog{Text: strings.TrimSpace(dialog)},
+				RawDialog{
+					Speakers:           speakers,
+					Lines:              lines,
+					TextWithSpeaker:    strings.TrimSpace(textWithSpeaker),
+					TextWithOutSpeaker: strings.TrimSpace(textWithOutSpeaker),
+					Text:               text,
+				},
 			)
-			dialog = ""
+			textWithSpeaker = ""
+			textWithOutSpeaker = ""
+			lines = []DialogLine{}
+			speakers = make(map[string]struct{})
+			text = ""
 			continue
 		}
-		dialog += " "
-		dialog += line
+		line := splitSpeakerAndText(rawLine)
+		lines = append(lines, line)
+		speakers[line.Speaker] = struct{}{}
+
+		textWithSpeaker += rawLine
+		textWithSpeaker += "<br>"
+		textWithOutSpeaker += line.Text
+		textWithOutSpeaker += "<br>"
+
+		text += line.Text
+		text += " "
 	}
 	dialogues = append(
 		dialogues,
-		RawDialog{Text: strings.TrimSpace(dialog)},
+		RawDialog{
+			Speakers:           speakers,
+			Lines:              lines,
+			TextWithSpeaker:    strings.TrimSpace(textWithSpeaker),
+			TextWithOutSpeaker: strings.TrimSpace(textWithOutSpeaker),
+			Text:               text,
+		},
 	)
 	return dialogues
+}
+
+func splitSpeakerAndText(line string) DialogLine {
+	parts := strings.Split(line, ":")
+	if len(parts) == 1 {
+		return DialogLine{
+			"",
+			parts[0],
+		}
+	} else if len(parts) == 2 {
+		return DialogLine{
+			parts[0],
+			parts[1],
+		}
+	}
+	return DialogLine{
+		parts[0],
+		strings.Join(parts[1:], ":"),
+	}
 }

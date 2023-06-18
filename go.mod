@@ -5,6 +5,7 @@ go 1.18
 require (
 	cloud.google.com/go/texttospeech v1.6.0
 	cloud.google.com/go/translate v1.7.0
+	github.com/davecgh/go-spew v1.1.1
 	github.com/fbngrm/zh v1.0.4
 	golang.org/x/text v0.8.0
 	gopkg.in/yaml.v2 v2.4.0
