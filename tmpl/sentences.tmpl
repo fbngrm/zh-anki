@@ -18,8 +18,9 @@ tags: {{ tags }}
 <span class="audio">{{ audio .Chinese }}</span>
 ## Components
 {{ range .AllWords }}
-{{ removeSpaces .Chinese }}: {{ .English }}
+<a href="https://hanzicraft.com/character/{{ removeSpaces .Chinese }}">{{ removeSpaces .Chinese }}</a>: {{ .English }}
 {{ end }}
 ## Traditional
+## UniqueChars
 {{ template "words.tmpl" .NewWords }}
 {{ end }}

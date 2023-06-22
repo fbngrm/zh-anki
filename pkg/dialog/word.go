@@ -17,4 +17,5 @@ type Word struct {
 	Kangxi       []string    `yaml:"kangxi"`
 	Equivalents  string      `yaml:"equivalents"`
 	Example      string      `yaml:"example"`
+	UniqueChars  []string    `yaml:"unique_chars"`
 }

@@ -130,23 +130,23 @@ func (p *Downloader) FetchTmpAudioWithVoice(
 	voice *texttospeechpb.VoiceSelectionParams,
 ) (string, error) {
 	filename = filename + ".mp3"
-	cachePath := filepath.Join(p.AudioDir, "..", "..", "..", "audio", filename)
+	// cachePath := filepath.Join(p.AudioDir, "..", "..", "..", "audio", filename)
 	tmpFile, err := os.CreateTemp("", "zh")
 	if err != nil {
 		return "", fmt.Errorf("could not create tmp file: %v", err)
 	}
 
 	// copy file from cache to tmp dir
-	if _, err := os.Stat(cachePath); err == nil {
-		var hasErr bool
-		if err := copyFileContents(cachePath, tmpFile.Name()); err != nil {
-			hasErr = true
-			fmt.Printf("error copying cache file for query %s: %v\n", query, err)
-		}
-		if !hasErr {
-			return tmpFile.Name(), nil
-		}
-	}
+	// if _, err := os.Stat(cachePath); err == nil {
+	// 	var hasErr bool
+	// 	if err := copyFileContents(cachePath, tmpFile.Name()); err != nil {
+	// 		hasErr = true
+	// 		fmt.Printf("error copying cache file for query %s: %v\n", query, err)
+	// 	}
+	// 	if !hasErr {
+	// 		return tmpFile.Name(), nil
+	// 	}
+	// }
 
 	resp, err := fetch(ctx, query, voice)
 	if err != nil {
@@ -231,7 +231,7 @@ func fetch(ctx context.Context, query string, voice *texttospeechpb.VoiceSelecti
 		// Select the type of audio file you want returned.
 		AudioConfig: &texttospeechpb.AudioConfig{
 			AudioEncoding: texttospeechpb.AudioEncoding_MP3,
-			SpeakingRate:  0.8,
+			SpeakingRate:  0.85,
 		},
 	}
 	return client.SynthesizeSpeech(ctx, &req)

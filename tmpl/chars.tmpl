@@ -16,19 +16,20 @@ tags: {{ tags }}
 ## Components
 Components:
 {{ range .Components }}
-{{ . }}
+<a href="https://hanzicraft.com/character/{{ . }}">{{ . }}</a>
 <br/>
 {{ end }}
 ## Kangxi
 Kangxi:
 {{ range .Kangxi }}
-{{ . }}
+<a href="https://hanzicraft.com/character/{{ . }}">{{ . }}</a>
 <br/>
 {{ end }}
 ## Equivalents
-Equivalents: {{ .Equivalents }}
+Equivalents: <a href="https://hanzicraft.com/character/{{ .Equivalents }}">{{ .Equivalents }}</a>
 ## Traditional
-Traditional: {{ .Traditional }}
+Traditional: <a href="https://hanzicraft.com/character/{{ removeSpaces .Traditional }}">{{ removeSpaces .Traditional }}</a>
 ## Examples
 Examples: {{.Example}}
+## UniqueChars
 {{ end }}

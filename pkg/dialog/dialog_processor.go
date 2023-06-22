@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"unicode"
 
 	"github.com/fbngrm/zh-anki/pkg/anki"
 	"github.com/fbngrm/zh-anki/pkg/audio"
@@ -47,10 +48,11 @@ func (p *DialogProcessor) Decompose(
 		d := &Dialog{
 			Deck: deckname,
 			// this determines the audio filename. it is used in the template to set the audio file name.
-			Chinese:   chinese,
-			English:   english,
-			Pinyin:    pinyin,
-			Sentences: p.Sentences.Get(decompositon.Sentences, i, t),
+			Chinese:     chinese,
+			English:     english,
+			Pinyin:      pinyin,
+			Sentences:   p.Sentences.Get(decompositon.Sentences, i, t),
+			UniqueChars: getUniqueChars(chinese),
 		}
 		results = append(results, d)
 
@@ -149,4 +151,20 @@ func getChineseText(lines []DialogLine, colors map[string]string) string {
 		result += "<br>"
 	}
 	return result
+}
+
+func getUniqueChars(s string) []string {
+	unique := make(map[string]struct{})
+	for _, r := range s {
+		if unicode.Is(unicode.Han, r) {
+			unique[string(r)] = struct{}{}
+		}
+	}
+	var i int
+	chars := make([]string, len(unique))
+	for c := range unique {
+		chars[i] = c
+		i++
+	}
+	return chars
 }

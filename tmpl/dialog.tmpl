@@ -22,8 +22,9 @@ tags: {{ tags }}
 ## Components
 {{ range .Sentences }}
 {{ range .AllWords }}
-{{ removeSpaces .Chinese }}: {{ .English }}
+<a href="https://hanzicraft.com/character/{{ removeSpaces .Chinese }}">{{ removeSpaces .Chinese }}</a>: {{ .English }}
 {{ end }}
 {{ end }}
 ## Traditional
+## UniqueChars
 {{ end }}

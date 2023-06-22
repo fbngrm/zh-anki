@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 
 	"github.com/fbngrm/zh-anki/pkg/anki"
@@ -47,6 +48,7 @@ func (p *SentenceProcessor) Decompose(path, outdir, deckname string, i ignore.Ig
 			AllWords:     allWords,
 			NewWords:     newWords,
 			IsSingleRune: utf8.RuneCountInString(s.Chinese) == 1,
+			UniqueChars:  getUniqueChars(s.Chinese),
 		}
 		results = append(results, *sentence)
 
@@ -86,4 +88,20 @@ func (p *SentenceProcessor) ExportCards(sentences []Sentence, outDir string) {
 	os.Mkdir(outDir, os.ModePerm)
 	outPath := filepath.Join(outDir, "cards.md")
 	p.Exporter.CreateOrAppendAnkiCards(sentences, "sentences.tmpl", outPath)
+}
+
+func getAllChars(s string) []string {
+	unique := make(map[string]struct{})
+	for _, r := range s {
+		if unicode.Is(unicode.Han, r) {
+			unique[string(r)] = struct{}{}
+		}
+	}
+	var i int
+	chars := make([]string, len(unique))
+	for c := range unique {
+		chars[i] = c
+		i++
+	}
+	return chars
 }

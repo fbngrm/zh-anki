@@ -80,6 +80,7 @@ func (p *WordProcessor) Decompose(path, outdir, deckname string, i ignore.Ignore
 			Equivalents:  removeRedundant(hanzi.Equivalents),
 			Traditional:  removeRedundant(hanzi.IdeographsTraditional),
 			Example:      example,
+			UniqueChars:  getUniqueChars(word),
 		})
 	}
 	return p.getAudio(newWords)
