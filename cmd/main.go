@@ -132,9 +132,19 @@ func main() {
 		Audio:     audioDownloader,
 		Exporter:  ankiExporter,
 	}
+	grammarProcessor := dialog.GrammarProcessor{
+		Sentences: sentenceProcessor,
+		Exporter:  ankiExporter,
+	}
 
 	outDir := filepath.Join(cwd, "data", deck, lesson, "output")
 	_ = os.Remove(outDir)
+
+	// load grammar from file
+	grammarPath := filepath.Join(cwd, "data", deck, lesson, "input", "grammar")
+	if _, err := os.Stat(grammarPath); err == nil {
+		grammarProcessor.Decompose(grammarPath, outDir, deckname, ignored, translations)
+	}
 
 	// load dialogues from file
 	dialogPath := filepath.Join(cwd, "data", deck, lesson, "input", "dialogues")
@@ -146,7 +156,7 @@ func main() {
 	// load sentences from file
 	sentencePath := filepath.Join(cwd, "data", deck, lesson, "input", "sentences")
 	if _, err := os.Stat(sentencePath); err == nil {
-		sentences := sentenceProcessor.Decompose(sentencePath, outDir, deckname, ignored, translations)
+		sentences := sentenceProcessor.DecomposeFromFile(sentencePath, outDir, deckname, ignored, translations)
 		sentenceProcessor.ExportCards(sentences, outDir)
 	}
 

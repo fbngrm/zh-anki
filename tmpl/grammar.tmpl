@@ -1,0 +1,21 @@
+{{ range . }}
+# Note
+{{ if not .IsSingleRune }}
+model: ch-en-audio
+{{ else}}
+model: ch-en
+{{ end }}
+deck: {{ deckName }}
+tags: {{ tags }}
+
+## Head
+{{ .Head }}
+## Description
+{{ .Description }}
+## Structure
+{{ .Structure }}
+## Examples
+{{ .Examples }}
+## ExampleDescription
+{{ .ExampleDescription }}
+{{ end }}

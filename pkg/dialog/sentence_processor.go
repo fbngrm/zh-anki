@@ -24,8 +24,11 @@ type SentenceProcessor struct {
 	Exporter anki.Exporter
 }
 
-func (p *SentenceProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, t translate.Translations) []Sentence {
-	sentences := loadSentences(path)
+func (p *SentenceProcessor) DecomposeFromFile(path, outdir, deckname string, i ignore.Ignored, t translate.Translations) []Sentence {
+	return p.Decompose(loadSentences(path), outdir, deckname, i, t)
+}
+
+func (p *SentenceProcessor) Decompose(sentences []string, outdir, deckname string, i ignore.Ignored, t translate.Translations) []Sentence {
 
 	var results []Sentence
 	for _, sentence := range sentences {
