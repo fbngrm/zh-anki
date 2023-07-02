@@ -19,8 +19,15 @@ func loadGrammar(path string) ([]Grammar, error) {
 	for _, part := range parts {
 		splits := strings.Split(part, "---\n")
 
+		if len(splits) == 0 {
+			continue
+		}
+
+		fmt.Println(len(splits))
+		fmt.Println(splits)
+
 		if len(splits) != 5 {
-			return nil, errors.New("Invalid file format")
+			return nil, errors.New("invalid file format")
 		}
 
 		examples := strings.Split(strings.TrimSpace(splits[3]), "\n")

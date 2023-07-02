@@ -1,10 +1,6 @@
 {{ range . }}
 # Note
-{{ if not .IsSingleRune }}
-model: ch-en-audio
-{{ else}}
-model: ch-en
-{{ end }}
+model: ch-grammar
 deck: {{ deckName }}
 tags: {{ tags }}
 
@@ -15,7 +11,9 @@ tags: {{ tags }}
 ## Structure
 {{ .Structure }}
 ## Examples
-{{ .Examples }}
-## ExampleDescription
+{{ range .Examples }}
+{{.}}
+{{ end }}
+## ExamplesDescription
 {{ .ExampleDescription }}
 {{ end }}

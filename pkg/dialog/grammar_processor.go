@@ -16,7 +16,6 @@ type GrammarProcessor struct {
 }
 
 func (g *GrammarProcessor) Decompose(path string, outdir, deckname string, i ignore.Ignored, t translate.Translations) {
-
 	grammars, err := loadGrammar(path)
 	if err != nil {
 		log.Fatal(err)
@@ -33,5 +32,5 @@ func (g *GrammarProcessor) Decompose(path string, outdir, deckname string, i ign
 func (g *GrammarProcessor) ExportCards(grammars []Grammar, outDir string) {
 	os.Mkdir(outDir, os.ModePerm)
 	outPath := filepath.Join(outDir, "cards.md")
-	p.Exporter.CreateOrAppendAnkiCards(grammars, "grammar.tmpl", outPath)
+	g.Exporter.CreateOrAppendAnkiCards(grammars, "grammar.tmpl", outPath)
 }

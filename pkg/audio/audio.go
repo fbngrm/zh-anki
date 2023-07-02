@@ -215,7 +215,7 @@ func fetch(ctx context.Context, query string, voice *texttospeechpb.VoiceSelecti
 	defer client.Close()
 
 	if voice == nil {
-		rand.Seed(time.Now().Unix()) // initialize global pseudo random generator
+		rand.Seed(time.Now().UnixNano()) // initialize global pseudo random generator
 		voice = voices[rand.Intn(len(voices))]
 	}
 	// Perform the text-to-speech request on the text input with the selected
@@ -231,7 +231,7 @@ func fetch(ctx context.Context, query string, voice *texttospeechpb.VoiceSelecti
 		// Select the type of audio file you want returned.
 		AudioConfig: &texttospeechpb.AudioConfig{
 			AudioEncoding: texttospeechpb.AudioEncoding_MP3,
-			SpeakingRate:  0.85,
+			SpeakingRate:  0.9,
 		},
 	}
 	return client.SynthesizeSpeech(ctx, &req)
