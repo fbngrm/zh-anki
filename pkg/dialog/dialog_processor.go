@@ -23,22 +23,28 @@ type DialogProcessor struct {
 	Exporter  anki.Exporter
 }
 
-func (p *DialogProcessor) Decompose(
-	path, outdir, deckname string,
-	i ignore.Ignored,
-	t translate.Translations,
-) []*Dialog {
+func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, t translate.Translations) []*Dialog {
+	// note, dialogues with a speaker must use `：` (unicode) to separate speaker and text.
+	// this is not the same as `:` (ascii)!
 	dialogues := loadDialogues(path)
+
 	var results []*Dialog
 	for _, dialog := range dialogues {
-		decompositon, err := p.Client.Decompose(dialog.Text)
-		if err != nil {
-			fmt.Println(err.Error())
-			continue
+		decompositon := make([]openai.Sentence, 0)
+		for _, sentence := range dialog.Lines {
+			decomp, err := p.Client.DecomposeSentence(sentence.Text)
+			if err != nil {
+				fmt.Println(err.Error())
+				continue
+			}
+			if decomp != nil {
+				decompositon = append(decompositon, *decomp)
+			}
 		}
+
 		pinyin := ""
 		english := ""
-		for _, s := range decompositon.Sentences {
+		for _, s := range decompositon {
 			pinyin += s.Pinyin
 			pinyin += " "
 			english += s.English
@@ -51,7 +57,7 @@ func (p *DialogProcessor) Decompose(
 			Chinese:     chinese,
 			English:     english,
 			Pinyin:      pinyin,
-			Sentences:   p.Sentences.Get(decompositon.Sentences, i, t),
+			Sentences:   p.Sentences.Get(decompositon, i, t),
 			UniqueChars: getUniqueChars(chinese),
 		}
 		results = append(results, d)

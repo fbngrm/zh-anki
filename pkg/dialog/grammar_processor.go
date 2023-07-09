@@ -16,21 +16,24 @@ type GrammarProcessor struct {
 }
 
 func (g *GrammarProcessor) Decompose(path string, outdir, deckname string, i ignore.Ignored, t translate.Translations) {
-	grammars, err := loadGrammar(path)
+	grammar, err := loadGrammarYAML(path)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	for _, grammar := range grammars {
-		g.ExportCards(grammars, outdir)
-		// we create cards for the example sentences
-		sentences := g.Sentences.Decompose(grammar.Examples, outdir, deckname, i, t)
-		g.Sentences.ExportCards(sentences, outdir)
+	g.ExportCards(grammar, outdir)
+
+	for _, section := range grammar.Sections {
+		for _, structure := range section.Structures {
+			// we create cards for the example sentences
+			sentences := g.Sentences.Decompose(structure.Examples, outdir, deckname, i, t)
+			g.Sentences.ExportCards(sentences, outdir)
+		}
 	}
 }
 
-func (g *GrammarProcessor) ExportCards(grammars []Grammar, outDir string) {
+func (g *GrammarProcessor) ExportCards(grammar Grammar, outDir string) {
 	os.Mkdir(outDir, os.ModePerm)
 	outPath := filepath.Join(outDir, "cards.md")
-	g.Exporter.CreateOrAppendAnkiCards(grammars, "grammar.tmpl", outPath)
+	g.Exporter.CreateOrAppendAnkiCards(grammar, "grammar2.tmpl", outPath)
 }

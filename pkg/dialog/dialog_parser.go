@@ -78,21 +78,17 @@ func loadDialogues(path string) []RawDialog {
 	return dialogues
 }
 
+// note, dialogues with a speaker must use `：` (unicode) to separate speaker and text. This is not the same as `:` (ascii)!
 func splitSpeakerAndText(line string) DialogLine {
-	parts := strings.Split(line, ":")
+	parts := strings.Split(line, "：")
 	if len(parts) == 1 {
 		return DialogLine{
 			"",
 			parts[0],
 		}
-	} else if len(parts) == 2 {
-		return DialogLine{
-			parts[0],
-			parts[1],
-		}
 	}
 	return DialogLine{
 		parts[0],
-		strings.Join(parts[1:], ":"),
+		parts[1],
 	}
 }

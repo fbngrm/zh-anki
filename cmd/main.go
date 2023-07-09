@@ -141,7 +141,7 @@ func main() {
 	_ = os.Remove(outDir)
 
 	// load grammar from file
-	grammarPath := filepath.Join(cwd, "data", deck, lesson, "input", "grammar")
+	grammarPath := filepath.Join(cwd, "data", deck, lesson, "input", "grammar.yaml")
 	if _, err := os.Stat(grammarPath); err == nil {
 		grammarProcessor.Decompose(grammarPath, outDir, deckname, ignored, translations)
 	}
