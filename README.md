@@ -192,3 +192,9 @@ span.medium {font-size: 24px;}
 span.large {font-size: 36px;}
 span.italic {font-style: italic;}
 ```
+
+### TODO
+-[ ] support translations file
+-[ ] save decompositions as json
+-[x] find other anki export
+-[ ] original audio
