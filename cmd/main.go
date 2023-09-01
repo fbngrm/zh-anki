@@ -136,6 +136,10 @@ func main() {
 		Sentences: sentenceProcessor,
 		Exporter:  ankiExporter,
 	}
+	simpleGrammarProcessor := dialog.SimpleGrammarProcessor{
+		Sentences: sentenceProcessor,
+		Exporter:  ankiExporter,
+	}
 
 	outDir := filepath.Join(cwd, "data", deck, lesson, "output")
 	_ = os.Remove(outDir)
@@ -144,6 +148,10 @@ func main() {
 	grammarPath := filepath.Join(cwd, "data", deck, lesson, "input", "grammar.yaml")
 	if _, err := os.Stat(grammarPath); err == nil {
 		grammarProcessor.Decompose(grammarPath, outDir, deckname, ignored, translations)
+	}
+	simpleGrammarPath := filepath.Join(cwd, "data", deck, lesson, "input", "simple_grammar")
+	if _, err := os.Stat(simpleGrammarPath); err == nil {
+		simpleGrammarProcessor.Decompose(simpleGrammarPath, outDir, deckname, ignored, translations)
 	}
 
 	// load dialogues from file
