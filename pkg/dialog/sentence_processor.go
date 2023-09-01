@@ -2,6 +2,7 @@ package dialog
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -29,7 +30,6 @@ func (p *SentenceProcessor) DecomposeFromFile(path, outdir, deckname string, i i
 }
 
 func (p *SentenceProcessor) Decompose(sentences []string, outdir, deckname string, i ignore.Ignored, t translate.Translations) []Sentence {
-
 	var results []Sentence
 	for _, sentence := range sentences {
 		sentence = strings.ReplaceAll(sentence, " ", "")
@@ -85,6 +85,25 @@ func (p *SentenceProcessor) getAudio(sentences []Sentence) []Sentence {
 		sentences[x].Audio = filename
 	}
 	return sentences
+}
+
+func (p *SentenceProcessor) Export(sentences []Sentence, outDir string) {
+	p.ExportCards(sentences, outDir)
+	p.ExportJSON(sentences, outDir)
+}
+
+func (p *SentenceProcessor) ExportJSON(sentences []Sentence, outDir string) {
+	os.Mkdir(outDir, os.ModePerm)
+	outPath := filepath.Join(outDir, "sentences.json")
+	b, err := json.Marshal(sentences)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	if err := os.WriteFile(outPath, b, 0644); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
 
 func (p *SentenceProcessor) ExportCards(sentences []Sentence, outDir string) {

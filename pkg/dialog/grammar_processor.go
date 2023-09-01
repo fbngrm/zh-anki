@@ -1,6 +1,8 @@
 package dialog
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -29,6 +31,25 @@ func (g *GrammarProcessor) Decompose(path string, outdir, deckname string, i ign
 			sentences := g.Sentences.Decompose(structure.Examples, outdir, deckname, i, t)
 			g.Sentences.ExportCards(sentences, outdir)
 		}
+	}
+}
+
+func (g *GrammarProcessor) Export(grammar Grammar, outDir string) {
+	g.ExportCards(grammar, outDir)
+	g.ExportJSON(grammar, outDir)
+}
+
+func (g *GrammarProcessor) ExportJSON(grammar Grammar, outDir string) {
+	os.Mkdir(outDir, os.ModePerm)
+	outPath := filepath.Join(outDir, "grammar.json")
+	b, err := json.Marshal(grammar)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	if err := os.WriteFile(outPath, b, 0644); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 }
 

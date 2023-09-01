@@ -2,6 +2,7 @@ package dialog
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -107,6 +108,25 @@ func (p *DialogProcessor) fetchDialogAudio(dialog RawDialog, text string) error 
 	}
 
 	return p.Audio.JoinAndSaveDialogAudio(hash.Sha1(text), paths)
+}
+
+func (p *DialogProcessor) Export(dialogues []*Dialog, renderSentences bool, outDir string) {
+	p.ExportCards(dialogues, renderSentences, outDir)
+	p.ExportJSON(dialogues, outDir)
+}
+
+func (p *DialogProcessor) ExportJSON(dialogues []*Dialog, outDir string) {
+	os.Mkdir(outDir, os.ModePerm)
+	outPath := filepath.Join(outDir, "dialogues.json")
+	b, err := json.Marshal(dialogues)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	if err := os.WriteFile(outPath, b, 0644); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
 
 func (p *DialogProcessor) ExportCards(dialogues []*Dialog, renderSentences bool, outdir string) {

@@ -2,6 +2,7 @@ package dialog
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -165,6 +166,25 @@ func (p *WordProcessor) getAudio(words []Word) []Word {
 		words[y].Audio = filename
 	}
 	return words
+}
+
+func (p *WordProcessor) Export(words []Word, outDir string) {
+	p.ExportCards(words, outDir)
+	p.ExportJSON(words, outDir)
+}
+
+func (p *WordProcessor) ExportJSON(words []Word, outDir string) {
+	os.Mkdir(outDir, os.ModePerm)
+	outPath := filepath.Join(outDir, "words.json")
+	b, err := json.Marshal(words)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	if err := os.WriteFile(outPath, b, 0644); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
 
 func (p *WordProcessor) ExportCards(words []Word, outDir string) {
