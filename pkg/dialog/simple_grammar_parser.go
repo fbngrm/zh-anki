@@ -7,7 +7,7 @@ import (
 )
 
 func loadSimpleGrammar(path string) (SimpleGrammar, error) {
-	b, err := os.ReadFile("file.txt") // just pass the file name
+	b, err := os.ReadFile(path)
 	if err != nil {
 		return SimpleGrammar{}, fmt.Errorf("error reading simple grammar file: %v", err)
 	}
