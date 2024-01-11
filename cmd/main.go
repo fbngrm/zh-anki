@@ -45,7 +45,7 @@ func main() {
 	}
 
 	flag.StringVar(&lesson, "l", "", "lesson name")
-	flag.BoolVar(&renderSentences, "s", false, "render sentences")
+	flag.BoolVar(&renderSentences, "s", true, "render sentences")
 	flag.StringVar(&deck, "d", "", "anki deck name")
 	flag.StringVar(&tags, "t", "", "comma separated list of anki tags")
 	flag.Parse()
