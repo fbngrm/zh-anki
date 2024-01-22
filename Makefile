@@ -79,7 +79,7 @@ audio_concat_dir=./data/$(deck)/$(lesson)/audio/sentences_and_dialogs
 out_dir=./data/$(deck)/$(lesson)/audio/sentences_and_dialogs/concat
 audio:
 	mkdir -p $(out_dir)
-	cd $(audio_concat_dir); for i in *.mp3; do ffmpeg -i "$$i" -filter:a "atempo=0.75" /tmp/"$${i%.*}_slowed.mp3"; done
+	cd $(audio_concat_dir); for i in *.mp3; do ffmpeg -i "$$i" -filter:a "atempo=0.65" /tmp/"$${i%.*}_slowed.mp3"; done
 	cd $(audio_concat_dir); for i in *.mp3; do ffmpeg -i  /tmp/"$${i%.*}_slowed.mp3" -af "apad=pad_dur=1"  /tmp/"$${i%.*}_slowed_silence.mp3"; done
 	cd $(audio_concat_dir); for i in *.mp3; do ffmpeg -i  "$$i" -af "apad=pad_dur=1"  /tmp/"$${i%.*}_silence.mp3"; done
 	cd $(audio_concat_dir); for i in *.mp3; do ffmpeg -i /tmp/"$${i%.*}_silence.mp3" -i /tmp/"$${i%.*}_slowed_silence.mp3" -filter_complex "[0:a][1:a][0:a][1:a][0:a][1:a]concat=n=6:v=0:a=1[out]" -map "[out]" ./concat/"$${i%.*}_concat.mp3"; done
