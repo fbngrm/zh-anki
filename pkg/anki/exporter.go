@@ -9,7 +9,6 @@ import (
 )
 
 type Exporter struct {
-	Deckname      string
 	TmplProcessor *template.Processor
 }
 

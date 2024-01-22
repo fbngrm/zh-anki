@@ -34,7 +34,7 @@ type WordProcessor struct {
 }
 
 // used for simple words lists that need to lookup pinyin and translation in cedict.
-func (p *WordProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, t translate.Translations) []Word {
+func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t translate.Translations) []Word {
 	words := loadWords(path)
 
 	var newWords []Word

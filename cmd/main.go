@@ -24,10 +24,11 @@ import (
 const cedictSrc = "/home/f/work/src/github.com/fbngrm/zh/lib/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
 const wordFrequencySrc = "./lib/global_wordfreq.release_UTF-8.txt"
 
-var ignoreChars = []string{"!", "！", "？", "?", "，", ",", ".", "。", "", " "}
+var ignoreChars = []string{"!", "！", "？", "?", "，", ",", ".", "。", "", " ", "、"}
 
 var lesson string
-var deck string
+var source string
+var target string
 var tags string
 var tagList []string
 var deckname string
@@ -46,12 +47,16 @@ func main() {
 
 	flag.StringVar(&lesson, "l", "", "lesson name")
 	flag.BoolVar(&renderSentences, "s", true, "render sentences")
-	flag.StringVar(&deck, "d", "", "anki deck name")
+	flag.StringVar(&source, "src", "", "source folder name (and anki deck name if target is empty)")
+	flag.StringVar(&source, "tgt", "", "anki target deck name (if empty, use source)")
 	flag.StringVar(&tags, "t", "", "comma separated list of anki tags")
 	flag.Parse()
 
-	deckname = deck
-	path = deck
+	deckname = source
+	if target != "" {
+		deckname = target
+	}
+	path = source
 	if strings.Contains(tags, ",") {
 		tagList = strings.Split(tags, ",")
 	} else if len(tags) > 0 {
@@ -80,11 +85,10 @@ func main() {
 
 	audioDownloader := audio.Downloader{
 		IgnoreChars: ignoreChars,
-		AudioDir:    filepath.Join(cwd, "data", deck, lesson, "audio"),
+		AudioDir:    filepath.Join(cwd, "data", source, lesson, "audio"),
 	}
 
 	ankiExporter := anki.Exporter{
-		Deckname: deckname,
 		TmplProcessor: template.NewProcessor(
 			deckname,
 			filepath.Join(cwd, "tmpl"),
@@ -141,37 +145,34 @@ func main() {
 		Exporter:  ankiExporter,
 	}
 
-	outDir := filepath.Join(cwd, "data", deck, lesson, "output")
+	outDir := filepath.Join(cwd, "data", source, lesson, "output")
 	_ = os.Remove(outDir)
 
 	// load grammar from file
-	grammarPath := filepath.Join(cwd, "data", deck, lesson, "input", "grammar.yaml")
+	grammarPath := filepath.Join(cwd, "data", source, lesson, "input", "grammar.yaml")
 	if _, err := os.Stat(grammarPath); err == nil {
-		grammarProcessor.Decompose(grammarPath, outDir, deckname, ignored, translations)
+		grammarProcessor.Decompose(grammarPath, outDir, ignored, translations)
 	}
-	simpleGrammarPath := filepath.Join(cwd, "data", deck, lesson, "input", "simple_grammar")
+	simpleGrammarPath := filepath.Join(cwd, "data", source, lesson, "input", "simple_grammar")
 	if _, err := os.Stat(simpleGrammarPath); err == nil {
-		simpleGrammarProcessor.Decompose(simpleGrammarPath, outDir, deckname, ignored, translations)
+		simpleGrammarProcessor.Decompose(simpleGrammarPath, outDir, ignored, translations)
 	}
-
+	// load sentences from file
+	sentencePath := filepath.Join(cwd, "data", source, lesson, "input", "sentences")
+	if _, err := os.Stat(sentencePath); err == nil {
+		sentences := sentenceProcessor.DecomposeFromFile(sentencePath, outDir, ignored, translations)
+		sentenceProcessor.ExportCards(sentences, outDir)
+	}
+	wordPath := filepath.Join(cwd, "data", source, lesson, "input", "words")
+	if _, err := os.Stat(wordPath); err == nil {
+		words := wordProcessor.Decompose(wordPath, outDir, ignored, translations)
+		wordProcessor.ExportCards(words, outDir)
+	}
 	// load dialogues from file
-	dialogPath := filepath.Join(cwd, "data", deck, lesson, "input", "dialogues")
+	dialogPath := filepath.Join(cwd, "data", source, lesson, "input", "dialogues")
 	if _, err := os.Stat(dialogPath); err == nil {
 		dialogues := dialogProcessor.Decompose(dialogPath, outDir, deckname, ignored, translations)
 		dialogProcessor.ExportCards(dialogues, renderSentences, outDir)
-	}
-
-	// load sentences from file
-	sentencePath := filepath.Join(cwd, "data", deck, lesson, "input", "sentences")
-	if _, err := os.Stat(sentencePath); err == nil {
-		sentences := sentenceProcessor.DecomposeFromFile(sentencePath, outDir, deckname, ignored, translations)
-		sentenceProcessor.ExportCards(sentences, outDir)
-	}
-
-	wordPath := filepath.Join(cwd, "data", deck, lesson, "input", "words")
-	if _, err := os.Stat(wordPath); err == nil {
-		words := wordProcessor.Decompose(wordPath, outDir, deckname, ignored, translations)
-		wordProcessor.ExportCards(words, outDir)
 	}
 
 	// write newly ignored words

@@ -17,7 +17,7 @@ type GrammarProcessor struct {
 	Exporter  anki.Exporter
 }
 
-func (g *GrammarProcessor) Decompose(path string, outdir, deckname string, i ignore.Ignored, t translate.Translations) {
+func (g *GrammarProcessor) Decompose(path string, outdir string, i ignore.Ignored, t translate.Translations) {
 	grammar, err := loadGrammarYAML(path)
 	if err != nil {
 		log.Fatal(err)
@@ -28,7 +28,7 @@ func (g *GrammarProcessor) Decompose(path string, outdir, deckname string, i ign
 	for _, section := range grammar.Sections {
 		for _, structure := range section.Structures {
 			// we create cards for the example sentences
-			sentences := g.Sentences.Decompose(structure.Examples, outdir, deckname, i, t)
+			sentences := g.Sentences.Decompose(structure.Examples, outdir, i, t)
 			g.Sentences.ExportCards(sentences, outdir)
 		}
 	}

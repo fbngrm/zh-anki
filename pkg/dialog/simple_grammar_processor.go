@@ -17,7 +17,7 @@ type SimpleGrammarProcessor struct {
 	Exporter  anki.Exporter
 }
 
-func (g *SimpleGrammarProcessor) Decompose(path string, outdir, deckname string, i ignore.Ignored, t translate.Translations) {
+func (g *SimpleGrammarProcessor) Decompose(path string, outdir string, i ignore.Ignored, t translate.Translations) {
 	grammar, err := loadSimpleGrammar(path)
 	if err != nil {
 		log.Fatal(err)
