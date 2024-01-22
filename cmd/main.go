@@ -48,7 +48,7 @@ func main() {
 	flag.StringVar(&lesson, "l", "", "lesson name")
 	flag.BoolVar(&renderSentences, "s", true, "render sentences")
 	flag.StringVar(&source, "src", "", "source folder name (and anki deck name if target is empty)")
-	flag.StringVar(&source, "tgt", "", "anki target deck name (if empty, use source)")
+	flag.StringVar(&target, "tgt", "", "anki target deck name (if empty, use source)")
 	flag.StringVar(&tags, "t", "", "comma separated list of anki tags")
 	flag.Parse()
 
@@ -153,7 +153,8 @@ func main() {
 	if _, err := os.Stat(grammarPath); err == nil {
 		grammarProcessor.Decompose(grammarPath, outDir, ignored, translations)
 	}
-	simpleGrammarPath := filepath.Join(cwd, "data", source, lesson, "input", "simple_grammar")
+	simpleGrammarPath := filepath.Join(cwd, "data", source, lesson, "input", "grammar")
+	fmt.Println(simpleGrammarPath)
 	if _, err := os.Stat(simpleGrammarPath); err == nil {
 		simpleGrammarProcessor.Decompose(simpleGrammarPath, outDir, ignored, translations)
 	}
