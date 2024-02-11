@@ -46,6 +46,9 @@ func (p *Processor) GetAll(word string, t translate.Translations) []Char {
 		isSingleRune := utf8.RuneCountInString(c) == 1
 		if isSingleRune {
 			examples := p.WordIndex.GetExamplesForHanzi(c, 4)
+			for i, e := range examples {
+				examples[i] = fmt.Sprintf(word, " [%s]", p.getPinyin(e))
+			}
 			examples = append(examples, word)
 			example = strings.Join(examples, ", ")
 		}
