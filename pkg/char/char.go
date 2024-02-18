@@ -12,6 +12,7 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/translate"
+	"github.com/fbngrm/zh-mnemonics/mnemonic"
 	"github.com/fbngrm/zh/lib/cedict"
 )
 
@@ -26,14 +27,17 @@ type Char struct {
 	Kangxi       []string `yaml:"kangxi"`
 	Equivalents  string   `yaml:"equivalents"`
 	Example      string   `yaml:"example"`
+	MnemonicBase string   `yaml:"mnemonic_base"`
+	Mnemonic     string   `yaml:"mnemonic"`
 }
 
 type Processor struct {
-	IgnoreChars []string
-	Cedict      map[string][]cedict.Entry
-	Audio       audio.Downloader
-	Decomposer  *decomposition.Decomposer
-	WordIndex   *frequency.WordIndex
+	IgnoreChars     []string
+	Cedict          map[string][]cedict.Entry
+	Audio           audio.Downloader
+	Decomposer      *decomposition.Decomposer
+	WordIndex       *frequency.WordIndex
+	MnemonicBuilder *mnemonic.Builder
 }
 
 func (p *Processor) GetAll(word string, t translate.Translations) []Char {
@@ -63,6 +67,8 @@ func (p *Processor) GetAll(word string, t translate.Translations) []Char {
 			Equivalents:  removeRedundant(hanzi.Equivalents),
 			Traditional:  removeRedundant(hanzi.IdeographsTraditional),
 			Example:      example,
+			MnemonicBase: p.getMnemonicBase(c),
+			Mnemonic:     p.MnemonicBuilder.Lookup(c),
 		})
 	}
 	return p.getAudio(allChars)
@@ -93,7 +99,7 @@ func removeRedundant(in []string) string {
 	return strings.Join(out, ", ")
 }
 
-func (p *Processor) getPinyin(ch string) string {
+func (p *Processor) getReadings(ch string) []string {
 	entries, _ := p.Cedict[string(ch)]
 	readings := make(map[string]struct{})
 	for _, entry := range entries {
@@ -105,7 +111,23 @@ func (p *Processor) getPinyin(ch string) string {
 	for reading := range readings {
 		pinyin = append(pinyin, reading)
 	}
-	return strings.Join(pinyin, ", ")
+	return pinyin
+}
+
+func (p *Processor) getPinyin(ch string) string {
+	return strings.Join(p.getReadings(ch), ", ")
+}
+
+func (p *Processor) getMnemonicBase(ch string) string {
+	mnemonicBase := ""
+	for _, pinyin := range p.getReadings(ch) {
+		m, err := p.MnemonicBuilder.GetBase(pinyin)
+		if err != nil {
+			fmt.Printf("could not get mnemonic base for word: %s", pinyin)
+		}
+		mnemonicBase = fmt.Sprintf("%s%s<br>%s<br>", mnemonicBase, pinyin, m)
+	}
+	return mnemonicBase
 }
 
 func (p *Processor) getAudio(chars []Char) []Char {
