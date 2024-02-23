@@ -18,11 +18,13 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/openai"
 	"github.com/fbngrm/zh-anki/pkg/template"
 	"github.com/fbngrm/zh-anki/pkg/translate"
+	"github.com/fbngrm/zh-mnemonics/mnemonic"
 	"github.com/fbngrm/zh/lib/cedict"
 )
 
 const cedictSrc = "/home/f/work/src/github.com/fbngrm/zh/lib/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
 const wordFrequencySrc = "./lib/global_wordfreq.release_UTF-8.txt"
+const mnemonicsSrc = "/home/f/Dropbox/notes/chinese/mnemonics/words.csv"
 
 var ignoreChars = []string{"!", "！", "？", "?", "，", ",", ".", "。", "", " ", "、"}
 
@@ -108,12 +110,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	mnBuilder, err := mnemonic.NewBuilder(mnemonicsSrc)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 	charProcessor := char.Processor{
-		IgnoreChars: ignoreChars,
-		Cedict:      cedictDict,
-		Audio:       audioDownloader,
-		Decomposer:  decomposer,
-		WordIndex:   wordIndex,
+		IgnoreChars:     ignoreChars,
+		Cedict:          cedictDict,
+		Audio:           audioDownloader,
+		Decomposer:      decomposer,
+		WordIndex:       wordIndex,
+		MnemonicBuilder: mnBuilder,
 	}
 	wordProcessor := dialog.WordProcessor{
 		Cedict:      cedictDict,

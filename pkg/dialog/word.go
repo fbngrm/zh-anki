@@ -18,4 +18,6 @@ type Word struct {
 	Equivalents  string      `yaml:"equivalents"`
 	Example      string      `yaml:"example"`
 	UniqueChars  []string    `yaml:"unique_chars"`
+	Mnemonic     string      `yaml:"mnemonic"`
+	MnemonicBase string      `yaml:"mnemonic_base"`
 }
