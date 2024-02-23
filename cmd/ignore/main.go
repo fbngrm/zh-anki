@@ -32,6 +32,7 @@ func main() {
 
 	l := len(words)
 
+	missing := make([]string, 0)
 	// Check for each word if a flashcard exists in Anki
 	for i := 0; i < len(words); {
 		word := words[i]
@@ -40,6 +41,7 @@ func main() {
 		} else {
 			// Remove the word from the list if no note is found
 			words = append(words[:i], words[i+1:]...)
+			missing = append(missing, word)
 		}
 	}
 
@@ -47,6 +49,11 @@ func main() {
 
 	// Write the updated list back to the file
 	err = writeChineseWordsToFile("chinese_words.txt", words)
+	if err != nil {
+		fmt.Println("Error writing file:", err)
+		return
+	}
+	err = writeChineseWordsToFile("chinese_words_missing.txt", missing)
 	if err != nil {
 		fmt.Println("Error writing file:", err)
 		return
@@ -72,7 +79,7 @@ func writeChineseWordsToFile(filename string, words []string) error {
 }
 
 func noteExistsInAnki(word string) bool {
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(50 * time.Millisecond)
 	query := fmt.Sprintf("Chinese:*>%s<*", word)
 	request := AnkiRequest{
 		Action:  "findNotes",
