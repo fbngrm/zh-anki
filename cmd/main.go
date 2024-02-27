@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/fbngrm/zh-anki/pkg/anki"
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/char"
 	"github.com/fbngrm/zh-anki/pkg/decomposition"
@@ -16,7 +15,6 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/frequency"
 	ignore_dict "github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
-	"github.com/fbngrm/zh-anki/pkg/template"
 	"github.com/fbngrm/zh-anki/pkg/translate"
 	"github.com/fbngrm/zh-mnemonics/mnemonic"
 	"github.com/fbngrm/zh/lib/cedict"
@@ -90,17 +88,9 @@ func main() {
 		AudioDir:    filepath.Join(cwd, "data", source, lesson, "audio"),
 	}
 
-	ankiExporter := anki.Exporter{
-		TmplProcessor: template.NewProcessor(
-			deckname,
-			filepath.Join(cwd, "tmpl"),
-			tagList,
-		),
-	}
-
 	// we cache responses from openai api and google text-to-speech
 	cacheDir := filepath.Join(cwd, "data", "cache")
-	cache := openai.NewCache(cacheDir, &ankiExporter)
+	cache := openai.NewCache(cacheDir)
 
 	decomposer := decomposition.NewDecomposer()
 
@@ -125,64 +115,53 @@ func main() {
 		MnemonicBuilder: mnBuilder,
 	}
 	wordProcessor := dialog.WordProcessor{
-		Cedict:      cedictDict,
-		Chars:       charProcessor,
-		Audio:       audioDownloader,
-		IgnoreChars: ignoreChars,
-		Exporter:    ankiExporter,
-		Decomposer:  decomposer,
-		WordIndex:   wordIndex,
+		Cedict:          cedictDict,
+		Chars:           charProcessor,
+		Audio:           audioDownloader,
+		IgnoreChars:     ignoreChars,
+		Decomposer:      decomposer,
+		WordIndex:       wordIndex,
+		MnemonicBuilder: mnBuilder,
 	}
 	sentenceProcessor := dialog.SentenceProcessor{
-		Client:   openai.NewClient(apiKey, cache),
-		Words:    wordProcessor,
-		Audio:    audioDownloader,
-		Exporter: ankiExporter,
+		Client: openai.NewClient(apiKey, cache),
+		Words:  wordProcessor,
+		Audio:  audioDownloader,
 	}
 	dialogProcessor := dialog.DialogProcessor{
 		Client:    openai.NewClient(apiKey, cache),
 		Sentences: sentenceProcessor,
 		Audio:     audioDownloader,
-		Exporter:  ankiExporter,
-	}
-	grammarProcessor := dialog.GrammarProcessor{
-		Sentences: sentenceProcessor,
-		Exporter:  ankiExporter,
 	}
 	simpleGrammarProcessor := dialog.SimpleGrammarProcessor{
 		Sentences: sentenceProcessor,
-		Exporter:  ankiExporter,
 	}
 
 	outDir := filepath.Join(cwd, "data", source, lesson, "output")
 	_ = os.Remove(outDir)
 
 	// load grammar from file
-	grammarPath := filepath.Join(cwd, "data", source, lesson, "input", "grammar.yaml")
-	if _, err := os.Stat(grammarPath); err == nil {
-		grammarProcessor.Decompose(grammarPath, outDir, ignored, translations)
-	}
 	simpleGrammarPath := filepath.Join(cwd, "data", source, lesson, "input", "grammar")
 	fmt.Println(simpleGrammarPath)
 	if _, err := os.Stat(simpleGrammarPath); err == nil {
-		simpleGrammarProcessor.Decompose(simpleGrammarPath, outDir, ignored, translations)
+		simpleGrammarProcessor.Decompose(simpleGrammarPath, outDir, deckname, ignored, translations)
 	}
 	// load sentences from file
 	sentencePath := filepath.Join(cwd, "data", source, lesson, "input", "sentences")
 	if _, err := os.Stat(sentencePath); err == nil {
 		sentences := sentenceProcessor.DecomposeFromFile(sentencePath, outDir, ignored, translations)
-		sentenceProcessor.ExportCards(sentences, outDir)
+		sentenceProcessor.ExportCards(deckname, sentences)
 	}
 	wordPath := filepath.Join(cwd, "data", source, lesson, "input", "words")
 	if _, err := os.Stat(wordPath); err == nil {
 		words := wordProcessor.Decompose(wordPath, outDir, ignored, translations)
-		wordProcessor.ExportCards(words, outDir)
+		wordProcessor.ExportCards(deckname, words)
 	}
 	// load dialogues from file
 	dialogPath := filepath.Join(cwd, "data", source, lesson, "input", "dialogues")
 	if _, err := os.Stat(dialogPath); err == nil {
 		dialogues := dialogProcessor.Decompose(dialogPath, outDir, deckname, ignored, translations)
-		dialogProcessor.ExportCards(dialogues, renderSentences, outDir)
+		dialogProcessor.ExportCards(deckname, dialogues, renderSentences)
 	}
 
 	// write newly ignored words

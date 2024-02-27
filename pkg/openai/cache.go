@@ -7,21 +7,18 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/fbngrm/zh-anki/pkg/anki"
 	"github.com/fbngrm/zh-anki/pkg/hash"
 )
 
 type Cache struct {
-	dir      string
-	index    map[string]struct{}
-	exporter *anki.Exporter
+	dir   string
+	index map[string]struct{}
 }
 
-func NewCache(dir string, exporter *anki.Exporter) *Cache {
+func NewCache(dir string) *Cache {
 	return &Cache{
-		dir:      dir,
-		index:    read(dir),
-		exporter: exporter,
+		dir:   dir,
+		index: read(dir),
 	}
 }
 

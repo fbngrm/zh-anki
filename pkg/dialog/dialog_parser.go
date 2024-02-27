@@ -85,10 +85,10 @@ func splitSpeakerAndText(line string) DialogLine {
 	} else if strings.Contains(line, "：") {
 		parts = strings.Split(line, "：")
 	}
-	if len(parts) == 1 {
+	if len(parts) == 0 {
 		return DialogLine{
 			"",
-			parts[0],
+			line,
 		}
 	}
 	return DialogLine{

@@ -10,7 +10,6 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/fbngrm/zh-anki/pkg/anki"
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
@@ -19,10 +18,9 @@ import (
 )
 
 type SentenceProcessor struct {
-	Client   *openai.Client
-	Words    WordProcessor
-	Audio    audio.Downloader
-	Exporter anki.Exporter
+	Client *openai.Client
+	Words  WordProcessor
+	Audio  audio.Downloader
 }
 
 func (p *SentenceProcessor) DecomposeFromFile(path, outdir string, i ignore.Ignored, t translate.Translations) []Sentence {
@@ -47,7 +45,6 @@ func (p *SentenceProcessor) Decompose(sentences []string, outdir string, i ignor
 			Chinese:      s.Chinese,
 			English:      s.English,
 			Pinyin:       s.Pinyin,
-			Audio:        hash.Sha1(s.Chinese),
 			AllWords:     allWords,
 			NewWords:     newWords,
 			IsSingleRune: utf8.RuneCountInString(s.Chinese) == 1,
@@ -67,7 +64,6 @@ func (p *SentenceProcessor) Get(sentences []openai.Sentence, i ignore.Ignored, t
 			Chinese:      s.Chinese,
 			English:      s.English,
 			Pinyin:       s.Pinyin,
-			Audio:        hash.Sha1(s.Chinese),
 			AllWords:     allWords,
 			NewWords:     newWords,
 			IsSingleRune: utf8.RuneCountInString(s.Chinese) == 1,
@@ -87,8 +83,8 @@ func (p *SentenceProcessor) getAudio(sentences []Sentence) []Sentence {
 	return sentences
 }
 
-func (p *SentenceProcessor) Export(sentences []Sentence, outDir string) {
-	p.ExportCards(sentences, outDir)
+func (p *SentenceProcessor) Export(sentences []Sentence, outDir, deckname string) {
+	p.ExportCards(deckname, sentences)
 	p.ExportJSON(sentences, outDir)
 }
 
@@ -106,10 +102,12 @@ func (p *SentenceProcessor) ExportJSON(sentences []Sentence, outDir string) {
 	}
 }
 
-func (p *SentenceProcessor) ExportCards(sentences []Sentence, outDir string) {
-	os.Mkdir(outDir, os.ModePerm)
-	outPath := filepath.Join(outDir, "cards.md")
-	p.Exporter.CreateOrAppendAnkiCards(sentences, "sentences.tmpl", outPath)
+func (p *SentenceProcessor) ExportCards(deckname string, sentences []Sentence) {
+	for _, s := range sentences {
+		if err := ExportSentence(deckname, s); err != nil {
+			fmt.Println(err)
+		}
+	}
 }
 
 func getAllChars(s string) []string {

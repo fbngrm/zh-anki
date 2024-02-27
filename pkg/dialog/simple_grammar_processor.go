@@ -7,26 +7,24 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/fbngrm/zh-anki/pkg/anki"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/translate"
 )
 
 type SimpleGrammarProcessor struct {
 	Sentences SentenceProcessor
-	Exporter  anki.Exporter
 }
 
-func (g *SimpleGrammarProcessor) Decompose(path string, outdir string, i ignore.Ignored, t translate.Translations) {
+func (g *SimpleGrammarProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, t translate.Translations) {
 	grammar, err := loadSimpleGrammar(path)
 	if err != nil {
 		log.Fatal(err)
 	}
-	g.ExportCards(grammar, outdir)
+	g.Export(grammar, outdir, deckname)
 }
 
-func (g *SimpleGrammarProcessor) Export(grammar SimpleGrammar, outDir string) {
-	g.ExportCards(grammar, outDir)
+func (g *SimpleGrammarProcessor) Export(grammar SimpleGrammar, outDir, deckname string) {
+	g.ExportCards(deckname, grammar)
 	g.ExportJSON(grammar, outDir)
 }
 
@@ -44,8 +42,8 @@ func (g *SimpleGrammarProcessor) ExportJSON(grammar SimpleGrammar, outDir string
 	}
 }
 
-func (g *SimpleGrammarProcessor) ExportCards(grammar SimpleGrammar, outDir string) {
-	os.Mkdir(outDir, os.ModePerm)
-	outPath := filepath.Join(outDir, "cards.md")
-	g.Exporter.CreateOrAppendAnkiCards(grammar, "simple_grammar.tmpl", outPath)
+func (g *SimpleGrammarProcessor) ExportCards(deckname string, grammar SimpleGrammar) {
+	if err := ExportGrammar(deckname, grammar); err != nil {
+		fmt.Printf("export simple grammar: %s\n", err.Error())
+	}
 }

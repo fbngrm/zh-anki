@@ -9,7 +9,6 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/fbngrm/zh-anki/pkg/anki"
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
@@ -21,7 +20,6 @@ type DialogProcessor struct {
 	Client    *openai.Client
 	Sentences SentenceProcessor
 	Audio     audio.Downloader
-	Exporter  anki.Exporter
 }
 
 func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, t translate.Translations) []*Dialog {
@@ -57,6 +55,7 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Igno
 			// this determines the audio filename. it is used in the template to set the audio file name.
 			Chinese:     chinese,
 			English:     english,
+			Audio:       hash.Sha1(chinese),
 			Pinyin:      pinyin,
 			Sentences:   p.Sentences.Get(decompositon, i, t),
 			UniqueChars: getUniqueChars(chinese),
@@ -110,8 +109,8 @@ func (p *DialogProcessor) fetchDialogAudio(dialog RawDialog, text string) error 
 	return p.Audio.JoinAndSaveDialogAudio(hash.Sha1(text), paths)
 }
 
-func (p *DialogProcessor) Export(dialogues []*Dialog, renderSentences bool, outDir string) {
-	p.ExportCards(dialogues, renderSentences, outDir)
+func (p *DialogProcessor) Export(dialogues []*Dialog, renderSentences bool, outDir, deckname string) {
+	p.ExportCards(deckname, dialogues, renderSentences)
 	p.ExportJSON(dialogues, outDir)
 }
 
@@ -129,14 +128,12 @@ func (p *DialogProcessor) ExportJSON(dialogues []*Dialog, outDir string) {
 	}
 }
 
-func (p *DialogProcessor) ExportCards(dialogues []*Dialog, renderSentences bool, outdir string) {
-	os.Mkdir(outdir, os.ModePerm)
-	outpath := filepath.Join(outdir, "cards.md")
-	data := map[string]interface{}{
-		"Dialogues":       dialogues,
-		"RenderSentences": renderSentences,
+func (p *DialogProcessor) ExportCards(deckname string, dialogues []*Dialog, renderSentences bool) {
+	for _, d := range dialogues {
+		if err := ExportDialog(renderSentences, d); err != nil {
+			fmt.Println(err)
+		}
 	}
-	p.Exporter.CreateOrAppendAnkiCards(data, "dialog.tmpl", outpath)
 }
 
 func getColorsForSpeakers(speakers map[string]struct{}) map[string]string {
