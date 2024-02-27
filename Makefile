@@ -5,29 +5,18 @@ audio_dir=./data/$(source)/$(lesson)/audio
 gen:
 	rm -r -f $(data_dir)/output/
 	mkdir $(data_dir)/output/
+	rm -r -f $(audio_dir)
+	mkdir $(audio_dir)
 	go run cmd/main.go -l $(lesson) -src $(source) -tgt $(target) -t $(tags)
-
-.PHONY: add
-add:
-	apy add-from-file $(data_dir)/output/cards.md
-	@printf "Done. Don't forget to sync: make sync\n"
 
 anki_audio_dir="/home/f/.local/share/Anki2/User 1/collection.media/"
 .PHONY: cp-audio
 cp-audio:
 	cd $(audio_dir)
-	$(shell find . -type f -name '*.mp3' -exec cp {} $(anki_audio_dir) \;)
-
-.PHONY: sync
-sync:
-	apy check-media
-	apy sync
-	@echo "don't forget to commit ignore file!"
+	$(shell find $(audio_dir) -type f -name '*.mp3' -exec cp {} $(anki_audio_dir) \;)
 
 .PHONY: anki
-anki: gen add cp-audio
-	apy check-media
-	apy sync
+anki: gen cp-audio
 	@echo "don't forget to commit ignore file!"
 
 .PHONY: new
@@ -64,7 +53,7 @@ audio_concat_dir=./data/$(source)/$(lesson)/audio/sentences_and_dialogs
 out_dir=./data/$(source)/$(lesson)/audio/sentences_and_dialogs/concat
 audio_concat:
 	mkdir -p $(out_dir)
-	cd $(audio_concat_dir); for i in *.mp3; do ffmpeg -i "$$i" -filter:a "atempo=0.85" /tmp/"$${i%.*}_slow.mp3"; done
+	cd $(audio_concat_dir); for i in *.mp3; do ffmpeg -i "$$i" -filter:a "atempo=0.7" /tmp/"$${i%.*}_slow.mp3"; done
 	cd $(audio_concat_dir); for i in *.mp3; do ffmpeg -i "concat:$$i|$(silence)|/tmp/$${i%.*}_slow.mp3|$(silence)|$$i|$(silence)|/tmp/$${i%.*}_slow.mp3|$(silence)|$$i|$(silence)|$(silence)" -acodec copy ./concat/"$${i%.*}_concat.mp3"; done
 
 .PHONY: mv-audio
