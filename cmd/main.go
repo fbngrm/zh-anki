@@ -142,7 +142,6 @@ func main() {
 
 	// load grammar from file
 	simpleGrammarPath := filepath.Join(cwd, "data", source, lesson, "input", "grammar")
-	fmt.Println(simpleGrammarPath)
 	if _, err := os.Stat(simpleGrammarPath); err == nil {
 		simpleGrammarProcessor.Decompose(simpleGrammarPath, outDir, deckname, ignored, translations)
 	}
