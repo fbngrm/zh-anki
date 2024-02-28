@@ -5,14 +5,14 @@ audio_dir=./data/$(source)/$(lesson)/audio
 gen:
 	rm -r -f $(data_dir)/output/
 	mkdir $(data_dir)/output/
-	rm -r -f $(audio_dir)
-	mkdir $(audio_dir)
+	mkdir -p $(audio_dir) || true
 	go run cmd/main.go -l $(lesson) -src $(source) -tgt $(target) -t $(tags)
 
 anki_audio_dir="/home/f/.local/share/Anki2/User 1/collection.media/"
 .PHONY: cp-audio
 cp-audio:
-	cd $(audio_dir)
+	@cd $(audio_dir)
+	@echo "copy audio files to anki audio dir: $(anki_audio_dir)"
 	$(shell find $(audio_dir) -type f -name '*.mp3' -exec cp {} $(anki_audio_dir) \;)
 
 .PHONY: anki
@@ -21,10 +21,11 @@ anki: gen cp-audio
 
 .PHONY: new
 new:
-	mkdir -p $(data_dir)
-	touch  $(data_dir)/dialog
-	touch  $(data_dir)/sentences
-	touch  $(data_dir)/words
+	mkdir -p $(data_dir)/input
+	touch  $(data_dir)/input/dialogues
+	touch  $(data_dir)/input/sentences
+	touch  $(data_dir)/input/words
+	touch  $(data_dir)/audio
 
 # .PHONY: commit-ignore
 # ignore_path=$(data_dir)/../ignore
@@ -61,6 +62,7 @@ src=./data/$(source)/$(lesson)/audio/sentences_and_dialogs/concat
 dst=/home/f/data/rslsync/zh/$(source)/$(lesson)
 mv-audio:
 	mkdir -p $(dst)
+	echo "move files to $(dst)"
 	cp $(src)/*concat.mp3 $(dst)/
 
 .PHONY: audio
