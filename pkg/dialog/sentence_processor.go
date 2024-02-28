@@ -31,8 +31,7 @@ func (p *SentenceProcessor) Decompose(sentences []string, outdir string, i ignor
 	var results []Sentence
 	for _, sentence := range sentences {
 		sentence = strings.ReplaceAll(sentence, " ", "")
-		fmt.Println("decompose sentence:")
-		fmt.Println(sentence)
+		fmt.Printf("decompose sentence: %s\n", sentence)
 
 		s, err := p.Client.DecomposeSentence(sentence)
 		if err != nil {
@@ -74,8 +73,8 @@ func (p *SentenceProcessor) Get(sentences []openai.Sentence, i ignore.Ignored, t
 
 func (p *SentenceProcessor) getAudio(sentences []Sentence) []Sentence {
 	for x, sentence := range sentences {
-		filename, err := p.Audio.Fetch(context.Background(), sentence.Chinese, hash.Sha1(sentence.Chinese), true)
-		if err != nil {
+		filename := hash.Sha1(sentence.Chinese) + ".mp3"
+		if err := p.Audio.Fetch(context.Background(), sentence.Chinese, filename, true); err != nil {
 			fmt.Println(err)
 		}
 		sentences[x].Audio = filename

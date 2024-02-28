@@ -151,7 +151,7 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.T
 	var newWords []Word
 	for _, word := range allWords {
 		if _, ok := i[word.Chinese]; ok {
-			fmt.Println("word exists: ", word.Chinese)
+			fmt.Println("word exists in ignore list: ", word.Chinese)
 			continue
 		}
 		i.Update(word.Chinese)
@@ -166,8 +166,8 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.T
 
 func (p *WordProcessor) getAudio(words []Word) []Word {
 	for y, word := range words {
-		filename, err := p.Audio.Fetch(context.Background(), word.Chinese, hash.Sha1(word.Chinese), false)
-		if err != nil {
+		filename := hash.Sha1(word.Chinese) + ".mp3"
+		if err := p.Audio.Fetch(context.Background(), word.Chinese, filename, false); err != nil {
 			fmt.Println(err)
 		}
 		words[y].Audio = filename
@@ -222,7 +222,7 @@ func (p *WordProcessor) getMnemonicBase(ch string) string {
 	for _, pinyin := range p.getReadings(ch) {
 		m, err := p.MnemonicBuilder.GetBase(pinyin)
 		if err != nil {
-			fmt.Printf("could not get mnemonic base for word: %s", pinyin)
+			fmt.Printf("could not get mnemonic base for word: %s\n", pinyin)
 		}
 		mnemonicBase = fmt.Sprintf("%s%s<br>%s<br>", mnemonicBase, pinyin, m)
 	}

@@ -59,17 +59,16 @@ func (p *Downloader) GetVoices(
 
 // download audio file from google text-to-speech api if it doesn't exist in cache dir.
 // we also store a sentenceAndDialogOnlyDir to create audio loops for which we want to exclude words and chars.
-func (p *Downloader) Fetch(ctx context.Context, query, filename string, isSentenceOrDialog bool) (string, error) {
-	filename = filename + ".mp3"
+func (p *Downloader) Fetch(ctx context.Context, query, filename string, isSentenceOrDialog bool) error {
 	if contains(p.IgnoreChars, query) {
-		return filename, nil
+		return nil
 	}
 	if err := os.MkdirAll(p.AudioDir, os.ModePerm); err != nil {
-		return "", err
+		return err
 	}
 	sentenceAndDialogOnlyDir := filepath.Join(p.AudioDir, "sentences_and_dialogs")
 	if err := os.MkdirAll(sentenceAndDialogOnlyDir, os.ModePerm); err != nil {
-		return "", err
+		return err
 	}
 	lessonPath := filepath.Join(p.AudioDir, filename)
 	cachePath := filepath.Join(p.AudioDir, "..", "..", "..", "audio", filename)
@@ -89,30 +88,30 @@ func (p *Downloader) Fetch(ctx context.Context, query, filename string, isSenten
 			}
 		}
 		if !hasErr {
-			return filename, nil
+			return nil
 		}
 	}
 
 	resp, err := fetch(ctx, query, nil)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	// The resp's AudioContent is binary.
 	err = ioutil.WriteFile(lessonPath, resp.AudioContent, os.ModePerm)
 	if err != nil {
-		return "", err
+		return err
 	}
 	// for creating audio loops from sentences and dialogs only.
 	if isSentenceOrDialog {
 		err = ioutil.WriteFile(sentenceAndDialogOnlyPath, resp.AudioContent, os.ModePerm)
 		if err != nil {
-			return "", err
+			return err
 		}
 	}
 	err = ioutil.WriteFile(cachePath, resp.AudioContent, os.ModePerm)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	fmt.Printf("%v\n", query)
@@ -121,14 +120,10 @@ func (p *Downloader) Fetch(ctx context.Context, query, filename string, isSenten
 	} else {
 		fmt.Printf("audio content written to files:\n%s\n%s\n", lessonPath, cachePath)
 	}
-	return filename, nil
+	return nil
 }
 
-func (p *Downloader) FetchTmpAudioWithVoice(
-	ctx context.Context,
-	query, filename string,
-	voice *texttospeechpb.VoiceSelectionParams,
-) (string, error) {
+func (p *Downloader) FetchTmpAudioWithVoice(ctx context.Context, query, filename string, voice *texttospeechpb.VoiceSelectionParams) (string, error) {
 	filename = filename + ".mp3"
 	// cachePath := filepath.Join(p.AudioDir, "..", "..", "..", "audio", filename)
 	tmpFile, err := os.CreateTemp("", "zh")
@@ -164,7 +159,6 @@ func (p *Downloader) FetchTmpAudioWithVoice(
 }
 
 func (p *Downloader) JoinAndSaveDialogAudio(filename string, partsPaths []string) error {
-	filename = filename + ".mp3"
 	if err := os.MkdirAll(p.AudioDir, os.ModePerm); err != nil {
 		return err
 	}

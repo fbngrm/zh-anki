@@ -25,6 +25,5 @@ func loadSentences(path string) []string {
 		}
 		sentences = append(sentences, strings.TrimSpace(sentence))
 	}
-	sentences = append(sentences, sentence)
 	return sentences
 }

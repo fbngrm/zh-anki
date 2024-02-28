@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
@@ -50,12 +51,13 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Igno
 			english += " "
 		}
 		chinese := getChineseText(dialog.Lines, getColorsForSpeakers(dialog.Speakers))
+		audioFilename := hash.Sha1(chinese) + ".mp3"
 		d := &Dialog{
 			Deck: deckname,
 			// this determines the audio filename. it is used in the template to set the audio file name.
 			Chinese:     chinese,
 			English:     english,
-			Audio:       hash.Sha1(chinese),
+			Audio:       audioFilename,
 			Pinyin:      pinyin,
 			Sentences:   p.Sentences.Get(decompositon, i, t),
 			UniqueChars: getUniqueChars(chinese),
@@ -64,27 +66,49 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Igno
 
 		// note, we support 4 different voices only!
 		if len(dialog.Speakers) != 0 {
-			if err := p.fetchDialogAudio(dialog, chinese); err != nil {
+			if err := p.fetchDialogAudio(dialog, audioFilename); err != nil {
 				fmt.Println(err)
 			}
 		} else {
-			p.fetchAudio(dialog, chinese)
+			p.fetchAudio(dialog, audioFilename)
 		}
 	}
 	return results
 }
 
-func (p *DialogProcessor) fetchAudio(d RawDialog, text string) string {
-	filename, err := p.Audio.Fetch(context.Background(), d.Text, hash.Sha1(text), true)
+func (p *DialogProcessor) checkForOriginalAudio(filename string) error {
+	existingAudioPath := filepath.Join(p.Audio.AudioDir, "dialog.mp3")
+	if _, err := os.Stat(existingAudioPath); err != nil {
+		return err
+	}
+	dst := filepath.Join(p.Audio.AudioDir, filename)
+	if err := copy(existingAudioPath, dst); err != nil {
+		fmt.Printf("copy original audio: %v\n", err)
+		return err
+	}
+	return nil
+}
+
+func (p *DialogProcessor) fetchAudio(d RawDialog, filename string) {
+	// if an audio file called dialog.mp3 already exists, we use instead of generating one
+	if err := p.checkForOriginalAudio(filename); err == nil {
+		return
+	}
+
+	err := p.Audio.Fetch(context.Background(), d.Text, filename, true)
 	if err != nil {
 		fmt.Println(err)
 	}
-	return filename
 }
 
 // if there are several speakers in a dialog, we fetch each line separately
 // using a different voice for each speaker. we then merge them into a single file.
-func (p *DialogProcessor) fetchDialogAudio(dialog RawDialog, text string) error {
+func (p *DialogProcessor) fetchDialogAudio(dialog RawDialog, filename string) error {
+	// if an audio file called dialog.mp3 already exists, we use instead of generating one
+	if err := p.checkForOriginalAudio(filename); err == nil {
+		return nil
+	}
+
 	voices := p.Audio.GetVoices(dialog.Speakers)
 	var paths []string
 	for _, line := range dialog.Lines {
@@ -106,7 +130,7 @@ func (p *DialogProcessor) fetchDialogAudio(dialog RawDialog, text string) error 
 		paths = append(paths, path)
 	}
 
-	return p.Audio.JoinAndSaveDialogAudio(hash.Sha1(text), paths)
+	return p.Audio.JoinAndSaveDialogAudio(filename, paths)
 }
 
 func (p *DialogProcessor) Export(dialogues []*Dialog, renderSentences bool, outDir, deckname string) {
@@ -190,4 +214,32 @@ func getUniqueChars(s string) []string {
 		i++
 	}
 	return chars
+}
+
+// Copy copies the contents of the file at srcpath to a regular file
+// at dstpath. If the file named by dstpath already exists, it is
+// truncated. The function does not copy the file mode, file
+// permission bits, or file attributes.
+func copy(src, dst string) (err error) {
+	r, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer r.Close() // ignore error: file was opened read-only.
+
+	w, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		// Report the error, if any, from Close, but do so
+		// only if there isn't already an outgoing error.
+		if c := w.Close(); err == nil {
+			err = c
+		}
+	}()
+
+	_, err = io.Copy(w, r)
+	return err
 }

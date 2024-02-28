@@ -105,7 +105,7 @@ func (p *Processor) getMnemonicBase(ch string) string {
 	for _, pinyin := range p.getReadings(ch) {
 		m, err := p.MnemonicBuilder.GetBase(pinyin)
 		if err != nil {
-			fmt.Printf("could not get mnemonic base for word: %s", pinyin)
+			fmt.Printf("could not get mnemonic base for word: %s\n", pinyin)
 		}
 		mnemonicBase = fmt.Sprintf("%s%s<br>%s<br>", mnemonicBase, pinyin, m)
 	}
@@ -114,8 +114,8 @@ func (p *Processor) getMnemonicBase(ch string) string {
 
 func (p *Processor) getAudio(chars []Char) []Char {
 	for y, char := range chars {
-		filename, err := p.Audio.Fetch(context.Background(), char.Chinese, hash.Sha1(char.Chinese), false)
-		if err != nil {
+		filename := hash.Sha1(char.Chinese) + ".mp3"
+		if err := p.Audio.Fetch(context.Background(), char.Chinese, filename, false); err != nil {
 			fmt.Println(err)
 		}
 		chars[y].Audio = filename
