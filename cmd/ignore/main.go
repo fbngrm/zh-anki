@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+// Check if for each word in a file a card exists in Anki collection.
+
 const ankiConnectURL = "http://localhost:8765"
 
 type AnkiRequest struct {
