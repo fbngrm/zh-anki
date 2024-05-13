@@ -16,6 +16,7 @@ import (
 	ignore_dict "github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
 	"github.com/fbngrm/zh-anki/pkg/translate"
+	"github.com/fbngrm/zh-freq/pkg/card"
 	"github.com/fbngrm/zh-mnemonics/mnemonic"
 	"github.com/fbngrm/zh/lib/cedict"
 )
@@ -83,9 +84,10 @@ func main() {
 	translationsPath := filepath.Join(cwd, "data", "translations")
 	translations := translate.Load(translationsPath)
 
+	audioDir := filepath.Join(cwd, "data", source, lesson, "audio")
 	audioDownloader := audio.Downloader{
 		IgnoreChars: ignoreChars,
-		AudioDir:    filepath.Join(cwd, "data", source, lesson, "audio"),
+		AudioDir:    audioDir,
 	}
 
 	// we cache responses from openai api and google text-to-speech
@@ -106,6 +108,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	builder, err := card.NewBuilder(audioDir, mnemonicsSrc)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 	charProcessor := char.Processor{
 		IgnoreChars:     ignoreChars,
 		Cedict:          cedictDict,
@@ -113,6 +121,7 @@ func main() {
 		Decomposer:      decomposer,
 		WordIndex:       wordIndex,
 		MnemonicBuilder: mnBuilder,
+		CardBuilder:     builder,
 	}
 	wordProcessor := dialog.WordProcessor{
 		Cedict:          cedictDict,

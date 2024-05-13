@@ -12,6 +12,7 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/translate"
+	"github.com/fbngrm/zh-freq/pkg/card"
 	"github.com/fbngrm/zh-mnemonics/mnemonic"
 	"github.com/fbngrm/zh/lib/cedict"
 )
@@ -23,6 +24,7 @@ type Processor struct {
 	Decomposer      *decomposition.Decomposer
 	WordIndex       *frequency.WordIndex
 	MnemonicBuilder *mnemonic.Builder
+	CardBuilder     *card.Builder
 }
 
 func (p *Processor) GetAll(word string, t translate.Translations) []Char {
