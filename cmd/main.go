@@ -22,7 +22,7 @@ import (
 
 const cedictSrc = "/home/f/work/src/github.com/fbngrm/zh/lib/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
 const wordFrequencySrc = "./lib/global_wordfreq.release_UTF-8.txt"
-const mnemonicsSrc = "/home/f/Dropbox/notes/chinese/mnemonics/words.csv"
+const mnemonicsSrc = "/home/f/Dropbox/notes/chinese/mnemonics/mnemonics.txt"
 
 var ignoreChars = []string{"!", "！", "？", "?", "，", ",", ".", "。", "", " ", "、"}
 
