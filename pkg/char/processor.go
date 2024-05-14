@@ -29,7 +29,6 @@ func (p *Processor) GetAll(word string, t translate.Translations) []Char {
 	allChars := make([]Char, 0)
 	for _, ch := range word {
 		c := string(ch)
-		hanzi := p.Decomposer.Decompose(c)
 
 		example := ""
 		isSingleRune := utf8.RuneCountInString(c) == 1
@@ -60,13 +59,12 @@ func (p *Processor) GetAll(word string, t translate.Translations) []Char {
 			}
 		}
 		allChars = append(allChars, Char{
-			Chinese:      c,
+			Chinese:      card.SimplifiedChinese,
 			Cedict:       cedictEntries,
 			HSK:          hskEntries,
 			IsSingleRune: true,
-			Components:   decomposition.GetComponents(hanzi),
-			Equivalents:  removeRedundant(hanzi.Equivalents),
-			Traditional:  removeRedundant(hanzi.IdeographsTraditional),
+			Components:   card.Components,
+			Traditional:  card.TraditionalChinese,
 			Example:      example,
 			MnemonicBase: card.MnemonicBase,
 			Mnemonic:     card.Mnemonic,

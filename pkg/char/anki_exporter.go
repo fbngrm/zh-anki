@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/fbngrm/zh-anki/pkg/anki"
+	"github.com/fbngrm/zh-freq/pkg/card"
 )
 
 func Export(deckName string, c Char) error {
@@ -46,8 +47,7 @@ func Export(deckName string, c Char) error {
 		"HSKEnglish":     hskEn,
 		"Audio":          anki.GetAudioPath(c.Audio),
 		"Components":     componentsToString(c.Components),
-		"Equivalents":    componentsToString([]string{c.Equivalents}),
-		"Traditional":    componentsToString([]string{c.Traditional}),
+		"Traditional":    c.Traditional,
 		"Examples":       c.Example,
 		"MnemonicBase":   c.MnemonicBase,
 		"Mnemonic":       c.Mnemonic,
@@ -60,12 +60,12 @@ func Export(deckName string, c Char) error {
 	return nil
 }
 
-func componentsToString(comps []string) string {
+func componentsToString(components []card.Component) string {
 	s := ""
-	for _, c := range comps {
+	for _, c := range components {
 		s = fmt.Sprintf(`%s
-<a href="https://hanzicraft.com/character/%s">%s</a>
-<br/>`, s, c, c)
+<a href="https://hanzicraft.com/character/%s">%s</a> = %s
+<br/>`, s, c.SimplifiedChinese, c.SimplifiedChinese, c.English)
 	}
 	return s
 }
