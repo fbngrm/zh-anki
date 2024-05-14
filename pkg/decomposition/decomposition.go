@@ -14,9 +14,9 @@ import (
 	"github.com/fbngrm/zh/pkg/search"
 )
 
-const idsSrc = "/home/f/work/src/github.com/fbngrm/zh-anki/lib/cjkvi/ids.txt"
-const cedictSrc = "/home/f/work/src/github.com/fbngrm/zh/lib/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
-const wordFrequencySrc = "../../lib/word_frequencies/global_wordfreq.release_UTF-8.txt"
+const idsSrc = "./pkg/cjkvi/ids.txt"
+const cedictSrc = "./pkg/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
+const wordFrequencySrc = "./pkg/frequency/global_wordfreq.release_UTF-8.txt"
 
 type Decomposer struct {
 	hanziDecomposer *hanzi.Decomposer
@@ -95,13 +95,9 @@ func GetKangxi(h hanzi.Hanzi) []string {
 func GetComponents(h hanzi.Hanzi) []string {
 	components := []string{}
 	for _, c := range h.ComponentsDecompositions {
-		// we limit the definitions to 3 per cedict entry
 		componentDefintions := make([]string, 0)
 		for _, definition := range c.Definitions {
 			definitions := strings.Split(definition, ",")
-			if len(definitions) > 3 {
-				definitions = definitions[:3]
-			}
 			componentDefintions = append(componentDefintions, definitions...)
 		}
 		component := c.Ideograph

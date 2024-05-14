@@ -1,0 +1,1556 @@
+﻿//RTH1/1
+一[一]	yī	1.1: one
+二[二]	èr	1.2: two
+三[三]	sān	1.3: three
+四[四]	sì	1.4: four
+五[五]	wǔ	1.5: five
+六[六]	liù	1.6: six
+七[七]	qī	1.7: seven
+八[八]	bā	1.8: eight
+九[九]	jiǔ	1.9: nine
+十[十]	shí	1.10: ten
+口[口]	kǒu	1.11: mouth
+日[日]	rì	1.12: day
+月[月]	yuè	1.13: month
+田[田]	tián	1.14: rice field
+目[目]	mù	1.15: eye
+//RTH1/2
+古[古]	gǔ	2.16: ancient
+胡[胡]	hú	2.17: recklessly
+吾[吾]	wú	2.18: I [literary]
+朋[朋]	péng	2.19: companion
+明[明]	míng	2.20: bright
+唱[唱]	chàng	2.21: sing
+晶[晶]	jīng	2.22: sparkling
+品[品]	pǐn	2.23: goods
+昌[昌]	chāng	2.24: prosperous
+早[早]	zǎo	2.25: early
+旭[旭]	xù	2.26: rising sun
+世[世]	shì	2.27: generation
+胃[胃]	wèi	2.28: stomach
+旦[旦]	dàn	2.29: daybreak
+凹[凹]	āo	2.30: concave
+凸[凸]	tū	2.31: convex
+//RTH1/3
+自[自]	zì	3.32: oneself
+白[白]	bái	3.33: white
+百[百]	bǎi	3.34: hundred
+皂[皂]	zào	3.35: soap
+中[中]	zhōng	3.36: middle (n./adj.) 
+千[千]	qiān	3.37: thousand
+舌[舌]	shé	3.38: tongue
+升[升]	shēng	3.39: liter
+升[昇]	shēng	3.40: rise up
+丸[丸]	wán	3.41: pill
+卜[卜]	bǔ	3.42: divination
+占[占]	zhān	3.43: tell fortunes
+上[上]	shàng	3.44: above
+下[下]	xìa	3.45: below
+卡[卡]	kǎ	3.46: card
+卓[卓]	zhuó	3.47: eminent
+朝[朝]	cháo	3.48: dynasty
+嘲[嘲]	cháo	3.49: ridicule (v.)
+//RTH1/4
+只[只]	zhǐ	4.50: only
+贝[貝]	bèi	4.51: shellfish
+贴[貼]	tiē	4.52: paste (v.)
+贞[貞]	zhēn	0.53: chaste
+员[員]	yuán	4.54: employee
+见[見]	jiàn	4.55: see
+元[元]	yuán	4.56: beginning
+页[頁]	yè	4.57: page
+顽[頑]	wán	4.58: stubborn
+凡[凡]	fán	4.59: ordinary
+肌[肌]	jī	4.60: muscle
+负[負]	fù	4.61: defeated
+匀[勻]	yún	4.62: uniform (adj.)
+句[句]	jù	4.63: sentence (n.)
+旬[旬]	xún	4.64: decameron
+勺[勺]	sháo	4.65: ladle
+的[的]	de	4.66: bull’s eye
+首[首]	shǒu	4.67: heads
+//RTH1/5
+直[直]	zhí	5.68: straight
+置[置]	zhì	5.69: set up
+具[具]	jù	5.70: tool
+真[真]	zhēn	5.71: true
+工[工]	gōng	5.72: work (n.)
+左[左]	zuǒ	5.73: left (n./adj.)
+右[右]	yòu	5.74: right (n./adj.)
+有[有]	yǒu	5.75: possess
+贿[賄]	huì	5.76: bribe (n.)
+贡[貢]	gòng	5.77: tribute
+项[項]	xiàng	5.78: item
+刀[刀]	dāo	5.79: sword
+刃[刃]	rèn	5.80: blade
+切[切]	qiē	5.81: cut (v.)
+召[召]	zhào	5.82: summon
+昭[昭]	zhāo	5.83: evident
+则[則]	zé	5.84: rule (n.)
+副[副]	fù	5.85: vice—
+丁[丁]	dīng	5.86: fourth
+叮[叮]	dīng	5.87: sting (v.)
+可[可]	kě	5.88: can (aux. v.)
+哥[哥]	gē	5.89: older brother
+顶[頂]	dǐng	5.90: crest (n.)
+//RTH1/6
+乙[乙]	yǐ	6.91: second (adj.)
+子[子]	zǐ	6.92: child
+孔[孔]	kǒng	6.93: cavity
+吼[吼]	hǒu	6.94: roar (v.)
+了[了]	le	6.95: —ed
+女[女]	nǚ	6.96: woman
+好[好]	hǎo	6.97: good
+如[如]	rú	6.98: be like
+母[母]	mǔ	6.99: mother
+贯[貫]	guàn	6.100: pierce
+兄[兄]	xiōng	6.101: elder brother
+克[克]	kè	6.102: overcome (v.)
+//RTH1/7
+小[小]	xiǎo	7.103: small
+少[少]	shǎo	7.104: few
+吵[吵]	chǎo	7.105: noisy
+大[大]	dà	7.106: large
+尖[尖]	jiān	7.107: tip (n.)
+夕[夕]	xī	7.108: evening
+多[多]	duō	7.109: many
+够[夠]	gòu	7.110: enough
+外[外]	wài	7.111: outside
+名[名]	míng	7.112: name (n.)
+厚[厚]	hòu	7.113: thick
+石[石]	shí	7.114: stone
+砂[砂]	shā	7.115: gravel
+妙[妙]	miào	7.116: wonderful
+肖[肖]	xiào	7.117: resemble
+削[削]	xiāo	7.118: peel (v.)
+光[光]	guāng	7.119: ray
+太[太]	tài	7.120: overly
+省[省]	shěng	7.121: economize
+奇[奇]	qí	7.122: strange
+//RTH1/8
+川[川]	chuān	8.123: stream
+州[州]	zhōu	8.124: state (n.)
+顺[順]	shùn	8.125: obey
+水[水]	shuǐ	8.126: water (n.)
+永[永]	yǒng	8.127: eternity
+求[求]	qiú	8.128: request (v.)
+泉[泉]	quán	8.129: spring "well" (n.) 
+原[原]	yuán	8.130: flatlands
+愿[願]	yuàn	8.131: wish (n.)
+冲[沖]	chōng	8.132: wash away
+泳[泳]	yǒng	8.133: swim (v.) 
+洲[洲]	zhōu	8.134: continent
+沼[沼]	zhǎo	8.135: marsh
+沙[沙]	shā	8.136: sand (n.)
+江[江]	jiāng	8.137: Yangtze
+汁[汁]	zhī	8.138: juice (n.)
+潮[潮]	cháo	8.139: tide
+源[源]	yuán	8.140: source
+活[活]	huó	8.141: lively
+消[消]	xiāo	8.142: extinguish
+况[況]	kuàng	8.143: situation
+河[河]	hé	8.144: river 
+湖[湖]	hú	8.145: lake
+测[測]	cè	8.146: fathom (v.)
+土[土]	tǔ	8.147: soil (n.)
+均[均]	jūn	8.148: equal
+肚[肚]	dù	8.149: belly
+填[填]	tián	8.150: fill in
+吐[吐]	tǔ	8.151: spit (v.)
+哇[哇]	wā	8.152: waaah!  
+寸[寸]	cùn	8.153: Chinese inch
+封[封]	fēng	8.154: seal (v.)
+寺[寺]	sì	8.155: Buddhist temple
+时[時]	shí	8.156: time (n.)
+火[火]	huǒ	8.157: fire (n.)
+灰[灰]	huī	8.158: ashes 
+烦[煩]	fán	8.159: vexed (adj.)
+炎[炎]	yán	8.160: inflammation
+淡[淡]	dàn	8.161: thin (adj.)
+灾[災]	zāi	8.162: disaster
+照[照]	zhào	8.163: illuminate
+鱼[魚]	yú	8.164: fish (n.) 
+渔[漁]	yú	8.165: fishing
+尧[堯]	Yáo	8.166: Yao
+烧[燒]	shāo	8.167: fever
+晓[曉]	xiǎo	8.168: dawn (n.)
+//RTH1/9
+里[里]	lǐ	9.169: Chinese mile "li" 
+量[量]	liàng	9.170: quantity
+埋[埋]	mái	9.171: bury
+黑[黑]	hēi	9.172: black
+点[點]	diǎn	9.173: spot (n.)
+墨[墨]	mò	9.174: black ink
+冒[冒]	mào	9.175: risk (v.)
+同[同]	tóng	9.176: same
+洞[洞]	dòng	9.177: cave
+向[向]	xiàng	9.178: orientation 
+尚[尚]	shàng	9.179: esteem (v.)
+字[字]	zì	9.180: character
+守[守]	shǒu	9.181: guard (v.)
+完[完]	wán	9.182: finish (v.)
+实[實]	shí	9.183: reality
+宣[宣]	xuān	9.184: proclaim 
+宵[宵]	xiāo	9.185: nighttime
+安[安]	ān	9.186: peaceful
+宴[宴]	yàn	9.187: banquet
+寄[寄]	jì	9.188: mail (v.)
+富[富]	fù	9.189: wealthy
+贮[貯]	zhù	9.190: store up
+//RTH1/10
+木[木]	mù	10.191: tree
+林[林]	lín	10.192: woods
+森[森]	sēn	10.193: forest
+植[植]	zhí	10.194: plant (v.)
+杏[杏]	xìng	10.195: apricot
+呆[呆]	dāi	10.196: dim-witted
+枯[枯]	kū	10.197: withered
+村[村]	cūn	10.198: village
+相[相]	xiāng	10.199: one another
+本[本]	běn	10.200: notebook
+案[案]	àn	10.201: legal case
+未[未]	wèi	10.202: not yet
+末[末]	mò	10.203: last (n./adj.)
+沫[沫]	mò	10.204: foam
+味[味]	wèi	10.205: flavor (n.) 
+妹[妹]	mèi	10.206: younger sister
+查[查]	chá	10.207: investigate
+渣[渣]	zhā	10.208: sediment (v.)
+染[染]	rǎn	10.209: dye
+李[李]	lǐ	10.210: plum 
+桌[桌]	zhuō	10.211: table
+若[若]	ruò	10.212: as if
+草[草]	cǎo	10.213: grass
+苦[苦]	kǔ	10.214: suffering (n.)
+宽[寬]	kuān	10.215: wide
+叶[葉]	yè	10.216: leaf 
+莫[莫]	mò	10.217: nobody
+模[模]	mó	10.218: imitate
+漠[漠]	mò	10.219: desert (n.)
+墓[墓]	mù	10.220: grave
+苗[苗]	miáo	10.221: seedling
+瞄[瞄]	miáo	10.222: aim (v.)
+//RTH1/11
+兆[兆]	zhào	11.223: portent
+桃[桃]	táo	11.224: peach
+犬[犬]	quǎn	11.225: pooch
+尤[尤]	yóu	11.226: remarkable 
+默[默]	mò	11.227: silence
+然[然]	rán	11.228: sort of thing
+哭[哭]	kū	11.229: cry (v.)
+器[器]	qì	11.230: utensil
+臭[臭]	chòu	11.231: stinking (adj.)
+狗[狗]	gǒu	11.232: dog
+厌[厭]	yàn	11.233: detest
+压[壓]	yā	11.234: pressure (n.)
+牛[牛]	niú	11.235: cow 
+特[特]	tè	11.236: special (adj.)
+告[告]	gào	11.237: declare 
+浩[浩]	hào	11.238: vast
+先[先]	xiān	11.239: before
+洗[洗]	xǐ	11.240: wash (v.)
+//RTH1/12
+介[介]	jiè	12.241: introduce
+界[界]	jiè	12.242: world
+茶[茶]	chá	12.243: tea
+会[會]	huì	12.244: meeting
+合[合]	hé	12.245: fit (v.)
+哈[哈]	hā	12.246: ha!
+塔[塔]	tǎ	12.247: pagoda
+王[王]	wáng	12.248: king
+玉[玉]	yù	12.249: jade
+球[球]	qiú	12.250: ball
+现[現]	xiàn	12.251: present (adj.)
+玩[玩]	wán	12.252: play
+狂[狂]	kuáng	12.253: crazy
+皇[皇]	huáng	12.254: emperor
+煌[煌]	huáng	12.255: resplendent
+呈[呈]	chéng	12.256: submit
+全[全]	quán	12.257: whole 
+理[理]	lǐ	12.258: logic
+主[主]	zhǔ	12.259: lord
+注[注]	zhù	12.260: pour
+金[金]	jīn	12.261: gold
+铜[銅]	tóng	12.262: copper
+钓[釣]	diào	12.263: go fishin’
+针[針]	zhēn	12.264: needle (n.)
+钉[釘]	dīng	12.265: nail (n.)
+铭[銘]	míng	12.266: inscription
+镇[鎮]	zhèn	12.267: at ease
+//RTH1/13
+道[道]	dào	13.268: way
+导[導]	dǎo	13.269: guide (v.)
+迅[迅]	xùn	13.270: speedy
+造[造]	zào	13.271: create
+巡[巡]	xún	13.272: patrol
+逛[逛]	guàng	13.273: stroll (v.)
+车[車]	chē	13.274: car
+连[連]	lián	13.275: one after another
+莲[蓮]	lián	13.276: lotus
+前[前]	qián	13.277: in front
+剪[剪]	jiǎn	13.278: shears
+输[輸]	shū	13.279: transport (v.)
+逾[逾]	yú	13.280: exceed
+各[各]	gè	13.281: each 
+格[格]	gé	13.282: pattern
+客[客]	kè	13.283: guest
+额[額]	é	13.284: forehead
+夏[夏]	xià	13.285: summer
+洛[洛]	luò	13.286: L.A.
+落[落]	luò	13.287: fall (v.)
+//RTH1/14
+冗[冗]	rǒng	14.288: superfluous
+沉[沉]	chén	14.289: profound
+军[軍]	jūn	14.290: army
+辉[輝]	huī	14.291: radiance
+运[運]	yùn	14.292: carry
+冠[冠]	guān	14.293: crown
+梦[夢]	mèng	14.294: dream
+坑[坑]	kēng	14.295: pit
+高[高]	gāo	14.296: tall
+享[享]	xiǎng	14.297: enjoy
+熟[熟]	shú	14.298: ripe
+亭[亭]	tíng	14.299: pavilion
+亮[亮]	liàng	14.300: shining
+京[京]	jīng	14.301: capital
+凉[涼]	liáng	14.302: cool
+景[景]	jǐng	14.303: scenery
+就[就]	jiù	14.304: at once
+周[周]	zhōu	14.305: circumference
+周[週]	zhōu	14.306: week
+士[士]	shì	14.307: soldier
+吉[吉]	jí	14.308: lucky
+买[買]	mǎi	14.309: buy
+卖[賣]	mài	14.310: sell
+//RTH1/15
+书[書]	shū	15.311: book
+画[畫]	huà	15.312: drawing
+划[劃]	huá	15.313: scratch
+攻[攻]	gōng	15.314: attack
+败[敗]	bài	15.315: fail
+故[故]	gù	15.316: deliberately
+救[救]	jiù	15.317: rescue
+敬[敬]	jìng	15.318: revere
+敞[敞]	chǎng	15.319: spacious
+言[言]	yán	15.320: say
+警[警]	jǐng	15.321: police (n.)
+计[計]	jì	15.322: plan (n.)
+狱[獄]	yù	15.323: prison
+讨[討]	tǎo	15.324: condemn
+训[訓]	xùn	15.325: instruction
+话[話]	huà	15.326: talk (n.)
+诗[詩]	shī	15.327: poem
+语[語]	yǔ	15.328: language
+读[讀]	dú	15.329: read
+调[調]	diào	15.330: Tune
+谈[談]	tán	15.331: discuss
+这[這]	zhè	15.332: this
+//RTH1/16
+式[式]	shì	16.333: style
+试[試]	shì	16.334: test
+戈[戈]	gē	16.335: halberd
+或[或]	huò	16.336: or
+贼[賊]	zéi	16.337: burglar
+载[載]	zài	16.338: laden
+铁[鐵]	tiě	16.339: Iron
+茂[茂]	mào	16.340: lush
+成[成]	chéng	16.341: turn into
+城[城]	chéng	16.342: city
+诚[誠]	chéng	16.343: sincere
+威[威]	wēi	16.344: might "power"
+灭[滅]	miè	16.345: destroy
+咸[咸]	xián	16.346: everybody
+减[減]	jiǎn	16.347: reduce
+单[單]	dān	16.348: list (n.)
+战[戰]	zhàn	16.349: war
+钱[錢]	qián	16.350: coin
+浅[淺]	qiǎn	16.351: shallow
+贱[賤]	jiàn	16.352: cheap
+//RTH1/17
+止[止]	zhǐ	17.353: stop
+步[步]	bù	17.354: footstep
+涉[涉]	shè	17.355: ford
+频[頻]	pín	17.356: repeatedly
+肯[肯]	kěn	17.357: agree
+企[企]	qǐ	17.358: look forward to
+岁[歲]	suì	17.359: years of age
+武[武]	wǔ	17.360: military
+赋[賦]	fù	17.361: levy
+正[正]	zhèng	17.362: correct
+政[政]	zhèng	17.363: politics
+定[定]	dìng	17.364: settle on
+走[走]	zǒu	17.365: walk
+超[超]	chāo	17.366: transcend
+越[越]	yuè	17.367: surpass
+是[是]	shì	17.368: be
+题[題]	tí	17.369: topic
+建[建]	jiàn	17.370: build
+延[延]	yán	17.371: prolong
+诞[誕]	dàn	17.372: nativity
+楚[楚]	chǔ	17.373: clear
+础[礎]	chǔ	17.374: foundation
+//RTH1/18
+衣[衣]	yī	18.375: clothing
+里[裡]	lǐ	18.376: inside
+哀[哀]	āi	18.377: grief
+袁[袁]	yuán	18.378: Yuan
+远[遠]	yuǎn	18.379: distant
+坏[壞]	huài	18.380: bad
+初[初]	chū	18.381: elementary
+巾[巾]	jīn	18.382: towel
+布[布]	bù	18.383: cloth
+帽[帽]	mào	18.384: hat
+幕[幕]	mù	18.385: curtain
+棉[棉]	mián	18.386: cotton
+帮[幫]	bāng	18.387: help
+市[市]	shì	18.388: market
+肺[肺]	fèi	18.389: lungs
+带[帶]	dài	18.390: sash
+滞[滯]	zhì	18.391: stagnant
+刺[刺]	cì	18.392: thorn
+制[制]	zhì	18.393: system
+制[製]	zhì	18.394: manufacture
+云[云]	yún	18.395: utter
+雨[雨]	yǔ	18.396: the Rain
+云[雲]	yún	18.397: cloud
+雷[雷]	léi	18.398: thunder
+电[電]	diàn	18.399: electricity
+霜[霜]	shuāng	18.400: frost
+冰[冰]	bīng	18.401: ice
+冬[冬]	dōng	18.402: winter
+天[天]	tiān	18.403: heavens
+夭[夭]	yāo	18.404: die young
+乔[喬]	qiáo	18.405: pretend
+桥[橋]	qiáo	18.406: bridge
+娇[嬌]	jiāo	18.407: attractive
+立[立]	lì	18.408: standing up
+泣[泣]	qì	18.409: weep
+站[站]	zhàn	18.410: station
+章[章]	zhāng	18.411: chapter
+竞[競]	jìng	18.412: compete
+帝[帝]	dì	18.413: sovereign
+童[童]	tóng	18.414: juvenile
+钟[鐘]	zhōng	18.415: bell
+商[商]	shāng	18.416: salesman
+适[適]	shì	18.417: suitable
+敌[敵]	dí	18.418: enemy
+匕[匕]	bǐ	18.419: ancient spoon
+北[北]	běi	18.420: north
+背[背]	bèi	18.421: back
+比[比]	bǐ	18.422: compare
+昆[昆]	kūn	18.423: descendants
+混[混]	hùn	18.424: mix
+皆[皆]	jiē	18.425: all
+此[此]	cǐ	18.426: this  [literary]
+些[些]	xiē	18.427: somewhat
+它[它]	tā	18.428: it
+旨[旨]	zhǐ	18.429: purpose
+脂[脂]	zhī	18.430: grease
+每[每]	měi	18.431: every
+梅[梅]	méi	18.432: small plum
+海[海]	hǎi	18.433: sea
+乞[乞]	qǐ	18.434: beg
+吃[吃]	chī	18.435: eat
+干[乾]	gān	18.436: dry
+复[複]	fù	18.437: duplicate
+腹[腹]	fù	18.438: abdomen
+欠[欠]	qiàn	18.439: lack
+吹[吹]	chuī	18.440: blow
+歌[歌]	gē	18.441: song
+软[軟]	ruǎn	18.442: soft
+次[次]	cì	18.443: next
+资[資]	zī	18.444: assets
+姿[姿]	zī	18.445: looks
+咨[諮]	zī	18.446: consult with
+//RTH1/19
+赔[賠]	péi	19.447: compensate
+培[培]	péi	19.448: cultivate
+音[音]	yīn	19.449: sound
+暗[暗]	àn	19.450: dark
+韵[韻]	yùn	19.451: rhyme
+识[識]	shí	19.452: knowledge
+帜[幟]	zhì	19.453: streamer
+竟[竟]	jìng	19.454: unexpectedly
+镜[鏡]	jìng	19.455: mirror
+境[境]	jìng	19.456: boundary
+亡[亡]	wáng	19.457: deceased
+盲[盲]	máng	19.458: blind
+妄[妄]	wàng	19.459: absurd
+望[望]	wàng	19.460: expect
+方[方]	fāng	19.461: direction
+妨[妨]	fáng	19.462: hinder
+放[放]	fàng	19.463: release
+激[激]	jī	19.464: excite
+于[於]	yú	19.465: [all-purpose preposition]
+旁[旁]	páng	19.466: side
+兑[兌]	duì	19.467: convert
+脱[脫]	tuō	19.468: undress
+说[說]	shuō	19.469: speak
+曾[曾]	céng	19.470: formerly
+增[增]	zēng	19.471: increase
+赠[贈]	zèng	19.472: make a present of
+东[東]	dōng	19.473: east
+栋[棟]	dòng	19.474: building
+冻[凍]	dòng	19.475: freeze
+//RTH1/20
+也[也]	yě	20.476: also
+她[她]	tā	20.477: she
+地[地]	dì	20.478: ground
+池[池]	chí	20.479: pond
+虫[蟲]	chóng	20.480: Insects
+蛇[蛇]	shé	20.481: serpent
+蛋[蛋]	dàn	20.482: egg
+风[風]	fēng	20.483: wind (n.)
+讽[諷]	fěng	20.484: mock
+己[己]	jǐ	20.485: self 
+改[改]	gǎi	20.486: alter
+记[記]	jì	20.487: remember
+已[已]	yǐ	20.488: already 
+包[包]	bāo	20.489: wrap 
+泡[泡]	pào	20.490: bubbles
+起[起]	qǐ	20.491: begin
+家[家]	jiā	20.492: house
+场[場]	chǎng	20.493: site
+汤[湯]	tāng	20.494: soup
+羊[羊]	yáng	20.495: sheep
+美[美]	měi	20.496: beautiful
+洋[洋]	yáng	20.497: ocean
+鲜[鮮]	xiān	20.498: fresh
+达[達]	dá	20.499: reach
+样[樣]	yàng	20.500: appearance
+差[差]	chà	20.501: fall short of
+集[集]	jí	20.502: gather
+进[進]	jìn	20.503: advance
+准[準]	zhǔn	20.504: standard
+谁[誰]	shéi	20.505: who?
+售[售]	shòu	20.506: vend
+虽[雖]	suī	20.507: although
+确[確]	què	20.508: reliable
+午[午]	wǔ	20.509: noon
+许[許]	xǔ	20.510: permit
+羽[羽]	yǔ	20.511: feathers 
+习[習]	xí	20.512: learn
+翔[翔]	xiáng	20.513: soar
+//RTH1/21
+困[困]	kùn	21.514: trapped
+固[固]	gù	21.515: solid 
+国[國]	guó	21.516: country
+圆[圓]	yuán	21.517: round
+因[因]	yīn	21.518: cause (n.)
+园[園]	yuán	21.519: park
+回[回]	huí	21.520: return
+迴[迴]	huí	21.521: revolve
+图[圖]	tú	21.522: picture
+店[店]	diàn	21.523: store (n.)
+库[庫]	kù	21.524: warehouse 
+裤[褲]	kù	21.525: trousers
+厂[廠]	chǎng	21.526: factory
+床[床]	chuáng	21.527: bed
+麻[麻]	má	21.528: hemp
+心[心]	xīn	21.529: heart
+忘[忘]	wàng	21.530: forget
+忍[忍]	rěn	21.531: endure
+认[認]	rèn	21.532: recognize
+志[志]	zhì	21.533: aspiration
+志[誌]	zhì	21.534: annals
+思[思]	sī	21.535: consider
+意[意]	yì	21.536: idea
+想[想]	xiǎng	21.537: think
+息[息]	xī	21.538: breath
+恐[恐]	kǒng	21.539: fear
+感[感]	gǎn	21.540: feel
+憾[憾]	hàn	21.541: regret (n.)
+忧[憂]	yōu	21.542: worried
+怕[怕]	pà	21.543: dread
+忙[忙]	máng	21.544: busy
+惯[慣]	guàn	21.545: accustomed to
+怀[懷]	huái	21.546: cherish
+必[必]	bì	21.547: certainly
+//RTH1/22
+手[手]	shǒu	22.548: hand 
+看[看]	kàn	22.549: look at
+拿[拿]	ná	22.550: hold
+我[我]	wǒ	22.551: I
+义[義]	yì	22.552: righteousness
+议[議]	yì	22.553: deliberate
+蚁[蟻]	yǐ	22.554: ant
+抱[抱]	bào	22.555: embrace
+抗[抗]	kàng	22.556: combat
+批[批]	pī	22.557: criticize
+招[招]	zhāo	22.558: beckon 
+打[打]	dǎ	22.559: strike
+指[指]	zhǐ	22.560: finger
+持[持]	chí	22.561: support
+括[括]	kuò	22.562: include
+提[提]	dī	22.563: bring up
+挥[揮]	huī	22.564: brandish
+推[推]	tuī	22.565: push
+接[接]	jiē	22.566: welcome
+挂[掛]	guà	22.567: hang
+按[按]	àn	22.568: press down on
+掉[掉]	diào	22.569: drop
+拉[拉]	lā	22.570: pull
+啦[啦]	la	22.571: !!
+找[找]	zhǎo	22.572: look for
+研[研]	yán	22.573: grind away
+弄[弄]	nòng	22.574: play with
+鼻[鼻]	bí	22.575: nose
+刑[刑]	xíng	22.576: punishment
+型[型]	xíng	22.577: mold
+才[才]	cái	22.578: genius
+财[財]	cái	22.579: riches
+存[存]	cún	22.580: deposit
+在[在]	zài	22.581: at
+乃[乃]	nǎi	22.582: only then
+奶[奶]	nǎi	22.583: milk
+及[及]	jí	22.584: catch up with 
+吸[吸]	xī	22.585: suck in
+史[史]	shǐ	22.586: history
+更[更]	gèng	22.587: even more 
+硬[硬]	yìng	22.588: hard
+又[又]	yòu	22.589: again 
+友[友]	yǒu	22.590: friend
+双[雙]	shuāng	22.591: pair
+只[隻]	zhī	22.592: one of a pair 
+护[護]	hù	22.593: protect
+获[獲]	huò	22.594: seize
+观[觀]	guān	22.595: observe
+欢[歡]	huān	22.596: joyous
+投[投]	tóu	22.597: throw
+没[沒]	méi	22.598: not have
+设[設]	shè	22.599: establish
+股[股]	gǔ	22.600: thigh
+支[支]	zhī	22.601: offshoot
+技[技]	jì	22.602: skill
+枝[枝]	zhī	22.603: branch
+叔[叔]	shū	22.604: (paternal older) uncle
+督[督]	dū	22.605: superintend
+寂[寂]	jì	22.606: lonely
+反[反]	fǎn	22.607: against 
+板[板]	bǎn	22.608: plank
+返[返]	fǎn	22.609: go back
+派[派]	pài	22.610: faction
+脉[脈]	mài	22.611: blood vessels
+爪[爪]	zhǎo	22.612: claw (n.) 
+抓[抓]	zhuā	22.613: grab
+采[采]	cǎi	22.614: pluck
+采[採]	cǎi	22.615: pick
+菜[菜]	cài	22.616: vegetable
+受[受]	shòu	22.617: accept
+授[授]	shòu	22.618: confer
+爱[愛]	ài	22.619: love
+雄[雄]	xióng	22.620: grand "hero"
+台[台]	tái	22.621: platform
+治[治]	zhì	22.622: govern
+始[始]	shǐ	22.623: commence
+去[去]	qù	22.624: go
+法[法]	fǎ	22.625: method
+至[至]	zhì	22.626: until
+室[室]	shì	22.627: room
+到[到]	dào	22.628: arrive 
+互[互]	hù	22.629: mutual
+充[充]	chōng	22.630: sufficient
+育[育]	yù	22.631: education
+流[流]	liú	22.632: flow
+梳[梳]	shū	22.633: comb
+//RTH1/23
+山[山]	shān	23.634: mountain
+出[出]	chū	23.635: exit
+击[擊]	jī	23.636: beat
+密[密]	mì	23.637: secret
+入[入]	rù	23.638: enter 
+内[內]	nèi	23.639: internal
+呐[吶]	nà	23.640: holler
+分[分]	fēn	23.641: part 
+贫[貧]	pín	23.642: impoverished
+公[公]	gōng	23.643: public
+松[松]	sōng	23.644: pine tree
+谷[谷]	gǔ	23.645: valley 
+浴[浴]	yù	23.646: bathe
+欲[欲]	yù	23.647: desire
+欲[慾]	yù	23.648: lust
+容[容]	róng	23.649: contain
+溶[溶]	róng	23.650: dissolve
+//RTH1/24
+当[當]	dāng	24.651: work as
+档[檔]	dàng	24.652: files
+党[黨]	dǎng	24.653: political party
+常[常]	cháng	24.654: often
+堂[堂]	táng	24.655: main room
+皮[皮]	pí	24.656: covering 
+波[波]	bō	24.657: waves
+婆[婆]	pó	24.658: old woman
+破[破]	pò	24.659: break
+被[被]	bèi	24.660: quilt
+歹[歹]	dǎi	24.661: malicious
+列[列]	liè	24.662: line up
+烈[烈]	liè	24.663: intense
+死[死]	sǐ	24.664: death
+葬[葬]	zàng	24.665: inter "funeral"
+耳[耳]	ěr	24.666: ear 
+取[取]	qǔ	24.667: take
+趣[趣]	qù	24.668: interest
+最[最]	zuì	24.669: most 
+职[職]	zhí	24.670: job
+圣[聖]	shèng	24.671: holy
+敢[敢]	gǎn	24.672: brave
+严[嚴]	yán	24.673: strict
+曼[曼]	màn	24.674: drawn out
+慢[慢]	màn	24.675: slow
+漫[漫]	màn	24.676: overflow "unrestrained"
+环[環]	huán	24.677: ring
+还[還]	huán	24.678: give back
+夫[夫]	fū	24.679: husband
+规[規]	guī	24.680: regulations
+替[替]	tì	24.681: replace
+失[失]	shī	24.682: lose
+臣[臣]	chén	24.683: feudal official
+临[臨]	lín	24.684: be about to
+贤[賢]	xián	24.685: worthy
+坚[堅]	jiān	24.686: firm
+力[力]	lì	24.687: power 
+另[另]	lìng	24.688: another
+别[別]	bié	24.689: don’t
+拐[拐]	guǎi	24.690: turn
+男[男]	nán	24.691: male
+功[功]	gōng	24.692: achievement
+奴[奴]	nú	24.693: slave
+努[努]	nǔ	24.694: toil
+加[加]	jiā	24.695: add 
+贺[賀]	hè	24.696: congratulate
+架[架]	jià	24.697: shelf
+协[協]	xié	24.698: cooperate
+行[行]	háng	24.699: line of business
+律[律]	lǜ	24.700: law
+复[復]	fù	24.701: recover
+得[得]	děi	24.702: must
+待[待]	dài	24.703: treat
+往[往]	wǎng	24.704: toward 
+德[德]	dé	24.705: morality
+听[聽]	tīng	24.706: listen
+厅[廳]	tīng	24.707: hall
+微[微]	wēi	24.708: tiny
+街[街]	jiē	24.709: street
+//RTH1/25
+禾[禾]	hé	25.710: standing grain
+程[程]	chéng	25.711: journey
+和[和]	hé	25.712: harmony
+移[移]	yí	25.713: shift
+秋[秋]	qiū	25.714: autumn
+愁[愁]	chóu	25.715: gloomy
+利[利]	lì	25.716: profit
+香[香]	xiāng	25.717: perfume
+季[季]	jì	25.718: seasons
+委[委]	wěi	25.719: committee
+秀[秀]	xiù	25.720: elegant
+透[透]	tòu	25.721: penetrate
+诱[誘]	yòu	25.722: entice
+历[歷]	lì	25.723: experience
+米[米]	mǐ	25.724: rice 
+迷[迷]	mí	25.725: lost
+谜[謎]	mí	25.726: riddle
+类[類]	lèi	25.727: kind (n.)
+竹[竹]	zhú	25.728: bamboo 
+笑[笑]	xiào	25.729: laugh
+箱[箱]	xiāng	25.730: box 
+笔[筆]	bǐ	25.731: pen
+等[等]	děng	25.732: etc. "wait"
+算[算]	suàn	25.733: calculate
+答[答]	dá	25.734: answer
+策[策]	cè	25.735: strategy
+//RTH1/26
+人[人]	rén	26.736: person 
+囚[囚]	qiú	26.737: prisoner
+份[份]	fèn	26.738: portion
+占[佔]	zhàn	26.739: occupy
+家[傢]	jiā	26.740: furniture
+你[你]	nǐ	26.741: you 
+您[您]	nín	26.742: you  [respectful]
+什[什]	shén	26.743: what?
+条[條]	tiáo	26.744: strip (n.)
+值[值]	zhí	26.745: value
+做[做]	zuò	26.746: make 
+但[但]	dàn	26.747: however
+住[住]	zhù	26.748: dwell
+位[位]	wèi	26.749: position (n.)
+件[件]	jiàn	26.750: piece
+仍[仍]	réng	26.751: still
+他[他]	tā	26.752: he 
+休[休]	xiū	26.753: rest
+信[信]	xìn	26.754: faith
+依[依]	yī	26.755: depend on
+例[例]	lì	26.756: example
+个[個]	gè	26.757: individual
+健[健]	jiàn	26.758: healthy
+停[停]	tíng	26.759: halt
+倒[倒]	dǎo	26.760: upside down
+仁[仁]	rén	26.761: benevolence 
+优[優]	yōu	26.762: excellent
+伤[傷]	shāng	26.763: wound (n.)
+保[保]	bǎo	26.764: safeguard
+堡[堡]	bǎo	26.765: fort
+付[付]	fù	26.766: pay
+府[府]	fǔ	26.767: government office
+俯[俯]	fǔ	26.768: bow one’s head
+代[代]	dài	26.769: substitute for
+袋[袋]	dài	26.770: bag
+化[化]	huà	26.771: transform
+花[花]	huā	26.772: flower
+货[貨]	huò	26.773: commodities
+何[何]	hé	26.774: whatwhichwhowherewhy?
+便[便]	biàn	26.775: convenient
+丈[丈]	zhàng	26.776: 100 Chinese Inches
+使[使]	shǐ	26.777: use
+久[久]	jiǔ	26.778: long time
+亩[畝]	mǔ	26.779: chinese acre
+丙[丙]	bǐng	26.780: third
+柄[柄]	bǐng	26.781: handle (n.)
+肉[肉]	ròu	26.782: meat
+腐[腐]	fǔ	26.783: rotten
+众[眾]	zhòng	26.784: multitude
+坐[坐]	zuò	26.785: sit
+座[座]	zuò	26.786: seat
+检[檢]	jiǎn	26.787: examine
+脸[臉]	liǎn	26.788: face (n.)
+来[來]	lái	26.789: come
+麦[麥]	mài	26.790: wheat
+喝[喝]	hē	26.791: drink
+渴[渴]	kě	26.792: thirsty
+//RTH1/27
+任[任]	rèn	27.793: appoint
+廷[廷]	tíng	27.794: Royal Court
+庭[庭]	tíng	27.795: Court Of Law
+以[以]	yǐ	27.796: by means of
+似[似]	sì	27.797: similar
+并[併]	bìng	27.798: combine
+拼[拼]	pīn	27.799: piece together
+吕[呂]	lǚ	27.800: Spine
+侣[侶]	lǚ	27.801: an Associate
+荣[榮]	róng	27.802: Glory
+劳[勞]	láo	27.803: Labor
+营[營]	yíng	27.804: a Camp
+善[善]	shàn	27.805: virtuous
+年[年]	nián	27.806: Year
+夜[夜]	yè	27.807: Night
+液[液]	yè	27.808: Liquid
+唤[喚]	huàn	27.809: call out
+换[換]	huàn	27.810: exchange
+//RTH1/28
+旅[旅]	lǚ	28.811: travel
+施[施]	shī	28.812: execute
+游[游]	yóu	28.813: go swimming
+游[遊]	yóu	28.814: tour
+勿[勿]	wù	28.815: not
+忽[忽]	hū	28.816: suddenly
+物[物]	wù	28.817: Thing
+易[易]	yì	28.818: easy
+赐[賜]	cì	28.819: grant
+尸[屍]	shī	28.820: Corpse
+尼[尼]	ní	28.821: Nun
+呢[呢]	ne	28.822: Woolen Cloth
+泥[泥]	ní	28.823: Mud
+屋[屋]	wū	28.824: Habitation
+握[握]	wò	28.825: grip
+居[居]	jū	28.826: reside
+锯[鋸]	jù	28.827: a Saw
+层[層]	céng	28.828: Story
+局[局]	jú	28.829: Bureau
+户[戶]	hù	28.830: Door
+房[房]	fáng	28.831: Domicile
+雇[雇]	gù	28.832: hire
+顾[顧]	gù	28.833: look back
+//RTH1/29
+示[示]	shì	29.834: show
+社[社]	shè	29.835: Society
+视[視]	shì	29.836: inspect
+福[福]	fú	29.837: Happiness
+禁[禁]	jìn	29.838: prohibit
+襟[襟]	jīn	29.839: Front of a Garment
+宗[宗]	zōng	29.840: Religion
+崇[崇]	chóng	29.841: worship
+祭[祭]	jì	29.842: offer sacrifice
+察[察]	chá	29.843: scrutinize
+擦[擦]	cā	29.844: scrub
+由[由]	yóu	29.845: Wherefore
+抽[抽]	chōu	29.846: draw out
+油[油]	yóu	29.847: Oil
+甲[甲]	jiǎ	29.848: first
+押[押]	yā	29.849: pawn
+申[申]	shēn	29.850: express
+伸[伸]	shēn	29.851: extend
+神[神]	shén	29.852: Gods
+果[果]	guǒ	29.853: Fruit
+课[課]	kè	29.854: Lesson
+颗[顆]	kē	29.855: Granule
+//RTH1/30
+斤[斤]	jīn	30.856: a Catty  [unit of wgt]
+所[所]	suǒ	30.857: a Place
+近[近]	jìn	30.858: near
+斩[斬]	zhǎn	30.859: behead
+暂[暫]	zàn	30.860: temporary
+渐[漸]	jiàn	30.861: gradually
+质[質]	zhì	30.862: Quality
+斥[斥]	chì	30.863: reprimand
+诉[訴]	sù	30.864: accuse
+乍[乍]	zhà	30.865: for the first time
+怎[怎]	zěn	30.866: how?
+昨[昨]	zuó	30.867: Yesterday
+作[作]	zuò	30.868: do
+雪[雪]	xuě	30.869: the Snow
+急[急]	jí	30.870: anxious
+寻[尋]	xún	30.871: seek
+妇[婦]	fù	30.872: Married Woman
+扫[掃]	sǎo	30.873: sweep
+录[錄]	lù	30.874: record
+碌[碌]	lù	30.875: commonplace
+争[爭]	zhēng	30.876: contend
+净[淨]	jìng	30.877: clean
+事[事]	shì	30.878: Matter
+唐[唐]	táng	30.879: Tang
+糖[糖]	táng	30.880: Sugar
+康[康]	kāng	30.881: hale
+尹[尹]	yǐn	30.882: Overseer
+伊[伊]	yī	30.883: Iran
+君[君]	jūn	30.884: Monarch
+裙[裙]	qún	30.885: Skirt
+群[群]	qún	30.886: Crowd
+而[而]	ér	30.887: and
+需[需]	xū	30.888: need
+儒[儒]	rú	30.889: Confucian
+瑞[瑞]	ruì	30.890: auspicious
+端[端]	duān	30.891: upright
+曲[曲]	qū	30.892: bent
+斗[斗]	dǒu	30.893: Big Dipper
+料[料]	liào	30.894: Material
+科[科]	kē	30.895: Academic Discipline
+用[用]	yòng	30.896: utilize
+//RTH1/31
+昔[昔]	xī	31.897: Times Past
+借[借]	jiè	31.898: borrow
+错[錯]	cuò	31.899: mistaken
+散[散]	sǎn	31.900: scattered
+撒[撒]	sǎ	31.901: scatter
+备[備]	bèi	31.902: prepare
+廿[廿]	niàn	31.903: twenty
+席[席]	xí	31.904: a banquet seat
+度[度]	dù	31.905: Degrees
+渡[渡]	dù	31.906: Ferry
+半[半]	bàn	31.907: Half
+伴[伴]	bàn	31.908: Partner
+胖[胖]	pàng	31.909: fat
+判[判]	pàn	31.910: judge
+眷[眷]	juàn	31.911: Dependents
+拳[拳]	quán	31.912: Boxing
+胜[勝]	shèng	31.913: Victory
+片[片]	piàn	31.914: a Slice
+版[版]	bǎn	31.915: Printing Plate
+妆[妝]	zhuāng	31.916: put on makeup
+壮[壯]	zhuàng	31.917: robust
+庄[莊]	zhuāng	31.918: hamlet
+装[裝]	zhuāng	31.919: Attire
+将[將]	jiàng	31.920: a General  [Rank]
+之[之]	zhī	31.921: of
+乏[乏]	fá	31.922: weary
+眨[眨]	zhǎ	31.923: blink
+不[不]	bù	31.924: no
+否[否]	fǒu	31.925: negate
+杯[杯]	bēi	31.926: Cup
+//RTH1/32
+矢[矢]	shǐ	32.927: Dart
+族[族]	zú	32.928: Tribe
+知[知]	zhī	32.929: know
+智[智]	zhì	32.930: Wisdom
+矛[矛]	máo	32.931: Spear
+柔[柔]	róu	32.932: gentle
+揉[揉]	róu	32.933: knead
+务[務]	wù	32.934: Tasks
+雾[霧]	wù	32.935: Fog
+予[予]	yǔ	32.936: bestow
+序[序]	xù	32.937: Preface
+预[預]	yù	32.938: beforehand
+野[野]	yě	32.939: wild
+班[班]	bān	32.940: Class
+弓[弓]	gōng	32.941: a Bow  [for Arrows]
+引[引]	yǐn	32.942: draw
+强[強]	qiáng	32.943: strong
+弱[弱]	ruò	32.944: weak
+弹[彈]	dàn	32.945: Bullet
+佛[佛]	fó	32.946: Buddha
+费[費]	fèi	32.947: Expense
+弟[弟]	dì	32.948: Younger Brother
+第[第]	dì	32.949: No#  [number]
+巧[巧]	qiǎo	32.950: adroit
+//RTH1/33
+身[身]	shēn	33.951: somebody
+射[射]	shè	33.952: shoot
+谢[謝]	xiè	33.953: thank
+老[老]	lǎo	33.954: Old Man
+考[考]	kǎo	33.955: take an exam
+烤[烤]	kǎo	33.956: roast
+孝[孝]	xiào	33.957: Filial Piety
+教[教]	jiāo	33.958: teach
+者[者]	zhě	33.959: someone
+着[著]	zhe	33.960: —ing
+猪[豬]	zhū	33.961: Pig
+追[追]	zhuī	33.962: chase
+帅[帥]	shuài	33.963: Commander
+师[師]	shī	33.964: Teacher
+狮[獅]	shī	33.965: Lion
+官[官]	guān	33.966: Bureaucrat
+管[管]	guǎn	33.967: Pipe
+父[父]	fù	33.968: Father
+交[交]	jiāo	33.969: mingle
+效[效]	xiào	33.970: Effect
+较[較]	jiào	33.971: relatively
+校[校]	xiào	33.972: School
+足[足]	zú	33.973: Lower Leg
+跑[跑]	pǎo	33.974: run
+跳[跳]	tiào	33.975: jump
+路[路]	lù	33.976: Path
+露[露]	lù	33.977: Dew
+骨[骨]	gǔ	33.978: Skeleton
+滑[滑]	huá	33.979: slippery
+过[過]	guò	33.980: cross
+//RTH1/34
+阿[阿]	ā	34.981: Apollo
+啊[啊]	ā	34.982: aah!
+际[際]	jì	34.983: Occasion
+险[險]	xiǎn	34.984: perilous
+随[隨]	suí	34.985: as you wish
+阳[陽]	yáng	34.986: Yang
+陈[陳]	chén	34.987: exhibit
+防[防]	fáng	34.988: ward off
+附[附]	fù	34.989: attach
+院[院]	yuàn	34.990: Inst.
+阵[陣]	zhèn	34.991: Battle Formation
+队[隊]	duì	34.992: Team
+降[降]	jiàng	34.993: descend
+阶[階]	jiē	34.994: Stairs
+穴[穴]	xué	34.995: Hole
+究[究]	jiū	34.996: Research
+突[突]	tū	34.997: abruptly
+空[空]	kōng	34.998: empty
+控[控]	kòng	34.999: control
+边[邊]	biān	34.1000: Border
+深[深]	shēn	34.1001: deep
+探[探]	tàn	34.1002: a Spy
+丘[丘]	qiū	34.1003: Hill
+兵[兵]	bīng	34.1004: Troops
+//RTH1/35
+丝[絲]	sī	35.1005: Silk
+线[線]	xiàn	35.1006: Line
+维[維]	wéi	35.1007: maintain
+罗[羅]	luó	35.1008: Silk Gauze
+续[續]	xù	35.1009: continue
+统[統]	tǒng	35.1010: overall
+给[給]	gěi	35.1011: give
+结[結]	jié	35.1012: tie
+终[終]	zhōng	35.1013: end
+级[級]	jí	35.1014: a Rank
+纪[紀]	jì	35.1015: Epoch
+红[紅]	hóng	35.1016: red
+约[約]	yuē	35.1017: make an appointment
+细[細]	xì	35.1018: fine
+紧[緊]	jǐn	35.1019: tight
+织[織]	zhī	35.1020: weave
+网[網]	wǎng	35.1021: Net
+绿[綠]	lǜ	35.1022: green
+弯[彎]	wān	35.1023: curved
+湾[灣]	wān	35.1024: Bay
+恋[戀]	liàn	35.1025: be enamored of
+变[變]	biàn	35.1026: change
+经[經]	jīng	35.1027: Scripture
+轻[輕]	qīng	35.1028: lightweight
+后[後]	hòu	35.1029: behind
+几[幾]	jǐ	35.1030: how many?
+机[機]	jī	35.1031: Machine
+断[斷]	duàn	35.1032: sever
+继[繼]	jì	35.1033: carry on
+显[顯]	xiǎn	35.1034: obvious
+乐[樂]	yuè	35.1035: Music
+药[藥]	yào	35.1036: Medicine
+鸡[雞]	jī	35.1037: Chicken
+么[麼]	me	0.1038: [suffix]; [pause marker]
+系[系]	xì	35.1039: Lineage
+系[係]	xì	35.1040: related to
+孙[孫]	sūn	35.1041: Grandchild
+//RTH1/36
+却[卻]	què	36.1042: withdraw
+脚[腳]	jiǎo	36.1043: Foot
+服[服]	fú	36.1044: Apparel
+命[命]	mìng	36.1045: Fate
+留[留]	liú	36.1046: stay
+溜[溜]	liū	36.1047: slide
+聊[聊]	liáo	36.1048: chat
+柳[柳]	liǔ	36.1049: Willow
+令[令]	lìng	36.1050: Orders
+冷[冷]	lěng	36.1051: cold
+零[零]	líng	36.1052: zero
+领[領]	lǐng	36.1053: Collar
+通[通]	tōng	36.1054: communicate
+勇[勇]	yǒng	36.1055: courageous
+犯[犯]	fàn	36.1056: Criminal
+危[危]	wēi	36.1057: Danger
+脆[脆]	cuì	36.1058: fragile
+印[印]	yìn	36.1059: Print
+兴[興]	xìng	36.1060: Excitement
+//RTH1/37
+酒[酒]	jiǔ	37.1061: Liquor
+配[配]	pèi	37.1062: distribute
+酋[酋]	qiú	37.1063: Chieftain
+尊[尊]	zūn	37.1064: venerate
+遵[遵]	zūn	37.1065: abide by
+豆[豆]	dòu	37.1066: Beans
+头[頭]	tóu	37.1067: Head
+短[短]	duǎn	37.1068: short
+礼[禮]	lǐ	37.1069: Ceremony
+体[體]	tǐ	37.1070: Body
+鼓[鼓]	gǔ	37.1071: a Drum
+喜[喜]	xǐ	37.1072: joyful
+厨[廚]	chú	37.1073: Kitchen
+树[樹]	shù	37.1074: Timber
+血[血]	xuè	37.1075: Blood
+尽[盡]	jìn	37.1076: exhausted
+尽[儘]	jǐn	37.1077: the utmost
+盖[蓋]	gài	37.1078: Lid
+温[溫]	wēn	37.1079: Warm
+监[監]	jiān	37.1080: supervise
+篮[籃]	lán	37.1081: Basket
+蓝[藍]	lán	37.1082: blue
+银[銀]	yín	37.1083: Silver
+跟[跟]	gēn	37.1084: Heel
+很[很]	hěn	37.1085: very
+根[根]	gēn	37.1086: Root
+即[即]	jí	37.1087: immediately
+节[節]	jié	37.1088: Holiday
+退[退]	tuì	37.1089: retreat
+腿[腿]	tuǐ	37.1090: Leg
+限[限]	xiàn	37.1091: Limit
+眼[眼]	yǎn	37.1092: Eyelet
+良[良]	liáng	37.1093: high-quality
+浪[浪]	làng	37.1094: Breakers
+娘[娘]	niáng	37.1095: Mom
+食[食]	shí	37.1096: Food
+饭[飯]	fàn	37.1097: Meal
+餐[餐]	cān	37.1098: dine
+馆[館]	guǎn	37.1099: Bldg.
+养[養]	yǎng	37.1100: raise
+既[既]	jì	37.1101: since
+概[概]	gài	37.1102: approximate
+//RTH1/38
+平[平]	píng	38.1103: even
+评[評]	píng	38.1104: evaluate
+坪[坪]	píng	38.1105: Level Ground
+乎[乎]	hū	38.1106: ooh!
+呼[呼]	hū	38.1107: shout
+希[希]	xī	38.1108: hope
+稀[稀]	xī	38.1109: scarce
+学[學]	xué	38.1110: study
+觉[覺]	jué	38.1111: Senses
+搅[攪]	jiǎo	38.1112: stir
+凶[凶]	xiōng	38.1113: sinister
+凶[兇]	xiōng	38.1114: cruel
+胸[胸]	xiōng	38.1115: Bosom
+离[離]	lí	38.1116: leave
+禽[禽]	qín	38.1117: Fowl
+辛[辛]	xīn	38.1118: peppery
+办[辦]	bàn	38.1119: manage
+辩[辯]	biàn	38.1120: dispute
+壁[壁]	bì	38.1121: Partition
+避[避]	bì	38.1122: evade
+新[新]	xīn	38.1123: new
+薪[薪]	xīn	38.1124: Fuel
+亲[親]	qīn	38.1125: Relatives
+衬[襯]	chèn	38.1126: Inner Garments
+幸[幸]	xìng	38.1127: Good Fortune
+执[執]	zhí	38.1128: clench
+报[報]	bào	38.1129: Newspaper
+叫[叫]	jiào	38.1130: call
+收[收]	shōu	38.1131: receive
+陆[陸]	lù	38.1132: Land
+势[勢]	shì	38.1133: Force
+热[熱]	rè	38.1134: Heat
+艺[藝]	yì	38.1135: Technique
+亥[亥]	hài	38.1136: Sign Of The Hog
+核[核]	hé	38.1137: Nucleus
+孩[孩]	hái	38.1138: Tot
+刻[刻]	kè	38.1139: carve
+该[該]	gāi	38.1140: should
+述[述]	shù	38.1141: narrate
+术[術]	shù	38.1142: Art
+杀[殺]	shā	38.1143: kill
+襄[襄]	xiāng	38.1144: aid
+让[讓]	ràng	38.1145: yield
+壤[壤]	rǎng	38.1146: Territory
+寒[寒]	hán	38.1147: frigid
+赛[賽]	sài	38.1148: Competition
+//RTH1/39
+毒[毒]	dú	39.1149: a Poison
+素[素]	sù	39.1150: Vegetarian Diet
+青[青]	qīng	39.1151: blue or green
+精[精]	jīng	39.1152: refined
+请[請]	qǐng	39.1153: invite
+情[情]	qíng	39.1154: Feelings
+睛[睛]	jīng	39.1155: Eyeball
+清[清]	qīng	39.1156: pure
+静[靜]	jìng	39.1157: quiet
+责[責]	zé	39.1158: Responsibility
+绩[績]	jì	39.1159: Accomplishments
+积[積]	jī	39.1160: accumulate
+表[表]	biǎo	39.1161: Surface
+錶[錶]	biǎo	39.1162: a Watch
+生[生]	shēng	39.1163: Life
+星[星]	xīng	39.1164: Star
+姓[姓]	xìng	39.1165: Surname
+性[性]	xìng	39.1166: Sex
+害[害]	hài	39.1167: Harm
+割[割]	gē	39.1168: cut off
+慧[慧]	huì	39.1169: intelligent
+丰[豐]	fēng	39.1170: plentiful
+春[春]	chūn	39.1171: Springtime
+泰[泰]	tài	39.1172: tranquil
+奉[奉]	fèng	39.1173: proffer
+棒[棒]	bàng	39.1174: Cudgel
+勤[勤]	qín	39.1175: diligent
+谨[謹]	jǐn	39.1176: careful
+仅[僅]	jǐn	39.1177: merely
+汉[漢]	hàn	39.1178: Han
+难[難]	nán	39.1179: difficult
+摊[攤]	tān	39.1180: Vendor’s Stand
+华[華]	huá	39.1181: Splendor
+哗[嘩]	huá	39.1182: Clamor
+垂[垂]	chuí	39.1183: droop
+锤[錘]	chuí	39.1184: Hammer
+睡[睡]	shuì	39.1185: sleep
+//RTH1/40
+今[今]	jīn	40.1186: now
+含[含]	hán	40.1187: harbor
+念[念]	niàn	40.1188: miss
+阴[陰]	yīn	40.1189: Yin
+荫[蔭]	yìn	40.1190: shady
+西[西]	xī	40.1191: West
+要[要]	yào	40.1192: want
+腰[腰]	yāo	40.1193: Waist
+票[票]	piào	40.1194: Ticket
+漂[漂]	piào	40.1195: drift
+标[標]	biāo	40.1196: a Mark
+贾[賈]	gǔ	40.1197: Merchant
+价[價]	jià	40.1198: Price
+烟[煙]	yān	40.1199: the Smoke
+南[南]	nán	40.1200: South
+//RTH1/41
+门[門]	mén	41.1201: Gate
+们[們]	men	41.1202: [plural]
+闲[閒]	xián	41.1203: Leisure
+问[問]	wèn	41.1204: ask
+间[間]	jiàn	41.1205: Interval
+简[簡]	jiǎn	41.1206: simple
+开[開]	kāi	41.1207: open
+闻[聞]	wén	41.1208: hear
+仓[倉]	cāng	41.1209: Storehouse
+枪[槍]	qiāng	41.1210: Gun
+创[創]	chuàng	41.1211: initiate
+非[非]	fēi	41.1212: non—
+排[排]	pái	41.1213: Row
+罪[罪]	zuì	41.1214: Guilt
+靠[靠]	kào	41.1215: lean on
+侯[侯]	hóu	41.1216: Marquis
+候[候]	hòu	41.1217: wait
+决[決]	jué	41.1218: decide
+快[快]	kuài	41.1219: fast
+筷[筷]	kuài	41.1220: Chopsticks
+韦[韋]	wéi	41.1221: Tanned Hide
+围[圍]	wéi	41.1222: surround
+伟[偉]	wěi	41.1223: great
+卫[衛]	wèi	41.1224: defend
+//RTH1/42
+干[干]	gān	42.1225: offend
+岸[岸]	àn	42.1226: Shore
+干[幹]	gàn	42.1227: Trunk
+旱[旱]	hàn	42.1228: Drought
+赶[趕]	gǎn	42.1229: hurry
+于[于]	yú	42.1230: Yu
+宇[宇]	yǔ	42.1231: Eaves
+余[余]	yú	42.1232: moi
+余[餘]	yú	42.1233: Excess
+除[除]	chú	42.1234: eliminate
+途[途]	tú	42.1235: Route
+束[束]	shù	42.1236: bundle up
+速[速]	sù	42.1237: quick
+辣[辣]	là	42.1238: spicy hot
+整[整]	zhěng	42.1239: entire
+练[練]	liàn	42.1240: practice
+拣[揀]	jiǎn	42.1241: opt for
+重[重]	zhòng	42.1242: heavy
+懂[懂]	dǒng	42.1243: understand
+动[動]	dòng	42.1244: move
+种[種]	zhǒng	42.1245: Species
+冲[衝]	chōng	42.1246: collide
+//RTH1/43
+病[病]	bìng	43.1247: Illness
+痛[痛]	tòng	43.1248: ache
+疯[瘋]	fēng	43.1249: insane
+匹[匹]	pī	43.1250: match
+区[區]	qū	43.1251: Region
+枢[樞]	shū	43.1252: Hub
+欧[歐]	ōu	43.1253: Europe
+医[醫]	yī	43.1254: Physician
+仰[仰]	yǎng	43.1255: look up to
+迎[迎]	yíng	43.1256: greet
+登[登]	dēng	43.1257: ascend
+灯[燈]	dēng	43.1258: Lamp
+证[證]	zhèng	43.1259: Evidence
+发[發]	fā	43.1260: send out
+废[廢]	fèi	43.1261: discard
+//RTH1/44
+形[形]	xíng	44.1262: Shape
+影[影]	yǐng	44.1263: Shadow
+彩[彩]	cǎi	44.1264: Hue
+须[須]	xū	44.1265: have to
+珍[珍]	zhēn	44.1266: rare
+参[參]	cān	44.1267: participate
+惨[慘]	cǎn	44.1268: wretched
+修[修]	xiū	44.1269: repair 条
+文[文]	wén	44.1270: Literature
+蚊[蚊]	wén	44.1271: Mosquito
+彦[彥]	yàn	44.1272: erudite
+颜[顏]	yán	44.1273: Countenance
+产[產]	chǎn	44.1274: Products
+率[率]	shuài	44.1275: a Rate
+摔[摔]	shuāi	44.1276: tumble
+央[央]	yāng	44.1277: Center
+英[英]	yīng	44.1278: England
+巴[巴]	bā	44.1279: Crust
+把[把]	bǎ	44.1280: grasp
+爸[爸]	bà	44.1281: Papa
+吧[吧]	bā	44.1282: Bar
+色[色]	sè	44.1283: Color
+绝[絕]	jué	44.1284: discontinue
+//RTH1/45
+甘[甘]	gān	45.1285: sweet
+某[某]	mǒu	45.1286: such and such
+其[其]	qí	45.1287: his-hers-its-theirs
+期[期]	qī	45.1288: Period of Time
+基[基]	jī	45.1289: Base
+斯[斯]	sī	45.1290: Sphinx
+甚[甚]	shèn	45.1291: tremendously
+贵[貴]	guì	45.1292: expensive
+遗[遺]	yí	45.1293: bequeath
+舞[舞]	wǔ	45.1294: Dance
+无[無]	wú	45.1295: nothing
+抚[撫]	fǔ	45.1296: comfort
+且[且]	qiě	45.1297: moreover
+姐[姐]	jiě	45.1298: Older Sister
+组[組]	zǔ	45.1299: Group
+祖[祖]	zǔ	45.1300: Ancestor
+助[助]	zhù	45.1301: assist
+//RTH1/46
+并[並]	bìng	46.1302: side by side
+普[普]	pǔ	46.1303: universal
+业[業]	yè	46.1304: profession
+对[對]	duì	46.1305: that’s right
+共[共]	gòng	46.1306: together
+供[供]	gōng	46.1307: supply
+异[異]	yì	46.1308: different
+巷[巷]	xiàng	46.1309: lane
+港[港]	gǎng	46.1310: port
+选[選]	xuǎn	46.1311: choose
+//RTH1/47
+井[井]	jǐng	47.1312: well
+亚[亞]	yà	47.1313: Asia 
+恶[惡]	è	47.1314: evil
+角[角]	jiǎo	47.1315: angle 
+解[解]	jiě	47.1316: untie
+嘴[嘴]	zuǐ	47.1317: orifice "snout"
+再[再]	zài	47.1318: once more
+称[稱]	chēng	47.1319: weigh
+讲[講]	jiǎng	47.1320: lecture
+构[構]	gòu	47.1321: frame (v.)
+扁[扁]	biǎn	47.1322: flat
+篇[篇]	piān	47.1323: piece of writing
+编[編]	biān	47.1324: compile
+论[論]	lùn	47.1325: theory
+轮[輪]	lún	47.1326: wheel
+典[典]	diǎn	47.1327: canon 
+//RTH1/48
+氏[氏]	shì	48.1328: family name
+纸[紙]	zhǐ	48.1329: paper
+昏[昏]	hūn	48.1330: dusk
+婚[婚]	hūn	48.1331: marriage
+低[低]	dī	48.1332: low
+底[底]	dǐ	48.1333: bottom
+民[民]	mín	48.1334: the people 
+眠[眠]	mián	48.1335: slumber
+甫[甫]	fǔ	48.1336: Fu
+补[補]	bǔ	48.1337: patch
+博[博]	bó	48.1338: knowledgeable
+搏[搏]	bó	48.1339: wrestle
+都[都]	dū	48.1340: metropolis
+部[部]	bù	48.1341: department
+郎[郎]	láng	48.1342: young man
+乡[鄉]	xiāng	48.1343: countryside
+响[響]	xiǎng	48.1344: echo
+//RTH1/49
+段[段]	duàn	49.1345: section
+锻[鍛]	duàn	49.1346: forge
+幻[幻]	huàn	49.1347: unreal
+司[司]	sī	49.1348: take charge of
+词[詞]	cí	49.1349: word
+舟[舟]	zhōu	49.1350: boat
+船[船]	chuán	49.1351: ship
+般[般]	bān	49.1352: sort (n.)
+盘[盤]	pán	49.1353: tray
+搬[搬]	bān	49.1354: relocate
+瓜[瓜]	guā	49.1355: melon 
+孤[孤]	gū	49.1356: orphan
+//RTH1/50
+益[益]	yì	50.1357: benefit
+假[假]	jià	50.1358: vacation
+虾[蝦]	xiā	50.1359: shrimp
+气[氣]	qì	50.1360: air 
+汽[汽]	qì	50.1361: vapor
+飞[飛]	fēi	50.1362: fly
+面[面]	miàn	50.1363: face-to-face
+面[麵]	miàn	50.1364: noodles
+革[革]	gé	50.1365: leather
+鞋[鞋]	xié	50.1366: shoes
+馨[馨]	xīn	50.1367: fragrant
+声[聲]	shēng	50.1368: voice
+吴[吳]	wú	50.1369: Wu
+娱[娛]	yú	50.1370: amusement
+误[誤]	wù	50.1371: error
+承[承]	chéng	50.1372: undertake
+蒸[蒸]	zhēng	50.1373: steam
+//RTH1/51
+牙[牙]	yá	51.1374: tooth 
+穿[穿]	chuān	51.1375: pass through
+呀[呀]	ya	51.1376: wow!
+释[釋]	shì	51.1377: explain
+番[番]	fān	51.1378: try
+翻[翻]	fān	51.1379: turn over
+播[播]	bō	51.1380: broadcast
+毛[毛]	máo	51.1381: fur 
+尾[尾]	wěi	51.1382: tail
+宅[宅]	zhái	51.1383: dwelling
+托[託]	tuō	51.1384: entrust
+为[為]	wèi	51.1385: act 
+伪[偽]	wěi	51.1386: bogus
+长[長]	cháng	51.1387: long
+张[張]	zhāng	51.1388: stretch
+涨[漲]	zhàng	51.1389: swell
+套[套]	tào	51.1390: cover
+发[髮]	fà	51.1391: hair of the head
+展[展]	zhǎn	51.1392: unfold
+丧[喪]	sàng	51.1393: funeral
+//RTH1/52
+雁[雁]	yàn	52.1394: wild goose
+应[應]	yīng	52.1395: ought to
+鸟[鳥]	niǎo	52.1396: bird 
+鹰[鷹]	yīng	52.1397: hawk
+鸭[鴨]	yā	52.1398: duck
+岛[島]	dǎo	52.1399: island
+遇[遇]	yù	52.1400: encounter
+万[萬]	wàn	52.1401: ten thousand
+迈[邁]	mài	52.1402: stride
+冈[岡]	gāng	52.1403: ridge of a hill
+刚[剛]	gāng	52.1404: just now 
+缺[缺]	quē	52.1405: deficient
+宝[寶]	bǎo	52.1406: treasure
+遥[遙]	yáo	52.1407: remote
+摇[搖]	yáo	52.1408: shake
+兔[兔]	tù	52.1409: rabbit
+逸[逸]	yì	52.1410: flee
+免[免]	miǎn	52.1411: avoid
+晚[晚]	wǎn	52.1412: nightfall
+象[象]	xiàng	52.1413: elephant
+像[像]	xiàng	52.1414: likeness
+//RTH1/53
+马[馬]	mǎ	53.1415: horse
+妈[媽]	mā	53.1416: mama 
+骂[罵]	mà	53.1417: scold (v.)
+吗[嗎]	ma	53.1418: yes or no
+验[驗]	yàn	53.1419: check (v.)
+骑[騎]	qí	53.1420: ride (v.)
+惊[驚]	jīng	53.1421: startled
+虎[虎]	hǔ	53.1422: tiger
+虑[慮]	lǜ	53.1423: ponder
+处[處]	chù	53.1424: location
+戏[戲]	xì	53.1425: frolic
+剧[劇]	jù	53.1426: drama
+据[據]	jù	53.1427: certificate
+鹿[鹿]	lù	53.1428: deer
+尘[塵]	chén	53.1429: dust
+丽[麗]	lì	53.1430: lovely
+熊[熊]	xióng	53.1431: bear
+能[能]	néng	53.1432: ability
+态[態]	tài	53.1433: attitude
+//RTH1/54
+寅[寅]	yín	54.1434: sign of the tiger
+演[演]	yǎn	54.1435: perform
+辰[辰]	chén	54.1436: sign of the dragon
+晨[晨]	chén	54.1437: morning
+农[農]	nóng	54.1438: agriculture
+浓[濃]	nóng	54.1439: concentrated
+送[送]	sòng	54.1440: deliver
+鬼[鬼]	guǐ	54.1441: ghost
+魔[魔]	mó	54.1442: demon
+块[塊]	kuài	54.1443: lump
+龙[龍]	lóng	54.1444: dragon
+袭[襲]	xí	54.1445: raid (v.)
+//RTH1/55
+儿[兒]	ér	55.1446: youngster 
+旧[舊]	jiù	55.1447: old
+写[寫]	xiě	55.1448: write
+泻[瀉]	xiè	55.1449: diarrhea
+两[兩]	liǎng	55.1450: dos
+俩[倆]	liǎ	55.1451: duo
+满[滿]	mǎn	55.1452: full
+尔[爾]	ěr	55.1453: you  [literary]
+弥[彌]	mí	55.1454: fill
+虚[虛]	xū	55.1455: false
+联[聯]	lián	55.1456: unite
+关[關]	guān	55.1457: shut (v.)
+那[那]	nà	55.1458: that
+哪[哪]	nǎ	55.1459: which?  
+巫[巫]	wū	55.1460: witch
+灵[靈]	líng	55.1461: spirit
+县[縣]	xiàn	55.1462: county
+悬[懸]	xuán	55.1463: suspend 
+与[與]	yǔ	55.1464: offer
+举[舉]	jǔ	55.1465: lift up
+脑[腦]	nǎo	55.1466: brain 
+恼[惱]	nǎo	55.1467: annoyed  
+专[專]	zhuān	55.1468: specialty
+传[傳]	chuán	55.1469: spread
+转[轉]	zhuàn	55.1470: rotate
+团[團]	tuán	55.1471: troupe
+黄[黃]	huáng	55.1472: yellow
+广[廣]	guǎng	55.1473: extensive
+横[橫]	héng	55.1474: horizontal
+窗[窗]	chuāng	55.1475: window
+总[總]	zǒng	55.1476: general
+詹[詹]	zhān	55.1477: verbose
+担[擔]	dàn	55.1478: assume "take on"
+数[數]	shù	55.1479: number
+楼[樓]	lóu	55.1480: multistory building
+独[獨]	dú	55.1481: alone
+属[屬]	shǔ	55.1482: belong to
+烂[爛]	làn	55.1483: spoiled
+兰[蘭]	lán	55.1484: orchid 
+从[從]	cóng	55.1485: follow 
+纵[縱]	zòng	55.1486: vertical
+齐[齊]	qí	55.1487: identical 
+济[濟]	jì	55.1488: relieve
+丑[丑]	chǒu	55.1489: clown "ugly"
+扭[扭]	niǔ	55.1490: twist (v.)
+卑[卑]	bēi	55.1491: lowly
+牌[牌]	pái	55.1492: brand (n.)
+号[號]	hào	55.1493: appellation 
+怪[怪]	guài	55.1494: peculiar
+赤[赤]	chì	55.1495: crimson
+亦[亦]	yì	55.1496: likewise
+极[極]	jí	55.1497: extreme
+杂[雜]	zá	55.1498: miscellaneous
+曰[曰]	yuē	55.1499: sayeth
+乱[亂]	luàn	55.1500: Chaos
+

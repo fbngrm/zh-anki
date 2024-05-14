@@ -13,18 +13,16 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/translate"
 	"github.com/fbngrm/zh-freq/pkg/card"
-	"github.com/fbngrm/zh-mnemonics/mnemonic"
 	"github.com/fbngrm/zh/lib/cedict"
 )
 
 type Processor struct {
-	IgnoreChars     []string
-	Cedict          map[string][]cedict.Entry
-	Audio           audio.Downloader
-	Decomposer      *decomposition.Decomposer
-	WordIndex       *frequency.WordIndex
-	MnemonicBuilder *mnemonic.Builder
-	CardBuilder     *card.Builder
+	IgnoreChars []string
+	Cedict      map[string][]cedict.Entry
+	Audio       audio.Downloader
+	Decomposer  *decomposition.Decomposer
+	WordIndex   *frequency.WordIndex
+	CardBuilder *card.Builder
 }
 
 func (p *Processor) GetAll(word string, t translate.Translations) []Char {
@@ -41,18 +39,37 @@ func (p *Processor) GetAll(word string, t translate.Translations) []Char {
 			example = strings.Join(examples, ", ")
 		}
 
+		card := p.CardBuilder.GetHanziCard(word, c)
+
+		hskEntries := make([]HSKEntry, 0)
+		if hsk, ok := card.DictEntries["hsk"]; ok {
+			for _, entry := range hsk {
+				hskEntries = append(hskEntries, HSKEntry{
+					HSKPinyin:  entry.Pinyin,
+					HSKEnglish: p.translateChar(c, entry.English, t),
+				})
+			}
+		}
+		cedictEntries := make([]CedictEntry, 0)
+		if cedict, ok := card.DictEntries["cedict"]; ok {
+			for _, entry := range cedict {
+				cedictEntries = append(cedictEntries, CedictEntry{
+					CedictPinyin:  entry.Pinyin,
+					CedictEnglish: p.translateChar(c, entry.English, t),
+				})
+			}
+		}
 		allChars = append(allChars, Char{
 			Chinese:      c,
-			English:      p.translateChar(c, t),
-			Pinyin:       p.getPinyin(c),
+			Cedict:       cedictEntries,
+			HSK:          hskEntries,
 			IsSingleRune: true,
 			Components:   decomposition.GetComponents(hanzi),
-			Kangxi:       decomposition.GetKangxi(hanzi),
 			Equivalents:  removeRedundant(hanzi.Equivalents),
 			Traditional:  removeRedundant(hanzi.IdeographsTraditional),
 			Example:      example,
-			MnemonicBase: p.getMnemonicBase(c),
-			Mnemonic:     p.MnemonicBuilder.Lookup(c),
+			MnemonicBase: card.MnemonicBase,
+			Mnemonic:     card.Mnemonic,
 		})
 	}
 	return p.getAudio(allChars)
@@ -102,18 +119,6 @@ func (p *Processor) getPinyin(ch string) string {
 	return strings.Join(p.getReadings(ch), ", ")
 }
 
-func (p *Processor) getMnemonicBase(ch string) string {
-	mnemonicBase := ""
-	for _, pinyin := range p.getReadings(ch) {
-		m, err := p.MnemonicBuilder.GetBase(pinyin)
-		if err != nil {
-			fmt.Printf("could not get mnemonic base for word: %s\n", pinyin)
-		}
-		mnemonicBase = fmt.Sprintf("%s%s<br>%s<br>", mnemonicBase, pinyin, m)
-	}
-	return mnemonicBase
-}
-
 func (p *Processor) getAudio(chars []Char) []Char {
 	for y, char := range chars {
 		filename := hash.Sha1(char.Chinese) + ".mp3"
@@ -125,15 +130,10 @@ func (p *Processor) getAudio(chars []Char) []Char {
 	return chars
 }
 
-func (p *Processor) translateChar(ch string, t translate.Translations) string {
+func (p *Processor) translateChar(ch, en string, t translate.Translations) string {
 	translation, ok := t[ch]
-	if !ok {
-		definitions := []string{}
-		for _, entry := range p.Cedict[ch] {
-			definitions = append(definitions, entry.Definitions...)
-		}
-		translation = strings.Join(definitions, ", ")
+	if ok {
+		return translation
 	}
-	t.Update(ch, translation)
-	return translation
+	return en
 }

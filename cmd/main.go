@@ -21,8 +21,8 @@ import (
 	"github.com/fbngrm/zh/lib/cedict"
 )
 
-const cedictSrc = "/home/f/work/src/github.com/fbngrm/zh/lib/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
-const wordFrequencySrc = "./lib/global_wordfreq.release_UTF-8.txt"
+const cedictSrc = "./pkg/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
+const wordFrequencySrc = "./pkg/frequency/global_wordfreq.release_UTF-8.txt"
 const mnemonicsSrc = "/home/f/Dropbox/notes/chinese/mnemonics/mnemonics.txt"
 
 var ignoreChars = []string{"!", "！", "？", "?", "，", ",", ".", "。", "", " ", "、"}
@@ -115,13 +115,12 @@ func main() {
 	}
 
 	charProcessor := char.Processor{
-		IgnoreChars:     ignoreChars,
-		Cedict:          cedictDict,
-		Audio:           audioDownloader,
-		Decomposer:      decomposer,
-		WordIndex:       wordIndex,
-		MnemonicBuilder: mnBuilder,
-		CardBuilder:     builder,
+		IgnoreChars: ignoreChars,
+		Cedict:      cedictDict,
+		Audio:       audioDownloader,
+		Decomposer:  decomposer,
+		WordIndex:   wordIndex,
+		CardBuilder: builder,
 	}
 	wordProcessor := dialog.WordProcessor{
 		Cedict:          cedictDict,
