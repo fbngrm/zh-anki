@@ -7,6 +7,7 @@ import (
 	"github.com/fbngrm/zh-freq/pkg/card"
 )
 
+// FIXME: this is redundant with Word, move to same pkg and remove one.
 func Export(deckName string, c Char) error {
 	cedictHeader := ""
 	cedictEn1, cedictPinyin1 := "", ""

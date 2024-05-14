@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -12,29 +11,23 @@ import (
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/char"
-	"github.com/fbngrm/zh-anki/pkg/decomposition"
 	"github.com/fbngrm/zh-anki/pkg/frequency"
 	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
 	"github.com/fbngrm/zh-anki/pkg/translate"
-	"github.com/fbngrm/zh-mnemonics/mnemonic"
-	"github.com/fbngrm/zh/lib/cedict"
+	"github.com/fbngrm/zh-freq/pkg/card"
 )
 
 type WordProcessor struct {
-	Cedict          map[string][]cedict.Entry
-	Chars           char.Processor
-	Audio           audio.Downloader
-	IgnoreChars     []string
-	Client          *openai.Client
-	Decomposer      *decomposition.Decomposer
-	WordIndex       *frequency.WordIndex
-	MnemonicBuilder *mnemonic.Builder
+	Chars       char.Processor
+	Audio       audio.Downloader
+	IgnoreChars []string
+	Client      *openai.Client
+	WordIndex   *frequency.WordIndex
+	CardBuilder *card.Builder
 }
 
-// used for simple words lists that need to lookup pinyin and translation in cedict.
-// FIXME: use openai for pinyin
 func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t translate.Translations) []Word {
 	words := loadWords(path)
 
@@ -52,61 +45,36 @@ func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t trans
 			continue
 		}
 
-		hanzi := p.Decomposer.Decompose(word)
-
 		i.Update(word)
-
-		definitions := []string{}
-		for _, entry := range p.Cedict[word] {
-			definitions = append(definitions, entry.Definitions...)
-		}
-
 		allChars := p.Chars.GetAll(word, t)
 
 		example := ""
-		mnBase := ""
 		isSingleRune := utf8.RuneCountInString(word) == 1
 		if isSingleRune {
-			example = strings.Join(p.WordIndex.GetExamplesForHanzi(word, 5), ", ")
-			mnBase = p.getMnemonicBase(word)
+			example = removeRedundant(p.WordIndex.GetExamplesForHanzi(word, 5))
 		}
+
+		cc := p.CardBuilder.GetWordCard(word)
 
 		newWords = append(newWords, Word{
 			Chinese:      word,
-			Pinyin:       p.getPinyin(word),
-			English:      strings.ReplaceAll(strings.Join(definitions, ", "), "&#39;", "'"),
+			Cedict:       card.GetCedictEntries(cc),
+			HSK:          card.GetHSKEntries(cc),
 			AllChars:     allChars,
 			NewChars:     p.Chars.GetNew(i, allChars),
 			IsSingleRune: isSingleRune,
-			Components:   decomposition.GetComponents(hanzi),
-			Kangxi:       decomposition.GetKangxi(hanzi),
-			Equivalents:  removeRedundant(hanzi.Equivalents),
-			Traditional:  removeRedundant(hanzi.IdeographsTraditional),
+			Components:   cc.Components,
+			Traditional:  cc.TraditionalChinese,
 			Example:      example,
-			UniqueChars:  getUniqueChars(word),
-			MnemonicBase: mnBase,
-			Mnemonic:     p.MnemonicBuilder.Lookup(word),
+			MnemonicBase: cc.MnemonicBase,
+			Mnemonic:     cc.Mnemonic,
 		})
 	}
 	return p.getAudio(newWords)
 }
 
-func (p *WordProcessor) getPinyin(ch string) string {
-	entries, _ := p.Cedict[string(ch)]
-	readings := make(map[string]struct{})
-	for _, entry := range entries {
-		for _, reading := range entry.Readings {
-			readings[reading] = struct{}{}
-		}
-	}
-	pinyin := make([]string, 0)
-	for reading := range readings {
-		pinyin = append(pinyin, reading)
-	}
-	return strings.Join(pinyin, ", ")
-}
-
-// used for openai data that contains the translation and pinyin
+// used for openai data that contains the translation and pinyin; currently we still use hsk and cedict only.
+// TODO: add fallback with openai in case hsk and cedict don't know the word.
 func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.Translations) ([]Word, []Word) {
 	var allWords []Word
 	for _, word := range words {
@@ -116,34 +84,27 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.T
 		if contains(p.IgnoreChars, word.Ch) {
 			continue
 		}
-		definitions := []string{word.En}
-		for _, entry := range p.Cedict[word.Ch] {
-			definitions = append(definitions, entry.Definitions...)
-		}
-
-		hanzi := p.Decomposer.Decompose(word.Ch)
 
 		example := ""
-		mnBase := ""
 		isSingleRune := utf8.RuneCountInString(word.Ch) == 1
 		if isSingleRune {
 			example = strings.Join(p.WordIndex.GetExamplesForHanzi(word.Ch, 5), ", ")
-			mnBase = p.getMnemonicBase(word.Ch)
 		}
+
+		cc := p.CardBuilder.GetWordCard(word.Ch)
 
 		allWords = append(allWords, Word{
 			Chinese:      word.Ch,
-			Pinyin:       word.Pi,
-			English:      strings.ReplaceAll(strings.Join(definitions, ", "), "&#39;", "'"),
+			English:      word.En, // this comes from openai and is only used in the components of a sentence, which itself is translated by openai
+			Cedict:       card.GetCedictEntries(cc),
+			HSK:          card.GetHSKEntries(cc),
 			AllChars:     p.Chars.GetAll(word.Ch, t),
-			IsSingleRune: utf8.RuneCountInString(word.Ch) == 1,
-			Components:   decomposition.GetComponents(hanzi),
-			Kangxi:       decomposition.GetKangxi(hanzi),
-			Equivalents:  removeRedundant(hanzi.Equivalents),
-			Traditional:  removeRedundant(hanzi.IdeographsTraditional),
+			IsSingleRune: isSingleRune,
+			Components:   cc.Components,
+			Traditional:  cc.TraditionalChinese,
 			Example:      example,
-			MnemonicBase: mnBase,
-			Mnemonic:     p.MnemonicBuilder.Lookup(word.Ch),
+			MnemonicBase: cc.MnemonicBase,
+			Mnemonic:     cc.Mnemonic,
 		})
 	}
 	allWords = p.getAudio(allWords)
@@ -200,52 +161,6 @@ func (p *WordProcessor) ExportCards(deckname string, words []Word) {
 			fmt.Println(err)
 		}
 	}
-}
-
-func (p *WordProcessor) getReadings(ch string) []string {
-	entries, _ := p.Cedict[string(ch)]
-	readings := make(map[string]struct{})
-	for _, entry := range entries {
-		for _, reading := range entry.Readings {
-			readings[reading] = struct{}{}
-		}
-	}
-	pinyin := make([]string, 0)
-	for reading := range readings {
-		pinyin = append(pinyin, reading)
-	}
-	return pinyin
-}
-
-func (p *WordProcessor) getMnemonicBase(ch string) string {
-	mnemonicBase := ""
-	for _, pinyin := range p.getReadings(ch) {
-		m, err := p.MnemonicBuilder.GetBase(pinyin)
-		if err != nil {
-			fmt.Printf("could not get mnemonic base for word: %s\n", pinyin)
-		}
-		mnemonicBase = fmt.Sprintf("%s%s<br>%s<br>", mnemonicBase, pinyin, m)
-	}
-	return mnemonicBase
-}
-
-func translateWords(words []Word, t translate.Translations) []Word {
-	var translated []Word
-	for _, word := range words {
-		translation, ok := t[word.Chinese]
-		if !ok {
-			var err error
-			translation, err = translate.Translate("en-US", word.Chinese)
-			if err != nil {
-				log.Fatalf("could not translate word \"%s\": %v", word.Chinese, err)
-			}
-		}
-		word.English = translation
-		t.Update(word.Chinese, word.English)
-
-		translated = append(translated, word)
-	}
-	return translated
 }
 
 func contains[T comparable](s []T, e T) bool {

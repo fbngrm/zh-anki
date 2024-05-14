@@ -9,6 +9,25 @@ import (
 	"golang.org/x/text/language"
 )
 
+// func translateWords(words []Word, t translate.Translations) []Word {
+// 	var translated []Word
+// 	for _, word := range words {
+// 		translation, ok := t[word.Chinese]
+// 		if !ok {
+// 			var err error
+// 			translation, err = translate.Translate("en-US", word.Chinese)
+// 			if err != nil {
+// 				log.Fatalf("could not translate word \"%s\": %v", word.Chinese, err)
+// 			}
+// 		}
+// 		word.English = translation
+// 		t.Update(word.Chinese, word.English)
+
+//			translated = append(translated, word)
+//		}
+//		return translated
+//	}
+
 func Translate(targetLanguage, text string) (string, error) {
 	ctx := context.Background()
 

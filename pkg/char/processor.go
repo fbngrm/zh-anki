@@ -31,9 +31,7 @@ func (p *Processor) GetAll(word string, t translate.Translations) []Char {
 		example := ""
 		isSingleRune := utf8.RuneCountInString(c) == 1
 		if isSingleRune {
-			examples := p.WordIndex.GetExamplesForHanzi(c, 4)
-			examples = append(examples, word)
-			example = strings.Join(examples, ", ")
+			example = removeRedundant(p.WordIndex.GetExamplesForHanzi(word, 5))
 		}
 
 		cc := p.CardBuilder.GetHanziCard(word, c)

@@ -10,14 +10,12 @@ import (
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/char"
-	"github.com/fbngrm/zh-anki/pkg/decomposition"
 	"github.com/fbngrm/zh-anki/pkg/dialog"
 	"github.com/fbngrm/zh-anki/pkg/frequency"
 	ignore_dict "github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
 	"github.com/fbngrm/zh-anki/pkg/translate"
 	"github.com/fbngrm/zh-freq/pkg/card"
-	"github.com/fbngrm/zh-mnemonics/mnemonic"
 	"github.com/fbngrm/zh/lib/cedict"
 )
 
@@ -94,15 +92,7 @@ func main() {
 	cacheDir := filepath.Join(cwd, "data", "cache")
 	cache := openai.NewCache(cacheDir)
 
-	decomposer := decomposition.NewDecomposer()
-
 	wordIndex, err := frequency.NewWordIndex(wordFrequencySrc)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	mnBuilder, err := mnemonic.NewBuilder(mnemonicsSrc)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -118,18 +108,15 @@ func main() {
 		IgnoreChars: ignoreChars,
 		Cedict:      cedictDict,
 		Audio:       audioDownloader,
-		Decomposer:  decomposer,
 		WordIndex:   wordIndex,
 		CardBuilder: builder,
 	}
 	wordProcessor := dialog.WordProcessor{
-		Cedict:          cedictDict,
-		Chars:           charProcessor,
-		Audio:           audioDownloader,
-		IgnoreChars:     ignoreChars,
-		Decomposer:      decomposer,
-		WordIndex:       wordIndex,
-		MnemonicBuilder: mnBuilder,
+		Chars:       charProcessor,
+		Audio:       audioDownloader,
+		IgnoreChars: ignoreChars,
+		WordIndex:   wordIndex,
+		CardBuilder: builder,
 	}
 	sentenceProcessor := dialog.SentenceProcessor{
 		Client: openai.NewClient(apiKey, cache),

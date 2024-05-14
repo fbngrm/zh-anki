@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/texttospeech v1.7.5
 	cloud.google.com/go/translate v1.10.0
 	github.com/fbngrm/zh v1.0.4
-	github.com/fbngrm/zh-freq v1.0.4
+	github.com/fbngrm/zh-freq v1.0.5
 	github.com/fbngrm/zh-mnemonics v1.0.6
 	golang.org/x/exp v0.0.0-20240213143201-ec583247a57a
 	golang.org/x/text v0.14.0
