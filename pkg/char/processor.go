@@ -7,7 +7,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
-	"github.com/fbngrm/zh-anki/pkg/decomposition"
 	"github.com/fbngrm/zh-anki/pkg/frequency"
 	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
@@ -20,7 +19,6 @@ type Processor struct {
 	IgnoreChars []string
 	Cedict      map[string][]cedict.Entry
 	Audio       audio.Downloader
-	Decomposer  *decomposition.Decomposer
 	WordIndex   *frequency.WordIndex
 	CardBuilder *card.Builder
 }
@@ -38,36 +36,18 @@ func (p *Processor) GetAll(word string, t translate.Translations) []Char {
 			example = strings.Join(examples, ", ")
 		}
 
-		card := p.CardBuilder.GetHanziCard(word, c)
+		cc := p.CardBuilder.GetHanziCard(word, c)
 
-		hskEntries := make([]HSKEntry, 0)
-		if hsk, ok := card.DictEntries["hsk"]; ok {
-			for _, entry := range hsk {
-				hskEntries = append(hskEntries, HSKEntry{
-					HSKPinyin:  entry.Pinyin,
-					HSKEnglish: p.translateChar(c, entry.English, t),
-				})
-			}
-		}
-		cedictEntries := make([]CedictEntry, 0)
-		if cedict, ok := card.DictEntries["cedict"]; ok {
-			for _, entry := range cedict {
-				cedictEntries = append(cedictEntries, CedictEntry{
-					CedictPinyin:  entry.Pinyin,
-					CedictEnglish: p.translateChar(c, entry.English, t),
-				})
-			}
-		}
 		allChars = append(allChars, Char{
-			Chinese:      card.SimplifiedChinese,
-			Cedict:       cedictEntries,
-			HSK:          hskEntries,
+			Chinese:      cc.SimplifiedChinese,
+			Cedict:       card.GetCedictEntries(cc),
+			HSK:          card.GetHSKEntries(cc),
 			IsSingleRune: true,
-			Components:   card.Components,
-			Traditional:  card.TraditionalChinese,
+			Components:   cc.Components,
+			Traditional:  cc.TraditionalChinese,
 			Example:      example,
-			MnemonicBase: card.MnemonicBase,
-			Mnemonic:     card.Mnemonic,
+			MnemonicBase: cc.MnemonicBase,
+			Mnemonic:     cc.Mnemonic,
 		})
 	}
 	return p.getAudio(allChars)
@@ -98,25 +78,6 @@ func removeRedundant(in []string) string {
 	return strings.Join(out, ", ")
 }
 
-func (p *Processor) getReadings(ch string) []string {
-	entries, _ := p.Cedict[string(ch)]
-	readings := make(map[string]struct{})
-	for _, entry := range entries {
-		for _, reading := range entry.Readings {
-			readings[reading] = struct{}{}
-		}
-	}
-	pinyin := make([]string, 0)
-	for reading := range readings {
-		pinyin = append(pinyin, reading)
-	}
-	return pinyin
-}
-
-func (p *Processor) getPinyin(ch string) string {
-	return strings.Join(p.getReadings(ch), ", ")
-}
-
 func (p *Processor) getAudio(chars []Char) []Char {
 	for y, char := range chars {
 		filename := hash.Sha1(char.Chinese) + ".mp3"
@@ -126,12 +87,4 @@ func (p *Processor) getAudio(chars []Char) []Char {
 		chars[y].Audio = filename
 	}
 	return chars
-}
-
-func (p *Processor) translateChar(ch, en string, t translate.Translations) string {
-	translation, ok := t[ch]
-	if ok {
-		return translation
-	}
-	return en
 }
