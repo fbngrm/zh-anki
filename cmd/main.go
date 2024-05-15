@@ -112,6 +112,7 @@ func main() {
 	}
 	wordProcessor := dialog.WordProcessor{
 		Chars:       charProcessor,
+		Audio:       audioDownloader,
 		IgnoreChars: ignoreChars,
 		WordIndex:   wordIndex,
 		CardBuilder: builder,
