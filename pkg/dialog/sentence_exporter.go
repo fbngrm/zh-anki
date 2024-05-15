@@ -9,7 +9,7 @@ import (
 func ExportSentence(deckName string, s Sentence) error {
 	for _, w := range s.NewWords {
 		if err := ExportWord(deckName, w); err != nil {
-			return err
+			fmt.Printf("error exporting word when exporting sentence [%s]: %v", w.Chinese, err)
 		}
 	}
 	noteFields := map[string]string{
@@ -18,6 +18,8 @@ func ExportSentence(deckName string, s Sentence) error {
 		"English":    s.English,
 		"Audio":      anki.GetAudioPath(s.Audio),
 		"Components": wordsToString(s.AllWords),
+		"Note":       s.Note,
+		"Grammar":    s.Grammar,
 	}
 	noteID, err := anki.AddNoteToDeck(deckName, "sentence", noteFields)
 	if err != nil {

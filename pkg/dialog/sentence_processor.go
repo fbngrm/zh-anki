@@ -27,13 +27,13 @@ func (p *SentenceProcessor) DecomposeFromFile(path, outdir string, i ignore.Igno
 	return p.Decompose(loadSentences(path), outdir, i, t)
 }
 
-func (p *SentenceProcessor) Decompose(sentences []string, outdir string, i ignore.Ignored, t translate.Translations) []Sentence {
+func (p *SentenceProcessor) Decompose(sentences []sentence, outdir string, i ignore.Ignored, t translate.Translations) []Sentence {
 	var results []Sentence
-	for _, sentence := range sentences {
-		sentence = strings.ReplaceAll(sentence, " ", "")
-		fmt.Printf("decompose sentence: %s\n", sentence)
+	for _, sen := range sentences {
+		text := strings.ReplaceAll(sen.text, " ", "")
+		fmt.Printf("decompose sentence: %s\n", text)
 
-		s, err := p.Client.DecomposeSentence(sentence)
+		s, err := p.Client.DecomposeSentence(text)
 		if err != nil {
 			fmt.Println(err.Error())
 			continue
@@ -48,6 +48,8 @@ func (p *SentenceProcessor) Decompose(sentences []string, outdir string, i ignor
 			NewWords:     newWords,
 			IsSingleRune: utf8.RuneCountInString(s.Chinese) == 1,
 			UniqueChars:  getUniqueChars(s.Chinese),
+			Grammar:      sen.grammar, // this only works when supplied in the sentences file
+			Note:         sen.note,    // this only works when supplied in the sentences file
 		}
 		results = append(results, *sentence)
 

@@ -1,7 +1,6 @@
 package dialog
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -128,9 +127,9 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.T
 func (p *WordProcessor) getAudio(words []Word) []Word {
 	for y, word := range words {
 		filename := hash.Sha1(word.Chinese) + ".mp3"
-		if err := p.Audio.Fetch(context.Background(), word.Chinese, filename, false); err != nil {
-			fmt.Println(err)
-		}
+		// if err := p.Audio.Fetch(context.Background(), word.Chinese, filename, false); err != nil {
+		// 	fmt.Println(err)
+		// }
 		words[y].Audio = filename
 	}
 	return words

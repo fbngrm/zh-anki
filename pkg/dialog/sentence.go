@@ -9,4 +9,6 @@ type Sentence struct {
 	AllWords     []Word   `yaml:"allWords"`
 	IsSingleRune bool     `yaml:"isSingleRune"`
 	UniqueChars  []string `yaml:"unique_chars"`
+	Grammar      string   `yaml:"grammar"`
+	Note         string   `yaml:"note"`
 }

@@ -1,8 +1,6 @@
 package char
 
 import (
-	"context"
-	"fmt"
 	"strings"
 	"unicode/utf8"
 
@@ -79,9 +77,9 @@ func removeRedundant(in []string) string {
 func (p *Processor) getAudio(chars []Char) []Char {
 	for y, char := range chars {
 		filename := hash.Sha1(char.Chinese) + ".mp3"
-		if err := p.Audio.Fetch(context.Background(), char.Chinese, filename, false); err != nil {
-			fmt.Println(err)
-		}
+		// if err := p.Audio.Fetch(context.Background(), char.Chinese, filename, false); err != nil {
+		// 	fmt.Println(err)
+		// }
 		chars[y].Audio = filename
 	}
 	return chars

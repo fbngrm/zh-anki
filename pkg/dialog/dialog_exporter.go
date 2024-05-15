@@ -10,7 +10,7 @@ func ExportDialog(renderSentences bool, d *Dialog) error {
 	if renderSentences {
 		for _, s := range d.Sentences {
 			if err := ExportSentence(d.Deck, s); err != nil {
-				return err
+				fmt.Printf("error sentence when exporting dialog [%s]: %v\n", s.Chinese, err)
 			}
 		}
 	}
