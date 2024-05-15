@@ -107,7 +107,6 @@ func main() {
 	charProcessor := char.Processor{
 		IgnoreChars: ignoreChars,
 		Cedict:      cedictDict,
-		Audio:       audioDownloader,
 		WordIndex:   wordIndex,
 		CardBuilder: builder,
 	}
