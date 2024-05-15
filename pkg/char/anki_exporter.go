@@ -13,22 +13,22 @@ func Export(deckName string, c Char) error {
 	cedictEn1, cedictPinyin1 := "", ""
 	cedictEn2, cedictPinyin2 := "", ""
 	cedictEn3, cedictPinyin3 := "", ""
-	if len(c.Cedict) >= 1 {
+	if len(c.Cedict) == 1 {
 		cedictHeader = "Cedict<br>"
 		cedictEn1 = c.Cedict[0].CedictEnglish + "<br>" + "<br>"
 		cedictPinyin1 = c.Cedict[0].CedictPinyin + "<br>"
 	}
-	if len(c.Cedict) >= 2 {
+	if len(c.Cedict) == 2 {
 		cedictEn2 = c.Cedict[1].CedictEnglish + "<br>" + "<br>"
 		cedictPinyin2 = c.Cedict[1].CedictPinyin + "<br>"
 	}
-	if len(c.Cedict) >= 3 {
+	if len(c.Cedict) == 3 {
 		cedictEn3 = c.Cedict[2].CedictEnglish + "<br>" + "<br>"
 		cedictPinyin3 = c.Cedict[2].CedictPinyin + "<br>"
 	}
 
 	hskHeader, hskEn, hskPinyin := "", "", ""
-	if len(c.HSK) >= 1 {
+	if len(c.HSK) == 1 {
 		hskHeader = "HSK 3.0<br>"
 		hskEn = c.HSK[0].HSKEnglish + "<br>" + "<br>"
 		hskPinyin = c.HSK[0].HSKPinyin + "<br>"
