@@ -1,14 +1,10 @@
 package char
 
 import (
-	"context"
-	"fmt"
 	"strings"
 	"unicode/utf8"
 
-	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/frequency"
-	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/translate"
 	"github.com/fbngrm/zh-freq/pkg/card"
@@ -18,7 +14,6 @@ import (
 type Processor struct {
 	IgnoreChars []string
 	Cedict      map[string][]cedict.Entry
-	Audio       audio.Downloader
 	WordIndex   *frequency.WordIndex
 	CardBuilder *card.Builder
 }
@@ -48,7 +43,7 @@ func (p *Processor) GetAll(word string, t translate.Translations) []Char {
 			Mnemonic:     cc.Mnemonic,
 		})
 	}
-	return p.getAudio(allChars)
+	return allChars
 }
 
 func (p *Processor) GetNew(i ignore.Ignored, allChars []Char) []Char {
@@ -74,15 +69,4 @@ func removeRedundant(in []string) string {
 		out = append(out, elem)
 	}
 	return strings.Join(out, ", ")
-}
-
-func (p *Processor) getAudio(chars []Char) []Char {
-	for y, char := range chars {
-		filename := hash.Sha1(char.Chinese) + ".mp3"
-		if err := p.Audio.Fetch(context.Background(), char.Chinese, filename, false); err != nil {
-			fmt.Println(err)
-		}
-		chars[y].Audio = filename
-	}
-	return chars
 }

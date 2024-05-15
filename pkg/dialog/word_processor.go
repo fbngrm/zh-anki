@@ -1,7 +1,6 @@
 package dialog
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -9,10 +8,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/char"
 	"github.com/fbngrm/zh-anki/pkg/frequency"
-	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
 	"github.com/fbngrm/zh-anki/pkg/translate"
@@ -21,7 +18,6 @@ import (
 
 type WordProcessor struct {
 	Chars       char.Processor
-	Audio       audio.Downloader
 	IgnoreChars []string
 	Client      *openai.Client
 	WordIndex   *frequency.WordIndex
@@ -70,7 +66,7 @@ func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t trans
 			Mnemonic:     cc.Mnemonic,
 		})
 	}
-	return p.getAudio(newWords)
+	return newWords
 }
 
 // used for openai data that contains the translation and pinyin; currently we still use hsk and cedict only.
@@ -107,7 +103,6 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.T
 			Mnemonic:     cc.Mnemonic,
 		})
 	}
-	allWords = p.getAudio(allWords)
 
 	var newWords []Word
 	for _, word := range allWords {
@@ -123,17 +118,6 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.T
 		newWords = append(newWords, word)
 	}
 	return allWords, newWords
-}
-
-func (p *WordProcessor) getAudio(words []Word) []Word {
-	for y, word := range words {
-		filename := hash.Sha1(word.Chinese) + ".mp3"
-		if err := p.Audio.Fetch(context.Background(), word.Chinese, filename, false); err != nil {
-			fmt.Println(err)
-		}
-		words[y].Audio = filename
-	}
-	return words
 }
 
 func (p *WordProcessor) Export(words []Word, outDir, deckname string) {
