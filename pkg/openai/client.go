@@ -13,7 +13,13 @@ import (
 
 const dialogSystemMessage = `Add pinyin to the following sentences written in simplified Chinese. Format the result into a JSON object. The original sentence should be stored in a field called chinese, the English translation should be stored in a field called english and the pinyin should be stored in a field called piniyin. Also split each sentence into words and add a JSON array with these words in a field called words. Each word should be a JSON object, the original Chinese word is stored in a field called ch, the English translation is stored in a field called en and the pinyin is stored in a field called pi.`
 
-const sentenceSystemMessage = `Add pinyin to the following sentence written in simplified Chinese. Format the result into a JSON object. The original sentence should be stored in a field called chinese, the English translation should be stored in a field called english and the pinyin should be stored in a field called piniyin. Also split the sentence into words and add JSON array with those words in a field called words. Each word should be a JSON object, the original Chinese word is stored in a field called ch, the English translation is stored in a field called en and the pinyin is stored in a field called pi.`
+const sentenceSystemMessage = `Add pinyin to the following sentence written in simplified Chinese. Format the result into a JSON object. The original sentence should be stored in a field called chinese, the English translation should be stored in a field called english and the pinyin should be stored in a field called piniyin. Also split the sentence into words and add JSON array with those words in a field called words. Each word should be a JSON object, the original Chinese word is stored in a field called ch, the English translation is stored in a field called en and the pinyin is stored in a field called pi. Please take extra care, if the input has multiple sentences, do not split them but treat them as asingle sentence. Return a single JSON object only, not a list or array of several ones! Here is the json structure that should be returned:
+type Sentence struct {
+	Chinese string
+	English string
+	Pinyin  string
+	Words   []Word
+}`
 
 type Message struct {
 	Role    string `json:"role"`
@@ -80,7 +86,6 @@ func NewClient(apiKey string, cache *Cache) *Client {
 
 func (c *Client) DecomposeSentence(sentence string) (*Sentence, error) {
 	content := c.fetch(sentence, 2)
-
 	var result Sentence
 	err := json.Unmarshal([]byte(content), &result)
 	if err != nil {

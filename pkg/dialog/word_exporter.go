@@ -39,7 +39,7 @@ func ExportWord(deckName string, w Word) error {
 		hskPinyin = w.HSK[0].HSKPinyin + "<br>"
 	}
 	if hskEn == "" && cedictEn1 == "" {
-		return fmt.Errorf("no translation for word: %s", w)
+		return fmt.Errorf("no translation for word: %s", w.Chinese)
 	}
 	noteFields := map[string]string{
 		"Chinese":        w.Chinese,

@@ -20,7 +20,7 @@ import (
 type SentenceProcessor struct {
 	Client *openai.Client
 	Words  WordProcessor
-	Audio  audio.Downloader
+	Audio  *audio.Client
 }
 
 func (p *SentenceProcessor) DecomposeFromFile(path, outdir string, i ignore.Ignored, t translate.Translations) []Sentence {
@@ -76,7 +76,8 @@ func (p *SentenceProcessor) Get(sentences []openai.Sentence, i ignore.Ignored, t
 func (p *SentenceProcessor) getAudio(sentences []Sentence) []Sentence {
 	for x, sentence := range sentences {
 		filename := hash.Sha1(sentence.Chinese) + ".mp3"
-		if err := p.Audio.Fetch(context.Background(), sentence.Chinese, filename, true); err != nil {
+		query := p.Audio.PrepareQueryWithRandomVoice(sentence.Chinese)
+		if err := p.Audio.Fetch(context.Background(), query, filename, true); err != nil {
 			fmt.Println(err)
 		}
 		sentences[x].Audio = filename

@@ -39,9 +39,13 @@ var renderSentences bool
 var cedictDict map[string][]cedict.Entry
 
 func main() {
-	apiKey := os.Getenv("OPENAI_API_KEY")
-	if apiKey == "" {
+	openAIApiKey := os.Getenv("OPENAI_API_KEY")
+	if openAIApiKey == "" {
 		log.Fatal("Environment variable OPENAI_API_KEY is not set")
+	}
+	azureApiKey := os.Getenv("SPEECH_KEY")
+	if azureApiKey == "" {
+		log.Fatal("Environment variable SPEECH_KEY is not set")
 	}
 
 	flag.StringVar(&lesson, "l", "", "lesson name")
@@ -83,10 +87,7 @@ func main() {
 	translations := translate.Load(translationsPath)
 
 	audioDir := filepath.Join(cwd, "data", source, lesson, "audio")
-	audioDownloader := audio.Downloader{
-		IgnoreChars: ignoreChars,
-		AudioDir:    audioDir,
-	}
+	audioDownloader := audio.NewClient(azureApiKey, audioDir, ignoreChars)
 
 	// we cache responses from openai api and google text-to-speech
 	cacheDir := filepath.Join(cwd, "data", "cache")
@@ -119,12 +120,12 @@ func main() {
 		CardBuilder: builder,
 	}
 	sentenceProcessor := dialog.SentenceProcessor{
-		Client: openai.NewClient(apiKey, cache),
+		Client: openai.NewClient(openAIApiKey, cache),
 		Words:  wordProcessor,
 		Audio:  audioDownloader,
 	}
 	dialogProcessor := dialog.DialogProcessor{
-		Client:    openai.NewClient(apiKey, cache),
+		Client:    openai.NewClient(openAIApiKey, cache),
 		Sentences: sentenceProcessor,
 		Audio:     audioDownloader,
 	}

@@ -20,7 +20,7 @@ import (
 type DialogProcessor struct {
 	Client    *openai.Client
 	Sentences SentenceProcessor
-	Audio     audio.Downloader
+	Audio     *audio.Client
 }
 
 func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, t translate.Translations) []*Dialog {
@@ -29,22 +29,17 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Igno
 	dialogues := loadDialogues(path)
 
 	var results []*Dialog
+
 	for _, dialog := range dialogues {
-		decompositon := make([]openai.Sentence, 0)
-		for _, sentence := range dialog.Lines {
-			decomp, err := p.Client.DecomposeSentence(sentence.Text)
-			if err != nil {
-				fmt.Println(err.Error())
-				continue
-			}
-			if decomp != nil {
-				decompositon = append(decompositon, *decomp)
-			}
+		decompositon, err := p.Client.Decompose(dialog.Text)
+		if err != nil {
+			fmt.Println(err.Error())
+			continue
 		}
 
 		pinyin := ""
 		english := ""
-		for _, s := range decompositon {
+		for _, s := range decompositon.Sentences {
 			pinyin += s.Pinyin
 			pinyin += " "
 			english += s.English
@@ -59,18 +54,24 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Igno
 			English:     english,
 			Audio:       audioFilename,
 			Pinyin:      pinyin,
-			Sentences:   p.Sentences.Get(decompositon, i, t),
+			Sentences:   p.Sentences.Get(decompositon.Sentences, i, t),
 			UniqueChars: getUniqueChars(chinese),
 		}
 		results = append(results, d)
 
-		// note, we support 4 different voices only!
+		// if an audio file called dialog.mp3 already exists, we use instead of generating one
+		if err := p.checkForOriginalAudio(audioFilename); err == nil {
+			return results
+		}
+
+		query := ""
 		if len(dialog.Speakers) != 0 {
-			if err := p.fetchDialogAudio(dialog, audioFilename); err != nil {
-				fmt.Println(err)
-			}
+			query = p.prepareQuery(dialog, audioFilename)
 		} else {
-			p.fetchAudio(dialog, audioFilename)
+			query = p.Audio.PrepareQueryWithRandomVoice(dialog.Text)
+		}
+		if err := p.Audio.Fetch(context.Background(), query, audioFilename, true); err != nil {
+			fmt.Println(err)
 		}
 	}
 	return results
@@ -89,48 +90,17 @@ func (p *DialogProcessor) checkForOriginalAudio(filename string) error {
 	return nil
 }
 
-func (p *DialogProcessor) fetchAudio(d RawDialog, filename string) {
-	// if an audio file called dialog.mp3 already exists, we use instead of generating one
-	if err := p.checkForOriginalAudio(filename); err == nil {
-		return
-	}
-
-	err := p.Audio.Fetch(context.Background(), d.Text, filename, true)
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
-// if there are several speakers in a dialog, we fetch each line separately
-// using a different voice for each speaker. we then merge them into a single file.
-func (p *DialogProcessor) fetchDialogAudio(dialog RawDialog, filename string) error {
-	// if an audio file called dialog.mp3 already exists, we use instead of generating one
-	if err := p.checkForOriginalAudio(filename); err == nil {
-		return nil
-	}
-
+func (p *DialogProcessor) prepareQuery(dialog RawDialog, filename string) string {
+	query := ""
 	voices := p.Audio.GetVoices(dialog.Speakers)
-	var paths []string
 	for _, line := range dialog.Lines {
 		voice, ok := voices[line.Speaker]
 		if !ok {
 			fmt.Printf("could not find voice for speaker: %s\n", line.Speaker)
 		}
-		fmt.Println("fetch line for dialog: ", line.Text)
-		fmt.Println("use voice: ", voice.Name, voice.SsmlGender)
-		path, err := p.Audio.FetchTmpAudioWithVoice(
-			context.Background(),
-			line.Text,
-			hash.Sha1(line.Text),
-			voice,
-		)
-		if err != nil {
-			fmt.Println(err)
-		}
-		paths = append(paths, path)
+		query += p.Audio.PrepareQuery(line.Text, voice)
 	}
-
-	return p.Audio.JoinAndSaveDialogAudio(filename, paths)
+	return query
 }
 
 func (p *DialogProcessor) Export(dialogues []*Dialog, renderSentences bool, outDir, deckname string) {
@@ -179,7 +149,6 @@ func getColorsForSpeakers(speakers map[string]struct{}) map[string]string {
 	return colorBySpeaker
 }
 
-// if color == true, wrap text in a span tag with color
 func getChineseText(lines []DialogLine, colors map[string]string) string {
 	var result string
 	for _, line := range lines {
