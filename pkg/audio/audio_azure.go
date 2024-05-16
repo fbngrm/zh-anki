@@ -162,19 +162,25 @@ func (c *Client) fetch(ctx context.Context, text string, retryCount int) (*http.
 	return resp, nil
 }
 
-func (c *Client) PrepareQueryWithRandomVoice(text string) string {
-	return c.PrepareQuery(text, c.GetRandomVoice())
+func (c *Client) PrepareQueryWithRandomVoice(text string, addSplitAudio bool) string {
+	return c.PrepareQuery(text, c.GetRandomVoice(), addSplitAudio)
 }
 
-func (c *Client) PrepareQuery(text, speaker string) string {
-	text = strings.ReplaceAll(text, " ", "")
-	query := `
+// if text contains whitespaces and addSplitAudio is true, text is added twice, once with all
+// whitespaces stipped off and once with whitespaces. azure api renders whitespaces as pauses in the audio.
+func (c *Client) PrepareQuery(text, speaker string, addSplitAudio bool) string {
+	queryFmt := `
     <voice name="%s">
         <prosody rate="%s">
 		    %s
         </prosody>
     </voice>`
-	return fmt.Sprintf(query, speaker, rate, text)
+	query := fmt.Sprintf(queryFmt, speaker, rate, strings.ReplaceAll(text, " ", ""))
+	if addSplitAudio {
+		query += fmt.Sprintf(queryFmt, speaker, rate, text)
+	}
+
+	return query
 }
 
 func contains[T comparable](s []T, e T) bool {

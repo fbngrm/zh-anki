@@ -68,7 +68,7 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Igno
 		if len(dialog.Speakers) != 0 {
 			query = p.prepareQuery(dialog, audioFilename)
 		} else {
-			query = p.Audio.PrepareQueryWithRandomVoice(dialog.Text)
+			query = p.Audio.PrepareQueryWithRandomVoice(dialog.Text, false)
 		}
 		if err := p.Audio.Fetch(context.Background(), query, audioFilename, true); err != nil {
 			fmt.Println(err)
@@ -98,7 +98,7 @@ func (p *DialogProcessor) prepareQuery(dialog RawDialog, filename string) string
 		if !ok {
 			fmt.Printf("could not find voice for speaker: %s\n", line.Speaker)
 		}
-		query += p.Audio.PrepareQuery(line.Text, voice)
+		query += p.Audio.PrepareQuery(line.Text, voice, false)
 	}
 	return query
 }

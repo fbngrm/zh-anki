@@ -79,7 +79,7 @@ func removeRedundant(in []string) string {
 func (p *Processor) getAudio(chars []Char) []Char {
 	for y, char := range chars {
 		filename := hash.Sha1(char.Chinese) + ".mp3"
-		query := p.Audio.PrepareQueryWithRandomVoice(char.Chinese)
+		query := p.Audio.PrepareQueryWithRandomVoice(char.Chinese, false)
 		if err := p.Audio.Fetch(context.Background(), query, filename, false); err != nil {
 			fmt.Println(err)
 		}

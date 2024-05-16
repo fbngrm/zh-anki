@@ -2,6 +2,7 @@ package dialog
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/fbngrm/zh-anki/pkg/anki"
 )
@@ -13,7 +14,7 @@ func ExportSentence(deckName string, s Sentence) error {
 		}
 	}
 	noteFields := map[string]string{
-		"Chinese":    s.Chinese,
+		"Chinese":    strings.ReplaceAll(s.Chinese, " ", ""),
 		"Pinyin":     s.Pinyin,
 		"English":    s.English,
 		"Audio":      anki.GetAudioPath(s.Audio),

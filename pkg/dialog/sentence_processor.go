@@ -30,10 +30,9 @@ func (p *SentenceProcessor) DecomposeFromFile(path, outdir string, i ignore.Igno
 func (p *SentenceProcessor) Decompose(sentences []sentence, outdir string, i ignore.Ignored, t translate.Translations) []Sentence {
 	var results []Sentence
 	for _, sen := range sentences {
-		text := strings.ReplaceAll(sen.text, " ", "")
-		fmt.Printf("decompose sentence: %s\n", text)
+		fmt.Printf("decompose sentence: %s\n", sen.text)
 
-		s, err := p.Client.DecomposeSentence(text)
+		s, err := p.Client.DecomposeSentence(sen.text)
 		if err != nil {
 			fmt.Println(err.Error())
 			continue
@@ -41,7 +40,7 @@ func (p *SentenceProcessor) Decompose(sentences []sentence, outdir string, i ign
 
 		allWords, newWords := p.Words.Get(s.Words, i, t)
 		sentence := &Sentence{
-			Chinese:      s.Chinese,
+			Chinese:      sen.text,
 			English:      s.English,
 			Pinyin:       s.Pinyin,
 			AllWords:     allWords,
@@ -75,8 +74,8 @@ func (p *SentenceProcessor) Get(sentences []openai.Sentence, i ignore.Ignored, t
 
 func (p *SentenceProcessor) getAudio(sentences []Sentence) []Sentence {
 	for x, sentence := range sentences {
-		filename := hash.Sha1(sentence.Chinese) + ".mp3"
-		query := p.Audio.PrepareQueryWithRandomVoice(sentence.Chinese)
+		filename := hash.Sha1(strings.ReplaceAll(sentence.Chinese, " ", "")) + ".mp3"
+		query := p.Audio.PrepareQueryWithRandomVoice(sentence.Chinese, true)
 		if err := p.Audio.Fetch(context.Background(), query, filename, true); err != nil {
 			fmt.Println(err)
 		}

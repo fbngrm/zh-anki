@@ -127,8 +127,13 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.T
 
 func (p *WordProcessor) getAudio(words []Word) []Word {
 	for y, word := range words {
-		filename := hash.Sha1(word.Chinese) + ".mp3"
-		query := p.Audio.PrepareQueryWithRandomVoice(word.Chinese)
+		filename := hash.Sha1(strings.ReplaceAll(word.Chinese, " ", "")) + ".mp3"
+		text := ""
+		for _, c := range word.Chinese {
+			text += string(c)
+			text += " "
+		}
+		query := p.Audio.PrepareQueryWithRandomVoice(text, true)
 		if err := p.Audio.Fetch(context.Background(), query, filename, false); err != nil {
 			fmt.Println(err)
 		}
