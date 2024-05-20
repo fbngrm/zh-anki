@@ -34,18 +34,9 @@ type Client struct {
 
 // we support 4 different voices only
 var Voices = []string{
-	"zh-CN-YunyangNeural",
-	"zh-CN-XioxaxiaoNeural",
-	"zh-CN-YunxiNeural",
-	"zh-CN-YunjianNeural",
-	"zh-CN-XiaoyiNeural",
-	"zh-CN-XiaoyiNeural",
-	"zh-CN-XiaomoNeural",
-	"zh-CN-YunyangNeural", // This should be the most frequent voice
-	"zh-CN-YunyangNeural",
-	"zh-CN-YunyangNeural",
-	"zh-CN-YunyangNeural",
-	"zh-CN-YunyangNeural",
+	"zh-CN-XiaochenNeural",
+	"zh-CN-XiaohanNeural",
+	"zh-CN-XiaohanNeural",
 }
 
 func (c *Client) GetRandomVoice() string {
