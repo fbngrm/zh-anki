@@ -20,7 +20,7 @@ import (
 type SentenceProcessor struct {
 	Client *openai.Client
 	Words  WordProcessor
-	Audio  *audio.Client
+	Audio  *audio.AzureClient
 }
 
 func (p *SentenceProcessor) DecomposeFromFile(path, outdir string, i ignore.Ignored, t translate.Translations) []Sentence {

@@ -21,7 +21,7 @@ import (
 
 type WordProcessor struct {
 	Chars       char.Processor
-	Audio       *audio.Client
+	Audio       *audio.AzureClient
 	IgnoreChars []string
 	Client      *openai.Client
 	WordIndex   *frequency.WordIndex

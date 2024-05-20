@@ -20,7 +20,7 @@ import (
 type DialogProcessor struct {
 	Client    *openai.Client
 	Sentences SentenceProcessor
-	Audio     *audio.Client
+	Audio     *audio.AzureClient
 }
 
 func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, t translate.Translations) []*Dialog {

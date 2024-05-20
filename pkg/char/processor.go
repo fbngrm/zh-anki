@@ -18,7 +18,7 @@ import (
 type Processor struct {
 	IgnoreChars []string
 	Cedict      map[string][]cedict.Entry
-	Audio       *audio.Client
+	Audio       *audio.AzureClient
 	WordIndex   *frequency.WordIndex
 	CardBuilder *card.Builder
 }

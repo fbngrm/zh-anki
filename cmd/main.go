@@ -87,7 +87,8 @@ func main() {
 	translations := translate.Load(translationsPath)
 
 	audioDir := filepath.Join(cwd, "data", source, lesson, "audio")
-	audioDownloader := audio.NewClient(azureApiKey, audioDir, ignoreChars)
+	azureClient := audio.NewAzureClient(azureApiKey, audioDir, ignoreChars)
+	gcpClient := audio.NewGCPClient(azureApiKey, audioDir, ignoreChars)
 
 	// we cache responses from openai api and google text-to-speech
 	cacheDir := filepath.Join(cwd, "data", "cache")
@@ -108,13 +109,13 @@ func main() {
 	charProcessor := char.Processor{
 		IgnoreChars: ignoreChars,
 		Cedict:      cedictDict,
-		Audio:       audioDownloader,
+		Audio:       azureClient,
 		WordIndex:   wordIndex,
 		CardBuilder: builder,
 	}
 	wordProcessor := dialog.WordProcessor{
 		Chars:       charProcessor,
-		Audio:       audioDownloader,
+		Audio:       azureClient,
 		IgnoreChars: ignoreChars,
 		WordIndex:   wordIndex,
 		CardBuilder: builder,
@@ -122,12 +123,12 @@ func main() {
 	sentenceProcessor := dialog.SentenceProcessor{
 		Client: openai.NewClient(openAIApiKey, cache),
 		Words:  wordProcessor,
-		Audio:  audioDownloader,
+		Audio:  azureClient,
 	}
 	dialogProcessor := dialog.DialogProcessor{
 		Client:    openai.NewClient(openAIApiKey, cache),
 		Sentences: sentenceProcessor,
-		Audio:     audioDownloader,
+		Audio:     azureClient,
 	}
 	simpleGrammarProcessor := dialog.SimpleGrammarProcessor{
 		Sentences: sentenceProcessor,
