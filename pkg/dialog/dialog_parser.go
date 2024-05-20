@@ -18,6 +18,7 @@ type RawDialog struct {
 	Text               string // one line without speaker prefixes
 	TextWithSpeaker    string
 	TextWithOutSpeaker string
+	Note               string
 }
 
 func loadDialogues(path string) []RawDialog {
@@ -31,10 +32,14 @@ func loadDialogues(path string) []RawDialog {
 	var dialogues []RawDialog
 	speakers := make(map[string]struct{})
 	var lines []DialogLine
-	var textWithSpeaker, textWithOutSpeaker, text string
+	var textWithSpeaker, textWithOutSpeaker, text, note string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		rawLine := scanner.Text()
+		if strings.HasPrefix(rawLine, "|") {
+			note = strings.TrimSpace(strings.Trim(rawLine, "|"))
+			continue
+		}
 		if rawLine == "---" {
 			dialogues = append(
 				dialogues,
@@ -44,6 +49,7 @@ func loadDialogues(path string) []RawDialog {
 					TextWithSpeaker:    strings.TrimSpace(textWithSpeaker),
 					TextWithOutSpeaker: strings.TrimSpace(textWithOutSpeaker),
 					Text:               text,
+					Note:               note,
 				},
 			)
 			textWithSpeaker = ""
@@ -51,6 +57,7 @@ func loadDialogues(path string) []RawDialog {
 			lines = []DialogLine{}
 			speakers = make(map[string]struct{})
 			text = ""
+			note = ""
 			continue
 		}
 		line := splitSpeakerAndText(rawLine)
@@ -73,6 +80,7 @@ func loadDialogues(path string) []RawDialog {
 			TextWithSpeaker:    strings.TrimSpace(textWithSpeaker),
 			TextWithOutSpeaker: strings.TrimSpace(textWithOutSpeaker),
 			Text:               text,
+			Note:               note,
 		},
 	)
 	return dialogues

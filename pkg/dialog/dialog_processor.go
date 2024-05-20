@@ -45,6 +45,7 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Igno
 			english += s.English
 			english += " "
 		}
+
 		chinese := getChineseText(dialog.Lines, getColorsForSpeakers(dialog.Speakers))
 		audioFilename := hash.Sha1(chinese) + ".mp3"
 		d := &Dialog{
@@ -56,6 +57,7 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Igno
 			Pinyin:      pinyin,
 			Sentences:   p.Sentences.Get(decompositon.Sentences, i, t),
 			UniqueChars: getUniqueChars(chinese),
+			Note:        dialog.Note,
 		}
 		results = append(results, d)
 

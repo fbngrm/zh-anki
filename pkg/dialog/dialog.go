@@ -9,4 +9,5 @@ type Dialog struct {
 	English     string     `yaml:"english"`
 	Sentences   []Sentence `yaml:"sentences"`
 	UniqueChars []string   `yaml:"unique_chars"`
+	Note        string     `yaml:"note"`
 }
