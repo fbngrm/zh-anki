@@ -21,7 +21,7 @@ import (
 
 type WordProcessor struct {
 	Chars       char.Processor
-	Audio       *audio.AzureClient
+	Audio       *audio.GCPClient
 	IgnoreChars []string
 	Client      *openai.Client
 	WordIndex   *frequency.WordIndex
@@ -133,8 +133,7 @@ func (p *WordProcessor) getAudio(words []Word) []Word {
 			text += string(c)
 			text += " "
 		}
-		query := p.Audio.PrepareQueryWithRandomVoice(text, true)
-		if err := p.Audio.Fetch(context.Background(), query, filename, false); err != nil {
+		if err := p.Audio.Fetch(context.Background(), text, filename, false); err != nil {
 			fmt.Println(err)
 		}
 		words[y].Audio = filename

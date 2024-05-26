@@ -18,7 +18,7 @@ import (
 type Processor struct {
 	IgnoreChars []string
 	Cedict      map[string][]cedict.Entry
-	Audio       *audio.AzureClient
+	Audio       *audio.GCPClient
 	WordIndex   *frequency.WordIndex
 	CardBuilder *card.Builder
 }
@@ -79,8 +79,7 @@ func removeRedundant(in []string) string {
 func (p *Processor) getAudio(chars []Char) []Char {
 	for y, char := range chars {
 		filename := hash.Sha1(char.Chinese) + ".mp3"
-		query := p.Audio.PrepareQueryWithRandomVoice(char.Chinese, false)
-		if err := p.Audio.Fetch(context.Background(), query, filename, false); err != nil {
+		if err := p.Audio.Fetch(context.Background(), char.Chinese, filename, false); err != nil {
 			fmt.Println(err)
 		}
 		chars[y].Audio = filename

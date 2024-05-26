@@ -88,7 +88,10 @@ func main() {
 
 	audioDir := filepath.Join(cwd, "data", source, lesson, "audio")
 	azureClient := audio.NewAzureClient(azureApiKey, audioDir, ignoreChars)
-	gcpClient := audio.NewGCPClient(azureApiKey, audioDir, ignoreChars)
+	gcpClient := &audio.GCPClient{
+		IgnoreChars: ignoreChars,
+		AudioDir:    audioDir,
+	}
 
 	// we cache responses from openai api and google text-to-speech
 	cacheDir := filepath.Join(cwd, "data", "cache")
@@ -100,7 +103,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	builder, err := card.NewBuilder(audioDir, mnemonicsSrc)
+	builder, err := card.NewBuilder(mnemonicsSrc)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -109,13 +112,13 @@ func main() {
 	charProcessor := char.Processor{
 		IgnoreChars: ignoreChars,
 		Cedict:      cedictDict,
-		Audio:       azureClient,
+		Audio:       gcpClient,
 		WordIndex:   wordIndex,
 		CardBuilder: builder,
 	}
 	wordProcessor := dialog.WordProcessor{
 		Chars:       charProcessor,
-		Audio:       azureClient,
+		Audio:       gcpClient,
 		IgnoreChars: ignoreChars,
 		WordIndex:   wordIndex,
 		CardBuilder: builder,
