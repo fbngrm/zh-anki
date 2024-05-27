@@ -34,8 +34,11 @@ func NewAzureClient(apiKey, audioDir string, ignoreChars []string) *AzureClient 
 
 // we support 4 different voices only
 var Voices = []string{
+	"zh-CN-YunzeNeural",
+	"zh-CN-XiaobeiNeural",
+	"zh-CN-YunjieNeural",
 	"zh-CN-XiaochenNeural",
-	"zh-CN-XiaohanNeural",
+	"zh-CN-JunjianNeural",
 	"zh-CN-XiaohanNeural",
 }
 
