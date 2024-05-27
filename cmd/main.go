@@ -17,6 +17,7 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/translate"
 	"github.com/fbngrm/zh-freq/pkg/card"
 	"github.com/fbngrm/zh/lib/cedict"
+	"golang.org/x/exp/slog"
 )
 
 const cedictSrc = "./pkg/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
@@ -39,6 +40,11 @@ var renderSentences bool
 var cedictDict map[string][]cedict.Entry
 
 func main() {
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+		Level: slog.LevelDebug,
+	}))
+	slog.SetDefault(logger)
+
 	openAIApiKey := os.Getenv("OPENAI_API_KEY")
 	if openAIApiKey == "" {
 		log.Fatal("Environment variable OPENAI_API_KEY is not set")
@@ -149,18 +155,18 @@ func main() {
 	sentencePath := filepath.Join(cwd, "data", source, lesson, "input", "sentences")
 	if _, err := os.Stat(sentencePath); err == nil {
 		sentences := sentenceProcessor.DecomposeFromFile(sentencePath, outDir, ignored, translations)
-		sentenceProcessor.ExportCards(deckname, sentences)
+		sentenceProcessor.ExportCards(deckname, sentences, ignored)
 	}
 	wordPath := filepath.Join(cwd, "data", source, lesson, "input", "words")
 	if _, err := os.Stat(wordPath); err == nil {
 		words := wordProcessor.Decompose(wordPath, outDir, ignored, translations)
-		wordProcessor.ExportCards(deckname, words)
+		wordProcessor.ExportCards(deckname, words, ignored)
 	}
 	// load dialogues from file
 	dialogPath := filepath.Join(cwd, "data", source, lesson, "input", "dialogues")
 	if _, err := os.Stat(dialogPath); err == nil {
 		dialogues := dialogProcessor.Decompose(dialogPath, outDir, deckname, ignored, translations)
-		dialogProcessor.ExportCards(deckname, dialogues, renderSentences)
+		dialogProcessor.ExportCards(deckname, dialogues, renderSentences, ignored)
 	}
 
 	// write newly ignored words

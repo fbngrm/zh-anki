@@ -5,12 +5,14 @@ import (
 	"strings"
 
 	"github.com/fbngrm/zh-anki/pkg/anki"
+	"github.com/fbngrm/zh-anki/pkg/ignore"
+	"golang.org/x/exp/slog"
 )
 
-func ExportSentence(deckName string, s Sentence) error {
-	for _, w := range s.NewWords {
-		if err := ExportWord(deckName, w); err != nil {
-			fmt.Printf("error exporting word when exporting sentence [%s]: %v", w.Chinese, err)
+func ExportSentence(deckName string, s Sentence, i ignore.Ignored) error {
+	for _, w := range s.Words {
+		if err := ExportWord(deckName, w, i); err != nil {
+			slog.Error("exporting word when exporting sentence", "sentence", w.Chinese, "error", err)
 		}
 	}
 	noteFields := map[string]string{
@@ -18,15 +20,15 @@ func ExportSentence(deckName string, s Sentence) error {
 		"Pinyin":     s.Pinyin,
 		"English":    s.English,
 		"Audio":      anki.GetAudioPath(s.Audio),
-		"Components": wordsToString(s.AllWords),
+		"Components": wordsToString(s.Words),
 		"Note":       s.Note,
 		"Grammar":    s.Grammar,
 	}
 	_, err := anki.AddNoteToDeck(deckName, "sentence", noteFields)
 	if err != nil {
-		return fmt.Errorf("add sentence note [%s]: %w", s.Chinese, err)
+		return err
 	}
-	fmt.Println("sentence added successfully:", s.Chinese)
+	slog.Info("note added successfully", "sentence", s.Chinese)
 	return nil
 }
 

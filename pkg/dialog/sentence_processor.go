@@ -15,6 +15,7 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
 	"github.com/fbngrm/zh-anki/pkg/translate"
+	"golang.org/x/exp/slog"
 )
 
 type SentenceProcessor struct {
@@ -30,21 +31,20 @@ func (p *SentenceProcessor) DecomposeFromFile(path, outdir string, i ignore.Igno
 func (p *SentenceProcessor) Decompose(sentences []sentence, outdir string, i ignore.Ignored, t translate.Translations) []Sentence {
 	var results []Sentence
 	for _, sen := range sentences {
-		fmt.Printf("decompose sentence: %s\n", sen.text)
+		slog.Info("=================================")
+		slog.Info("decompose", "sentence", sen.text)
 
 		s, err := p.Client.DecomposeSentence(sen.text)
 		if err != nil {
-			fmt.Println(err.Error())
+			slog.Error("decompose sentence", "error", err.Error())
 			continue
 		}
 
-		allWords, newWords := p.Words.Get(s.Words, i, t)
 		sentence := &Sentence{
 			Chinese:      sen.text,
 			English:      s.English,
 			Pinyin:       s.Pinyin,
-			AllWords:     allWords,
-			NewWords:     newWords,
+			Words:        p.Words.Get(s.Words, i, t),
 			IsSingleRune: utf8.RuneCountInString(s.Chinese) == 1,
 			UniqueChars:  getUniqueChars(s.Chinese),
 			Grammar:      sen.grammar, // this only works when supplied in the sentences file
@@ -59,13 +59,11 @@ func (p *SentenceProcessor) Decompose(sentences []sentence, outdir string, i ign
 func (p *SentenceProcessor) Get(sentences []openai.Sentence, i ignore.Ignored, t translate.Translations) []Sentence {
 	var results []Sentence
 	for _, s := range sentences {
-		allWords, newWords := p.Words.Get(s.Words, i, t)
 		results = append(results, Sentence{
 			Chinese:      s.Chinese,
 			English:      s.English,
 			Pinyin:       s.Pinyin,
-			AllWords:     allWords,
-			NewWords:     newWords,
+			Words:        p.Words.Get(s.Words, i, t),
 			IsSingleRune: utf8.RuneCountInString(s.Chinese) == 1,
 		})
 	}
@@ -77,15 +75,15 @@ func (p *SentenceProcessor) getAudio(sentences []Sentence) []Sentence {
 		filename := hash.Sha1(strings.ReplaceAll(sentence.Chinese, " ", "")) + ".mp3"
 		query := p.Audio.PrepareQueryWithRandomVoice(sentence.Chinese, true)
 		if err := p.Audio.Fetch(context.Background(), query, filename, true); err != nil {
-			fmt.Println(err)
+			slog.Error("fetching audio from azure", "error", err.Error())
 		}
 		sentences[x].Audio = filename
 	}
 	return sentences
 }
 
-func (p *SentenceProcessor) Export(sentences []Sentence, outDir, deckname string) {
-	p.ExportCards(deckname, sentences)
+func (p *SentenceProcessor) Export(sentences []Sentence, outDir, deckname string, i ignore.Ignored) {
+	p.ExportCards(deckname, sentences, i)
 	p.ExportJSON(sentences, outDir)
 }
 
@@ -103,10 +101,10 @@ func (p *SentenceProcessor) ExportJSON(sentences []Sentence, outDir string) {
 	}
 }
 
-func (p *SentenceProcessor) ExportCards(deckname string, sentences []Sentence) {
+func (p *SentenceProcessor) ExportCards(deckname string, sentences []Sentence, i ignore.Ignored) {
 	for _, s := range sentences {
-		if err := ExportSentence(deckname, s); err != nil {
-			fmt.Println(err)
+		if err := ExportSentence(deckname, s, i); err != nil {
+			slog.Error("add note", "sentence", s.Chinese, "error", err)
 		}
 	}
 }

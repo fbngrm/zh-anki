@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/fbngrm/zh-anki/pkg/hash"
+	"golang.org/x/exp/slog"
 )
 
 const dialogSystemMessage = `Add pinyin to the following sentences written in simplified Chinese. Format the result into a JSON object. The original sentence should be stored in a field called chinese, the English translation should be stored in a field called english and the pinyin should be stored in a field called piniyin. Also split each sentence into words and add a JSON array with these words in a field called words. Each word should be a JSON object, the original Chinese word is stored in a field called ch, the English translation is stored in a field called en and the pinyin is stored in a field called pi. For piyin always use the the special characters with accents on top and not the numbers behind the character!`
@@ -122,12 +123,12 @@ func (c *Client) fetch(query string, retryCount int) string {
 	if retryCount == -1 {
 		log.Fatalf("excceded retries for query: %s\n", query)
 	}
-	fmt.Println("lookup query: ", query)
+	slog.Info("lookup", "query", query)
 	if content, ok := c.cache.Lookup(query); ok {
-		fmt.Println("found file in cache: ", hash.Sha1(query))
+		slog.Debug("found in cache", "file", hash.Sha1(query))
 		return content
 	}
-	fmt.Println("did not find file in cache: ", hash.Sha1(query))
+	slog.Debug("not found in cache", "file", hash.Sha1(query))
 
 	messages := []Message{
 		{

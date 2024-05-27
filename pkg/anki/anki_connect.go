@@ -3,6 +3,7 @@ package anki
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -84,7 +85,7 @@ func AddNoteToDeck(deckName, modelName string, noteFields map[string]string) (in
 		}
 
 		if responseData.Error != "" {
-			return 0, fmt.Errorf("failed to add note: %s", responseData.Error)
+			return 0, errors.New(responseData.Error)
 		}
 
 		return responseData.Result, nil

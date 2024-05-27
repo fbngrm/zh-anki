@@ -12,8 +12,7 @@ type Word struct {
 	HSK          []card.HSKEntry    `yaml:"hsk"`
 	Traditional  string             `yaml:"traditional"`
 	Audio        string             `yaml:"audio"`
-	NewChars     []char.Char        `yaml:"newChars"`
-	AllChars     []char.Char        `yaml:"allChars"`
+	Chars        []char.Char        `yaml:"allChars"`
 	IsSingleRune bool               `yaml:"isSingleRune"`
 	Components   []card.Component   `yaml:"components"`
 	Kangxi       []string           `yaml:"kangxi"`

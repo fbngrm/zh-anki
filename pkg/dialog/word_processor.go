@@ -17,6 +17,7 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/openai"
 	"github.com/fbngrm/zh-anki/pkg/translate"
 	"github.com/fbngrm/zh-freq/pkg/card"
+	"golang.org/x/exp/slog"
 )
 
 type WordProcessor struct {
@@ -41,7 +42,7 @@ func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t trans
 			continue
 		}
 		if _, ok := i[word]; ok {
-			fmt.Println("word exists in ignore list: ", word)
+			slog.Warn("exists in ignore list, skip", "word", word)
 			continue
 		}
 
@@ -60,8 +61,7 @@ func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t trans
 			Chinese:      word,
 			Cedict:       card.GetCedictEntries(cc),
 			HSK:          card.GetHSKEntries(cc),
-			AllChars:     allChars,
-			NewChars:     p.Chars.GetNew(i, allChars),
+			Chars:        allChars,
 			IsSingleRune: isSingleRune,
 			Components:   cc.Components,
 			Traditional:  cc.TraditionalChinese,
@@ -70,12 +70,12 @@ func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t trans
 			Mnemonic:     cc.Mnemonic,
 		})
 	}
-	return p.getAudio(newWords)
+	return p.getAudio(newWords, i)
 }
 
 // used for openai data that contains the translation and pinyin; currently we still use hsk and cedict only.
 // TODO: add fallback with openai in case hsk and cedict don't know the word.
-func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.Translations) ([]Word, []Word) {
+func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.Translations) []Word {
 	var allWords []Word
 	for _, word := range words {
 		if word.Ch == "" {
@@ -98,7 +98,7 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.T
 			English:      word.En, // this comes from openai and is only used in the components of a sentence, which itself is translated by openai
 			Cedict:       card.GetCedictEntries(cc),
 			HSK:          card.GetHSKEntries(cc),
-			AllChars:     p.Chars.GetAll(word.Ch, t),
+			Chars:        p.Chars.GetAll(word.Ch, t),
 			IsSingleRune: isSingleRune,
 			Components:   cc.Components,
 			Traditional:  cc.TraditionalChinese,
@@ -107,27 +107,17 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.T
 			Mnemonic:     cc.Mnemonic,
 		})
 	}
-	allWords = p.getAudio(allWords)
-
-	var newWords []Word
-	for _, word := range allWords {
-		if _, ok := i[word.Chinese]; ok {
-			fmt.Println("word exists in ignore list: ", word.Chinese)
-			continue
-		}
-		i.Update(word.Chinese)
-
-		// set new chars after word has been added to ignore list,
-		// we want to add words first, then chars
-		word.NewChars = p.Chars.GetNew(i, word.AllChars)
-		newWords = append(newWords, word)
-	}
-	return allWords, newWords
+	return p.getAudio(allWords, i)
 }
 
-func (p *WordProcessor) getAudio(words []Word) []Word {
+func (p *WordProcessor) getAudio(words []Word, i ignore.Ignored) []Word {
 	for y, word := range words {
-		filename := hash.Sha1(strings.ReplaceAll(word.Chinese, " ", "")) + ".mp3"
+		w := strings.ReplaceAll(word.Chinese, " ", "")
+		if _, ok := i[w]; ok {
+			slog.Debug("exists in ignore list, skip audio download", "word", w)
+			continue
+		}
+		filename := hash.Sha1(w) + ".mp3"
 		text := ""
 		for _, c := range word.Chinese {
 			text += string(c)
@@ -141,8 +131,8 @@ func (p *WordProcessor) getAudio(words []Word) []Word {
 	return words
 }
 
-func (p *WordProcessor) Export(words []Word, outDir, deckname string) {
-	p.ExportCards(deckname, words)
+func (p *WordProcessor) Export(words []Word, outDir, deckname string, i ignore.Ignored) {
+	p.ExportCards(deckname, words, i)
 	p.ExportJSON(words, outDir)
 }
 
@@ -160,9 +150,9 @@ func (p *WordProcessor) ExportJSON(words []Word, outDir string) {
 	}
 }
 
-func (p *WordProcessor) ExportCards(deckname string, words []Word) {
+func (p *WordProcessor) ExportCards(deckname string, words []Word, i ignore.Ignored) {
 	for _, w := range words {
-		if err := ExportWord(deckname, w); err != nil {
+		if err := ExportWord(deckname, w, i); err != nil {
 			fmt.Println(err)
 		}
 	}

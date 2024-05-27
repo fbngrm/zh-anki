@@ -5,14 +5,20 @@ import (
 
 	"github.com/fbngrm/zh-anki/pkg/anki"
 	"github.com/fbngrm/zh-anki/pkg/char"
+	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-freq/pkg/card"
+	"golang.org/x/exp/slog"
 )
 
-func ExportWord(deckName string, w Word) error {
-	for _, c := range w.NewChars {
-		if err := char.Export(deckName, c); err != nil {
-			fmt.Printf("error exporting char when exporting word [%s]: %v", c.Chinese, err)
+func ExportWord(deckName string, w Word, i ignore.Ignored) error {
+	for _, c := range w.Chars {
+		if err := char.Export(deckName, c, i); err != nil {
+			slog.Error("export char for word", "word", w.Chinese, "char", c.Chinese, "error", err)
 		}
+	}
+	if _, ok := i[w.Chinese]; ok {
+		slog.Debug("exists in ignore list", "word", w.Chinese)
+		return nil
 	}
 	cedictHeader := ""
 	cedictEn1, cedictPinyin1 := "", ""
@@ -64,7 +70,7 @@ func ExportWord(deckName string, w Word) error {
 	if err != nil {
 		return fmt.Errorf("add word note [%s]: %w", w.Chinese, err)
 	}
-	fmt.Println("word added successfully:", w.Chinese)
+	slog.Info("added successfully", "word", w.Chinese)
 	return nil
 }
 

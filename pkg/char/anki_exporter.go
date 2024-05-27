@@ -4,11 +4,17 @@ import (
 	"fmt"
 
 	"github.com/fbngrm/zh-anki/pkg/anki"
+	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-freq/pkg/card"
+	"golang.org/x/exp/slog"
 )
 
 // FIXME: this is redundant with Word, move to same pkg and remove one.
-func Export(deckName string, c Char) error {
+func Export(deckName string, c Char, i ignore.Ignored) error {
+	if _, ok := i[c.Chinese]; ok {
+		slog.Debug("exists in ignore list", "char", c.Chinese)
+		return nil
+	}
 	cedictHeader := ""
 	cedictEn1, cedictPinyin1 := "", ""
 	cedictEn2, cedictPinyin2 := "", ""
@@ -57,7 +63,7 @@ func Export(deckName string, c Char) error {
 	if err != nil {
 		return fmt.Errorf("add char note [%s]: %w", c.Chinese, err)
 	}
-	fmt.Println("char added successfully:", c.Chinese)
+	slog.Info("added successfully", "char", c.Chinese)
 	return nil
 }
 

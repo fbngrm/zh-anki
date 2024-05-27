@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"golang.org/x/exp/slog"
 )
 
 // speed
@@ -38,7 +40,6 @@ var Voices = []string{
 	"zh-CN-XiaobeiNeural",
 	"zh-CN-YunjieNeural",
 	"zh-CN-XiaochenNeural",
-	"zh-CN-JunjianNeural",
 	"zh-CN-XiaohanNeural",
 }
 
@@ -157,12 +158,15 @@ func (c *AzureClient) fetch(ctx context.Context, text string, retryCount int) (*
 }
 
 func (c *AzureClient) PrepareQueryWithRandomVoice(text string, addSplitAudio bool) string {
-	return c.PrepareQuery(text, c.GetRandomVoice(), addSplitAudio)
+	speaker := c.GetRandomVoice()
+	slog.Debug("prepare azure query", "voice", speaker, "text", text)
+	return c.PrepareQuery(text, speaker, addSplitAudio)
 }
 
 // if text contains whitespaces and addSplitAudio is true, text is added twice, once with all
 // whitespaces stipped off and once with whitespaces. azure api renders whitespaces as pauses in the audio.
 func (c *AzureClient) PrepareQuery(text, speaker string, addSplitAudio bool) string {
+	slog.Debug("prepare azure query", "voice", speaker, "text", text)
 	queryFmt := `
     <voice name="%s">
         <prosody rate="%s">

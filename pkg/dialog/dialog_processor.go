@@ -15,6 +15,7 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
 	"github.com/fbngrm/zh-anki/pkg/translate"
+	"golang.org/x/exp/slog"
 )
 
 type DialogProcessor struct {
@@ -73,7 +74,7 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Igno
 			query = p.Audio.PrepareQueryWithRandomVoice(dialog.Text, false)
 		}
 		if err := p.Audio.Fetch(context.Background(), query, audioFilename, true); err != nil {
-			fmt.Println(err)
+			slog.Error("fetching audio from azure", "error", err.Error())
 		}
 	}
 	return results
@@ -105,8 +106,8 @@ func (p *DialogProcessor) prepareQuery(dialog RawDialog, filename string) string
 	return query
 }
 
-func (p *DialogProcessor) Export(dialogues []*Dialog, renderSentences bool, outDir, deckname string) {
-	p.ExportCards(deckname, dialogues, renderSentences)
+func (p *DialogProcessor) Export(dialogues []*Dialog, renderSentences bool, outDir, deckname string, i ignore.Ignored) {
+	p.ExportCards(deckname, dialogues, renderSentences, i)
 	p.ExportJSON(dialogues, outDir)
 }
 
@@ -124,9 +125,9 @@ func (p *DialogProcessor) ExportJSON(dialogues []*Dialog, outDir string) {
 	}
 }
 
-func (p *DialogProcessor) ExportCards(deckname string, dialogues []*Dialog, renderSentences bool) {
+func (p *DialogProcessor) ExportCards(deckname string, dialogues []*Dialog, renderSentences bool, i ignore.Ignored) {
 	for _, d := range dialogues {
-		if err := ExportDialog(renderSentences, d); err != nil {
+		if err := ExportDialog(renderSentences, d, i); err != nil {
 			fmt.Println(err)
 		}
 	}
