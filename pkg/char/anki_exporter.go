@@ -53,11 +53,11 @@ func Export(deckName string, c Char) error {
 		"MnemonicBase":   c.MnemonicBase,
 		"Mnemonic":       c.Mnemonic,
 	}
-	noteID, err := anki.AddNoteToDeck(deckName, "char_cedict3", noteFields)
+	_, err := anki.AddNoteToDeck(deckName, "char_cedict3", noteFields)
 	if err != nil {
 		return fmt.Errorf("add char note [%s]: %w", c.Chinese, err)
 	}
-	fmt.Println("char note added successfully! ID:", noteID)
+	fmt.Println("char added successfully:", c.Chinese)
 	return nil
 }
 

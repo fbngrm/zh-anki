@@ -21,11 +21,11 @@ func ExportDialog(renderSentences bool, d *Dialog) error {
 		"Audio":      anki.GetAudioPath(d.Audio),
 		"Components": sentencesToString(d.Sentences),
 	}
-	noteID, err := anki.AddNoteToDeck(d.Deck, "dialog", noteFields)
+	_, err := anki.AddNoteToDeck(d.Deck, "dialog", noteFields)
 	if err != nil {
 		return fmt.Errorf("add dialog note [%s]: %w", d.Chinese[:25], err)
 	}
-	fmt.Println("dialog note added successfully! ID:", noteID)
+	fmt.Println("dialog note added successfully:", d.Chinese[:25])
 	return nil
 }
 

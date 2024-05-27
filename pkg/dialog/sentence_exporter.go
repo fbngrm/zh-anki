@@ -22,11 +22,11 @@ func ExportSentence(deckName string, s Sentence) error {
 		"Note":       s.Note,
 		"Grammar":    s.Grammar,
 	}
-	noteID, err := anki.AddNoteToDeck(deckName, "sentence", noteFields)
+	_, err := anki.AddNoteToDeck(deckName, "sentence", noteFields)
 	if err != nil {
 		return fmt.Errorf("add sentence note [%s]: %w", s.Chinese, err)
 	}
-	fmt.Println("sentence note added successfully! ID:", noteID)
+	fmt.Println("sentence added successfully:", s.Chinese)
 	return nil
 }
 

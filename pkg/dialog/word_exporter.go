@@ -60,11 +60,11 @@ func ExportWord(deckName string, w Word) error {
 		"MnemonicBase":   w.MnemonicBase,
 		"Mnemonic":       w.Mnemonic,
 	}
-	noteID, err := anki.AddNoteToDeck(deckName, "word_cedict3", noteFields)
+	_, err := anki.AddNoteToDeck(deckName, "word_cedict3", noteFields)
 	if err != nil {
 		return fmt.Errorf("add word note [%s]: %w", w.Chinese, err)
 	}
-	fmt.Println("word note added successfully! ID:", noteID)
+	fmt.Println("word added successfully:", w.Chinese)
 	return nil
 }
 
