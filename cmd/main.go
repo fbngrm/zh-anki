@@ -20,7 +20,6 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-const cedictSrc = "./pkg/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
 const wordFrequencySrc = "./pkg/frequency/global_wordfreq.release_UTF-8.txt"
 const mnemonicsSrc = "/home/f/Dropbox/notes/chinese/mnemonics/mnemonics.txt"
 
@@ -73,13 +72,6 @@ func main() {
 	}
 	tagList = append(tagList, deckname)
 
-	var err error
-	cedictDict, err = cedict.BySimplifiedHanzi(cedictSrc)
-	if err != nil {
-		fmt.Printf("could not init cedict: %v\n", err)
-		os.Exit(1)
-	}
-
 	cwd, err := os.Getwd()
 	if err != nil {
 		fmt.Println(err)
@@ -117,7 +109,6 @@ func main() {
 
 	charProcessor := char.Processor{
 		IgnoreChars: ignoreChars,
-		Cedict:      cedictDict,
 		Audio:       gcpClient,
 		WordIndex:   wordIndex,
 		CardBuilder: builder,
