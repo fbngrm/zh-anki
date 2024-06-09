@@ -46,7 +46,6 @@ func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t trans
 			continue
 		}
 
-		i.Update(word)
 		allChars := p.Chars.GetAll(word, t)
 
 		example := ""
@@ -55,7 +54,11 @@ func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t trans
 			example = removeRedundant(p.WordIndex.GetExamplesForHanzi(word, 5))
 		}
 
-		cc := p.CardBuilder.GetWordCard(word)
+		cc, err := p.CardBuilder.GetWordCard(word)
+		if err != nil {
+			slog.Error("decompose", "word", word, "err", err)
+			continue
+		}
 
 		newWords = append(newWords, Word{
 			Chinese:      word,
@@ -91,7 +94,11 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.T
 			example = strings.Join(p.WordIndex.GetExamplesForHanzi(word.Ch, 5), ", ")
 		}
 
-		cc := p.CardBuilder.GetWordCard(word.Ch)
+		cc, err := p.CardBuilder.GetWordCard(word.Ch)
+		if err != nil {
+			slog.Error("decompose", "word", word.Ch, "err", err)
+			continue
+		}
 
 		allWords = append(allWords, Word{
 			Chinese:      word.Ch,
