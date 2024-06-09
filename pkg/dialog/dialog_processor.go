@@ -69,7 +69,7 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Igno
 
 		query := ""
 		if len(dialog.Speakers) != 0 {
-			query = p.prepareQuery(dialog, audioFilename)
+			query = p.prepareQuery(dialog)
 		} else {
 			query = p.Audio.PrepareQueryWithRandomVoice(dialog.Text, false)
 		}
@@ -93,7 +93,7 @@ func (p *DialogProcessor) checkForOriginalAudio(filename string) error {
 	return nil
 }
 
-func (p *DialogProcessor) prepareQuery(dialog RawDialog, filename string) string {
+func (p *DialogProcessor) prepareQuery(dialog RawDialog) string {
 	query := ""
 	voices := p.Audio.GetVoices(dialog.Speakers)
 	for _, line := range dialog.Lines {
