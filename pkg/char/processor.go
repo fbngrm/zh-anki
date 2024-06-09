@@ -9,15 +9,12 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/frequency"
 	"github.com/fbngrm/zh-anki/pkg/hash"
-	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/translate"
 	"github.com/fbngrm/zh-freq/pkg/card"
-	"github.com/fbngrm/zh/lib/cedict"
 )
 
 type Processor struct {
 	IgnoreChars []string
-	Cedict      map[string][]cedict.Entry
 	Audio       *audio.GCPClient
 	WordIndex   *frequency.WordIndex
 	CardBuilder *card.Builder
@@ -49,18 +46,6 @@ func (p *Processor) GetAll(word string, t translate.Translations) []Char {
 		})
 	}
 	return p.getAudio(allChars)
-}
-
-func (p *Processor) GetNew(i ignore.Ignored, allChars []Char) []Char {
-	newChars := make([]Char, 0)
-	for _, char := range allChars {
-		if _, ok := i[char.Chinese]; ok {
-			continue
-		}
-		newChars = append(newChars, char)
-		i.Update(char.Chinese)
-	}
-	return newChars
 }
 
 // remove redundant
