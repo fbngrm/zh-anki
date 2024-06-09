@@ -11,13 +11,16 @@ import (
 )
 
 func ExportWord(deckName string, w Word, i ignore.Ignored) error {
+	defer func() {
+		i.Update(w.Chinese)
+	}()
 	for _, c := range w.Chars {
 		if err := char.Export(deckName, c, i); err != nil {
 			slog.Error("export char for word", "word", w.Chinese, "char", c.Chinese, "error", err)
 		}
 	}
 	if _, ok := i[w.Chinese]; ok {
-		slog.Debug("exists in ignore list", "word", w.Chinese)
+		slog.Debug("export word, exists in ignore list", "word", w.Chinese)
 		return nil
 	}
 	cedictHeader := ""

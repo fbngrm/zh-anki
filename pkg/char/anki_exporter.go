@@ -11,8 +11,11 @@ import (
 
 // FIXME: this is redundant with Word, move to same pkg and remove one.
 func Export(deckName string, c Char, i ignore.Ignored) error {
+	defer func() {
+		i.Update(c.Chinese)
+	}()
 	if _, ok := i[c.Chinese]; ok {
-		slog.Debug("exists in ignore list", "char", c.Chinese)
+		slog.Debug("export char, exists in ignore list", "char", c.Chinese)
 		return nil
 	}
 	cedictHeader := ""
