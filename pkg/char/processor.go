@@ -34,15 +34,16 @@ func (p *Processor) GetAll(word string, t translate.Translations) []Char {
 		cc := p.CardBuilder.GetHanziCard(word, c)
 
 		allChars = append(allChars, Char{
-			Chinese:      cc.SimplifiedChinese,
-			Cedict:       card.GetCedictEntries(cc),
-			HSK:          card.GetHSKEntries(cc),
-			IsSingleRune: true,
-			Components:   cc.Components,
-			Traditional:  cc.TraditionalChinese,
-			Example:      example,
-			MnemonicBase: cc.MnemonicBase,
-			Mnemonic:     cc.Mnemonic,
+			Chinese:        cc.SimplifiedChinese,
+			Cedict:         card.GetCedictEntries(cc),
+			HSK:            card.GetHSKEntries(cc),
+			IsSingleRune:   true,
+			Components:     cc.Components,
+			Traditional:    cc.TraditionalChinese,
+			Example:        example,
+			MnemonicBase:   cc.MnemonicBase,
+			Mnemonic:       cc.Mnemonic,
+			Pronounciation: cc.Pronounciation,
 		})
 	}
 	return p.getAudio(allChars)

@@ -61,6 +61,7 @@ func Export(deckName string, c Char, i ignore.Ignored) error {
 		"Examples":       c.Example,
 		"MnemonicBase":   c.MnemonicBase,
 		"Mnemonic":       c.Mnemonic,
+		"Pronounciation": c.Pronounciation,
 	}
 	_, err := anki.AddNoteToDeck(deckName, "char_cedict3", noteFields)
 	if err != nil {
