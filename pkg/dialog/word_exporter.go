@@ -4,9 +4,9 @@ import (
 	"fmt"
 
 	"github.com/fbngrm/zh-anki/pkg/anki"
+	"github.com/fbngrm/zh-anki/pkg/card"
 	"github.com/fbngrm/zh-anki/pkg/char"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
-	"github.com/fbngrm/zh-freq/pkg/card"
 	"golang.org/x/exp/slog"
 )
 
@@ -57,26 +57,34 @@ func ExportWord(deckName string, w Word, i ignore.Ignored) error {
 		note = w.Note + "<br>" + "<br>"
 	}
 
+	transHeader, trans := "", ""
+	if len(w.Translation) >= 1 {
+		transHeader = "Translation" + "<br>"
+		trans = w.Translation + "<br>" + "<br>"
+	}
+
 	noteFields := map[string]string{
-		"Chinese":        w.Chinese,
-		"CedictHeader":   cedictHeader,
-		"CedictPinyin1":  cedictPinyin1,
-		"CedictEnglish1": cedictEn1,
-		"CedictPinyin2":  cedictPinyin2,
-		"CedictEnglish2": cedictEn2,
-		"CedictPinyin3":  cedictPinyin3,
-		"CedictEnglish3": cedictEn3,
-		"HSKHeader":      hskHeader,
-		"HSKPinyin":      hskPinyin,
-		"HSKEnglish":     hskEn,
-		"Audio":          anki.GetAudioPath(w.Audio),
-		"Components":     componentsToString(w.Components),
-		"Traditional":    w.Traditional,
-		"Examples":       w.Example,
-		"MnemonicBase":   w.MnemonicBase,
-		"Mnemonic":       w.Mnemonic,
-		"NoteHeader":     noteHeader,
-		"Note":           note,
+		"Chinese":           w.Chinese,
+		"CedictHeader":      cedictHeader,
+		"CedictPinyin1":     cedictPinyin1,
+		"CedictEnglish1":    cedictEn1,
+		"CedictPinyin2":     cedictPinyin2,
+		"CedictEnglish2":    cedictEn2,
+		"CedictPinyin3":     cedictPinyin3,
+		"CedictEnglish3":    cedictEn3,
+		"HSKHeader":         hskHeader,
+		"HSKPinyin":         hskPinyin,
+		"HSKEnglish":        hskEn,
+		"Audio":             anki.GetAudioPath(w.Audio),
+		"Components":        componentsToString(w.Components),
+		"Traditional":       w.Traditional,
+		"Examples":          w.Example,
+		"MnemonicBase":      w.MnemonicBase,
+		"Mnemonic":          w.Mnemonic,
+		"NoteHeader":        noteHeader,
+		"Note":              note,
+		"TranslationHeader": transHeader,
+		"Translation":       trans,
 	}
 	_, err := anki.AddNoteToDeck(deckName, "word_cedict3", noteFields)
 	if err != nil {

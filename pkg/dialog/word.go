@@ -1,8 +1,8 @@
 package dialog
 
 import (
+	"github.com/fbngrm/zh-anki/pkg/card"
 	"github.com/fbngrm/zh-anki/pkg/char"
-	"github.com/fbngrm/zh-freq/pkg/card"
 )
 
 type Word struct {
@@ -21,4 +21,5 @@ type Word struct {
 	MnemonicBase string             `yaml:"mnemonic_base"`
 	Mnemonic     string             `yaml:"mnemonic"`
 	Note         string             `yaml:"note"`
+	Translation  string             `yaml:"translation"` // this is coming from data/translations file
 }

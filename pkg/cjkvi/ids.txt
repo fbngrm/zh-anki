@@ -1,7 +1,6 @@
 # Copyright (c) 2014-2017 CJKVI Database
 # Based on CHISE IDS Database
-U+03B1	α	α
-U+2113	ℓ	ℓ
+U+03B1	α	α U+2113	ℓ	ℓ
 U+2460	①	①
 U+2461	②	②
 U+2462	③	③
@@ -61,7 +60,7 @@ U+4E09	三	⿱一二
 U+4E0A	上	⿱⺊一
 U+4E0B	下	⿱一卜
 U+4E0C	丌	⿱一⿰丿丨
-U+4E0D	不	⿱一③
+U+4E0D	不	⿱丆卜
 U+4E0E	与	⿹②一[GTKV]	⿻②一[J]
 U+4E0F	丏	丏
 U+4E10	丐	丐

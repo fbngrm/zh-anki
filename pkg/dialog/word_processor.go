@@ -10,13 +10,13 @@ import (
 	"unicode/utf8"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
+	"github.com/fbngrm/zh-anki/pkg/card"
 	"github.com/fbngrm/zh-anki/pkg/char"
 	"github.com/fbngrm/zh-anki/pkg/frequency"
 	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
 	"github.com/fbngrm/zh-anki/pkg/translate"
-	"github.com/fbngrm/zh-freq/pkg/card"
 	"golang.org/x/exp/slog"
 )
 
@@ -54,7 +54,7 @@ func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t trans
 			example = removeRedundant(p.WordIndex.GetExamplesForHanzi(word.Chinese, 5))
 		}
 
-		cc, err := p.CardBuilder.GetWordCard(word.Chinese)
+		cc, err := p.CardBuilder.GetWordCard(word.Chinese, t)
 		if err != nil {
 			slog.Error("decompose", "word", word, "err", err)
 			continue
@@ -72,6 +72,7 @@ func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t trans
 			MnemonicBase: cc.MnemonicBase,
 			Mnemonic:     cc.Mnemonic,
 			Note:         word.Note,
+			Translation:  cc.Translation,
 		})
 	}
 	return p.getAudio(newWords, i)
@@ -95,7 +96,7 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.T
 			example = strings.Join(p.WordIndex.GetExamplesForHanzi(word.Ch, 5), ", ")
 		}
 
-		cc, err := p.CardBuilder.GetWordCard(word.Ch)
+		cc, err := p.CardBuilder.GetWordCard(word.Ch, t)
 		if err != nil {
 			slog.Error("decompose", "word", word.Ch, "err", err)
 			continue
@@ -113,6 +114,7 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.T
 			Example:      example,
 			MnemonicBase: cc.MnemonicBase,
 			Mnemonic:     cc.Mnemonic,
+			Translation:  cc.Translation,
 		})
 	}
 	return p.getAudio(allWords, i)

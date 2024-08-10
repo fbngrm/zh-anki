@@ -6,7 +6,7 @@ require (
 	cloud.google.com/go/texttospeech v1.7.5
 	cloud.google.com/go/translate v1.10.0
 	github.com/fbngrm/zh v1.0.4
-	github.com/fbngrm/zh-freq v1.1.6
+	github.com/fbngrm/zh-mnemonics v1.0.9
 	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
 	golang.org/x/text v0.14.0
 	gopkg.in/yaml.v2 v2.4.0
@@ -18,7 +18,6 @@ require (
 	cloud.google.com/go/compute/metadata v0.2.3 // indirect
 	cloud.google.com/go/longrunning v0.5.4 // indirect
 	github.com/fatih/structs v1.1.0 // indirect
-	github.com/fbngrm/zh-mnemonics v1.0.9 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.1 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect

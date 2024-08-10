@@ -9,13 +9,13 @@ import (
 	"strings"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
+	"github.com/fbngrm/zh-anki/pkg/card"
 	"github.com/fbngrm/zh-anki/pkg/char"
 	"github.com/fbngrm/zh-anki/pkg/dialog"
 	"github.com/fbngrm/zh-anki/pkg/frequency"
 	ignore_dict "github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
 	"github.com/fbngrm/zh-anki/pkg/translate"
-	"github.com/fbngrm/zh-freq/pkg/card"
 	"github.com/fbngrm/zh/lib/cedict"
 	"golang.org/x/exp/slog"
 )

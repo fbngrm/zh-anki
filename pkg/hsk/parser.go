@@ -6,8 +6,6 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-
-	"golang.org/x/exp/slog"
 )
 
 type Entry struct {
@@ -89,10 +87,10 @@ func GetByLevel(dict map[string]Entry, level int) []string {
 	for _, c := range all {
 		total += c
 	}
-	slog.Info(
-		"",
-		"hsk level", level,
-		"distinct words and chars", len(all),
-		"expected cards to add", total)
+	// slog.Info(
+	// 	"",
+	// 	"hsk level", level,
+	// 	"distinct words and chars", len(all),
+	// 	"expected cards to add", total)
 	return byLevel
 }

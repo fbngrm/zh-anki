@@ -7,10 +7,10 @@ import (
 	"unicode/utf8"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
+	"github.com/fbngrm/zh-anki/pkg/card"
 	"github.com/fbngrm/zh-anki/pkg/frequency"
 	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/translate"
-	"github.com/fbngrm/zh-freq/pkg/card"
 )
 
 type Processor struct {
@@ -31,7 +31,7 @@ func (p *Processor) GetAll(word string, t translate.Translations) []Char {
 			example = removeRedundant(p.WordIndex.GetExamplesForHanzi(word, 5))
 		}
 
-		cc := p.CardBuilder.GetHanziCard(word, c)
+		cc := p.CardBuilder.GetHanziCard(word, c, t)
 
 		allChars = append(allChars, Char{
 			Chinese:        cc.SimplifiedChinese,
@@ -44,6 +44,7 @@ func (p *Processor) GetAll(word string, t translate.Translations) []Char {
 			MnemonicBase:   cc.MnemonicBase,
 			Mnemonic:       cc.Mnemonic,
 			Pronounciation: cc.Pronounciation,
+			Translation:    cc.Translation,
 		})
 	}
 	return p.getAudio(allChars)

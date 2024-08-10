@@ -1,6 +1,6 @@
 package char
 
-import "github.com/fbngrm/zh-freq/pkg/card"
+import "github.com/fbngrm/zh-anki/pkg/card"
 
 type CedictEntry struct {
 	CedictPinyin  string `yaml:"cedict_pinyin"`
@@ -26,4 +26,5 @@ type Char struct {
 	MnemonicBase   string             `yaml:"mnemonic_base"`
 	Mnemonic       string             `yaml:"mnemonic"`
 	Pronounciation string             `yaml:"pronounciation"`
+	Translation    string             `yaml:"translation"` // this is coming from data/translations file
 }

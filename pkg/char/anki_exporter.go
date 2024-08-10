@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/fbngrm/zh-anki/pkg/anki"
+	"github.com/fbngrm/zh-anki/pkg/card"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
-	"github.com/fbngrm/zh-freq/pkg/card"
 	"golang.org/x/exp/slog"
 )
 
@@ -43,25 +43,33 @@ func Export(deckName string, c Char, i ignore.Ignored) error {
 		hskPinyin = c.HSK[0].HSKPinyin + "<br>"
 	}
 
+	transHeader, trans := "", ""
+	if len(c.HSK) >= 1 {
+		transHeader = "Translation" + "<br>"
+		trans = c.Translation + "<br>" + "<br>"
+	}
+
 	noteFields := map[string]string{
-		"Chinese":        c.Chinese,
-		"CedictHeader":   cedictHeader,
-		"CedictPinyin1":  cedictPinyin1,
-		"CedictEnglish1": cedictEn1,
-		"CedictPinyin2":  cedictPinyin2,
-		"CedictEnglish2": cedictEn2,
-		"CedictPinyin3":  cedictPinyin3,
-		"CedictEnglish3": cedictEn3,
-		"HSKHeader":      hskHeader,
-		"HSKPinyin":      hskPinyin,
-		"HSKEnglish":     hskEn,
-		"Audio":          anki.GetAudioPath(c.Audio),
-		"Components":     componentsToString(c.Components),
-		"Traditional":    c.Traditional,
-		"Examples":       c.Example,
-		"MnemonicBase":   c.MnemonicBase,
-		"Mnemonic":       c.Mnemonic,
-		"Pronounciation": c.Pronounciation,
+		"Chinese":           c.Chinese,
+		"CedictHeader":      cedictHeader,
+		"CedictPinyin1":     cedictPinyin1,
+		"CedictEnglish1":    cedictEn1,
+		"CedictPinyin2":     cedictPinyin2,
+		"CedictEnglish2":    cedictEn2,
+		"CedictPinyin3":     cedictPinyin3,
+		"CedictEnglish3":    cedictEn3,
+		"HSKHeader":         hskHeader,
+		"HSKPinyin":         hskPinyin,
+		"HSKEnglish":        hskEn,
+		"Audio":             anki.GetAudioPath(c.Audio),
+		"Components":        componentsToString(c.Components),
+		"Traditional":       c.Traditional,
+		"Examples":          c.Example,
+		"MnemonicBase":      c.MnemonicBase,
+		"Mnemonic":          c.Mnemonic,
+		"Pronounciation":    c.Pronounciation,
+		"TranslationHeader": transHeader,
+		"Translation":       trans,
 	}
 	_, err := anki.AddNoteToDeck(deckName, "char_cedict3", noteFields)
 	if err != nil {
