@@ -225,7 +225,7 @@ func fetch(ctx context.Context, query string, voice *texttospeechpb.VoiceSelecti
 		// Select the type of audio file you want returned.
 		AudioConfig: &texttospeechpb.AudioConfig{
 			AudioEncoding: texttospeechpb.AudioEncoding_MP3,
-			SpeakingRate:  0.85,
+			SpeakingRate:  1,
 		},
 	}
 	return client.SynthesizeSpeech(ctx, &req)
