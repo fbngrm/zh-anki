@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func loadWords(path string) []string {
+func loadWords(path string) []Word {
 	file, err := os.Open(path)
 	if err != nil {
 		fmt.Printf("could not open words file: %v", err)
@@ -15,7 +15,7 @@ func loadWords(path string) []string {
 	}
 	defer file.Close()
 
-	var words []string
+	var words []Word
 	var word string
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
@@ -23,8 +23,22 @@ func loadWords(path string) []string {
 		if word == "" {
 			continue
 		}
-		words = append(words, strings.TrimSpace(word))
+		if strings.Contains(word, "|") {
+			parts := strings.Split(word, "|")
+			if len(parts) > 2 {
+				fmt.Printf("could not split word, too many '|' : %s\n", word)
+				continue
+			}
+			words = append(words, Word{
+				Chinese: strings.TrimSpace(parts[0]),
+				Note:    parts[1],
+			})
+			continue
+		}
+		words = append(words, Word{
+			Chinese: strings.TrimSpace(word),
+		})
 	}
-	words = append(words, word)
+	words = append(words, Word{})
 	return words
 }

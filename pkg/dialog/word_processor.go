@@ -34,34 +34,34 @@ func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t trans
 
 	var newWords []Word
 	for _, word := range words {
-		if word == "" {
+		if word.Chinese == "" {
 			continue
 		}
 
-		if contains(p.IgnoreChars, word) {
+		if contains(p.IgnoreChars, word.Chinese) {
 			continue
 		}
-		if _, ok := i[word]; ok {
+		if _, ok := i[word.Chinese]; ok {
 			slog.Warn("exists in ignore list, skip", "word", word)
 			continue
 		}
 
-		allChars := p.Chars.GetAll(word, t)
+		allChars := p.Chars.GetAll(word.Chinese, t)
 
 		example := ""
-		isSingleRune := utf8.RuneCountInString(word) == 1
+		isSingleRune := utf8.RuneCountInString(word.Chinese) == 1
 		if isSingleRune {
-			example = removeRedundant(p.WordIndex.GetExamplesForHanzi(word, 5))
+			example = removeRedundant(p.WordIndex.GetExamplesForHanzi(word.Chinese, 5))
 		}
 
-		cc, err := p.CardBuilder.GetWordCard(word)
+		cc, err := p.CardBuilder.GetWordCard(word.Chinese)
 		if err != nil {
 			slog.Error("decompose", "word", word, "err", err)
 			continue
 		}
 
 		newWords = append(newWords, Word{
-			Chinese:      word,
+			Chinese:      word.Chinese,
 			Cedict:       card.GetCedictEntries(cc),
 			HSK:          card.GetHSKEntries(cc),
 			Chars:        allChars,
@@ -71,6 +71,7 @@ func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t trans
 			Example:      example,
 			MnemonicBase: cc.MnemonicBase,
 			Mnemonic:     cc.Mnemonic,
+			Note:         word.Note,
 		})
 	}
 	return p.getAudio(newWords, i)

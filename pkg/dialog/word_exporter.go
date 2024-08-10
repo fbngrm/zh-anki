@@ -50,6 +50,13 @@ func ExportWord(deckName string, w Word, i ignore.Ignored) error {
 	if hskEn == "" && cedictEn1 == "" {
 		return fmt.Errorf("no translation for word: %s", w.Chinese)
 	}
+
+	noteHeader, note := "", ""
+	if len(w.Note) >= 1 {
+		noteHeader = "Note<br>"
+		note = w.Note + "<br>" + "<br>"
+	}
+
 	noteFields := map[string]string{
 		"Chinese":        w.Chinese,
 		"CedictHeader":   cedictHeader,
@@ -68,6 +75,8 @@ func ExportWord(deckName string, w Word, i ignore.Ignored) error {
 		"Examples":       w.Example,
 		"MnemonicBase":   w.MnemonicBase,
 		"Mnemonic":       w.Mnemonic,
+		"NoteHeader":     noteHeader,
+		"Note":           note,
 	}
 	_, err := anki.AddNoteToDeck(deckName, "word_cedict3", noteFields)
 	if err != nil {

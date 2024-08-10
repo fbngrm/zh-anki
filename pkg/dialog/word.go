@@ -20,4 +20,5 @@ type Word struct {
 	Example      string             `yaml:"example"`
 	MnemonicBase string             `yaml:"mnemonic_base"`
 	Mnemonic     string             `yaml:"mnemonic"`
+	Note         string             `yaml:"note"`
 }
