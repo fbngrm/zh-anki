@@ -29,18 +29,6 @@ func loadSentences(path string) []sentence {
 		if s == "" {
 			continue
 		}
-		if strings.Contains(s, "|") {
-			parts := strings.Split(s, "|")
-			if len(parts) > 2 {
-				fmt.Printf("could not split sentence, too many '|' : %s\n", s)
-				continue
-			}
-			sentences = append(sentences, sentence{
-				text: strings.TrimSpace(parts[0]),
-				note: parts[1],
-			})
-			continue
-		}
 		// chinese "|"
 		if strings.Contains(s, "|") {
 			parts := strings.Split(s, "|")
