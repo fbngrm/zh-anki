@@ -82,7 +82,11 @@ func main() {
 	ignored := ignore_dict.Load(ignorePath)
 
 	translationsPath := filepath.Join(cwd, "data", "translations")
-	translations := translate.Load(translationsPath)
+	translations, err := translate.New(translationsPath, ignoreChars)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
 	audioDir := filepath.Join(cwd, "data", source, lesson, "audio")
 	azureClient := audio.NewAzureClient(azureApiKey, audioDir, ignoreChars)

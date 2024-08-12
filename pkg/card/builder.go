@@ -112,7 +112,7 @@ func NewBuilder(mnemonicsSrc string) (*Builder, error) {
 	}, nil
 }
 
-func (b *Builder) MustBuild(t translate.Translations) []*Card {
+func (b *Builder) MustBuild(t *translate.Translations) []*Card {
 	cards := []*Card{}
 	for _, word := range b.WordIndex {
 		for _, hanzi := range word {
@@ -130,7 +130,7 @@ func (b *Builder) MustBuild(t translate.Translations) []*Card {
 	return cards
 }
 
-func (b *Builder) GetWordCard(word string, t translate.Translations) (*Card, error) {
+func (b *Builder) GetWordCard(word string, t *translate.Translations) (*Card, error) {
 	d, tr, err := b.lookupDict(word)
 	if err != nil {
 		return nil, err
@@ -141,11 +141,11 @@ func (b *Builder) GetWordCard(word string, t translate.Translations) (*Card, err
 		TraditionalChinese: tr,
 		DictEntries:        d,
 		Components:         b.getWordComponents(word),
-		Translation:        t[word],
+		Translation:        t.Lookup(word),
 	}, nil
 }
 
-func (b *Builder) GetHanziCard(word, hanzi string, t translate.Translations) *Card {
+func (b *Builder) GetHanziCard(word, hanzi string, t *translate.Translations) *Card {
 	entries, tr, err := b.lookupDict(hanzi)
 	if err != nil {
 		slog.Error(fmt.Sprintf("ignore hanzi: %v", err))
@@ -167,7 +167,7 @@ func (b *Builder) GetHanziCard(word, hanzi string, t translate.Translations) *Ca
 		MnemonicBase:       mnemonicBase,
 		Mnemonic:           b.MnemonicsBuilder.Lookup(hanzi),
 		Pronounciation:     pronounciation,
-		Translation:        t[hanzi],
+		Translation:        t.Lookup(hanzi),
 	}
 }
 

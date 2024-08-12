@@ -29,7 +29,7 @@ type WordProcessor struct {
 	CardBuilder *card.Builder
 }
 
-func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t translate.Translations) []Word {
+func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t *translate.Translations) []Word {
 	words := loadWords(path)
 
 	var newWords []Word
@@ -80,7 +80,7 @@ func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t trans
 
 // used for openai data that contains the translation and pinyin; currently we still use hsk and cedict only.
 // TODO: add fallback with openai in case hsk and cedict don't know the word.
-func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t translate.Translations) []Word {
+func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t *translate.Translations) []Word {
 	var allWords []Word
 	for _, word := range words {
 		if word.Ch == "" {

@@ -3,38 +3,52 @@ package translate
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"gopkg.in/yaml.v2"
 )
 
-type Translations map[string]string
-
-func (t Translations) Update(ch, en string) {
-	t[ch] = en
+type Translations struct {
+	dict          map[string]string
+	charsToRemove []string
 }
 
-func Load(path string) Translations {
+func New(path string, charsToRemove []string) (*Translations, error) {
 	b, err := os.ReadFile(path)
 	if err != nil {
-		fmt.Printf("could not open translations file: %v", err)
-		os.Exit(1)
+		return nil, fmt.Errorf("could not open translations file: %w", err)
 	}
-	var t Translations
-	if err := yaml.Unmarshal(b, &t); err != nil {
-		fmt.Printf("could not unmarshal translations file: %v", err)
-		os.Exit(1)
+	var dict map[string]string
+	if err := yaml.Unmarshal(b, &dict); err != nil {
+		return nil, fmt.Errorf("could not unmarshal translations file: %w", err)
 	}
-	return t
+	return &Translations{
+		dict:          dict,
+		charsToRemove: charsToRemove,
+	}, nil
 }
 
-func (t Translations) Write(path string) {
-	data, err := yaml.Marshal(t)
-	if err != nil {
-		fmt.Printf("could not marshal translations file: %v", err)
-		os.Exit(1)
+func (t *Translations) Lookup(s string) string {
+	return t.dict[removeChars(s, t.charsToRemove)]
+}
+
+// removeChars removes all characters from the given string that are present in the charsToRemove.
+func removeChars(input string, charsToRemove []string) string {
+	result := strings.Builder{}
+	for _, char := range input {
+		if !contains(charsToRemove, string(char)) {
+			result.WriteString(string(char))
+		}
 	}
-	if err := os.WriteFile(path, data, 0644); err != nil {
-		fmt.Printf("could not write translations file: %v", err)
-		os.Exit(1)
+	return result.String()
+}
+
+// contains checks if a slice of strings contains a specific string.
+func contains(slice []string, char string) bool {
+	for _, c := range slice {
+		if c == char {
+			return true
+		}
 	}
+	return false
 }

@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"unicode"
 	"unicode/utf8"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
@@ -24,11 +23,11 @@ type SentenceProcessor struct {
 	Audio  *audio.AzureClient
 }
 
-func (p *SentenceProcessor) DecomposeFromFile(path, outdir string, i ignore.Ignored, t translate.Translations) []Sentence {
+func (p *SentenceProcessor) DecomposeFromFile(path, outdir string, i ignore.Ignored, t *translate.Translations) []Sentence {
 	return p.Decompose(loadSentences(path), outdir, i, t)
 }
 
-func (p *SentenceProcessor) Decompose(sentences []sentence, outdir string, i ignore.Ignored, t translate.Translations) []Sentence {
+func (p *SentenceProcessor) Decompose(sentences []sentence, outdir string, i ignore.Ignored, t *translate.Translations) []Sentence {
 	var results []Sentence
 	for _, sen := range sentences {
 		slog.Info("=================================")
@@ -56,7 +55,7 @@ func (p *SentenceProcessor) Decompose(sentences []sentence, outdir string, i ign
 	return p.getAudio(results)
 }
 
-func (p *SentenceProcessor) Get(sentences []openai.Sentence, i ignore.Ignored, t translate.Translations) []Sentence {
+func (p *SentenceProcessor) Get(sentences []openai.Sentence, i ignore.Ignored, t *translate.Translations) []Sentence {
 	var results []Sentence
 	for _, s := range sentences {
 		results = append(results, Sentence{
@@ -107,20 +106,4 @@ func (p *SentenceProcessor) ExportCards(deckname string, sentences []Sentence, i
 			slog.Error("add note", "sentence", s.Chinese, "error", err)
 		}
 	}
-}
-
-func getAllChars(s string) []string {
-	unique := make(map[string]struct{})
-	for _, r := range s {
-		if unicode.Is(unicode.Han, r) {
-			unique[string(r)] = struct{}{}
-		}
-	}
-	var i int
-	chars := make([]string, len(unique))
-	for c := range unique {
-		chars[i] = c
-		i++
-	}
-	return chars
 }

@@ -15,7 +15,7 @@ type SimpleGrammarProcessor struct {
 	Sentences SentenceProcessor
 }
 
-func (g *SimpleGrammarProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, t translate.Translations) {
+func (g *SimpleGrammarProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, t *translate.Translations) {
 	grammar, err := loadSimpleGrammar(path)
 	if err != nil {
 		log.Fatal(err)
