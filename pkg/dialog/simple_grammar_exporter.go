@@ -6,7 +6,7 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/anki"
 )
 
-func ExportGrammar(deckName string, g SimpleGrammar) error {
+func ExportSimpleGrammar(deckName string, g SimpleGrammar) error {
 	noteFields := map[string]string{
 		"Front": g.Head,
 		"Back":  g.HTML,

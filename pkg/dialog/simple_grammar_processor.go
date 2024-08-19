@@ -43,7 +43,7 @@ func (g *SimpleGrammarProcessor) ExportJSON(grammar SimpleGrammar, outDir string
 }
 
 func (g *SimpleGrammarProcessor) ExportCards(deckname string, grammar SimpleGrammar) {
-	if err := ExportGrammar(deckname, grammar); err != nil {
+	if err := ExportSimpleGrammar(deckname, grammar); err != nil {
 		fmt.Printf("export simple grammar: %s\n", err.Error())
 	}
 }

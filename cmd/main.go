@@ -137,12 +137,16 @@ func main() {
 	simpleGrammarProcessor := dialog.SimpleGrammarProcessor{
 		Sentences: sentenceProcessor,
 	}
+	grammarProcessor := dialog.GrammarProcessor{
+		Client: openai.NewClient(openAIApiKey, cache),
+		Audio:  azureClient,
+	}
 
 	outDir := filepath.Join(cwd, "data", source, lesson, "output")
 	_ = os.Remove(outDir)
 
 	// load grammar from file
-	simpleGrammarPath := filepath.Join(cwd, "data", source, lesson, "input", "grammar")
+	simpleGrammarPath := filepath.Join(cwd, "data", source, lesson, "input", "simple_grammar")
 	if _, err := os.Stat(simpleGrammarPath); err == nil {
 		simpleGrammarProcessor.Decompose(simpleGrammarPath, outDir, deckname, ignored, translations)
 	}
@@ -162,6 +166,16 @@ func main() {
 	if _, err := os.Stat(dialogPath); err == nil {
 		dialogues := dialogProcessor.Decompose(dialogPath, outDir, deckname, ignored, translations)
 		dialogProcessor.ExportCards(deckname, dialogues, renderSentences, ignored)
+	}
+	// load grammar from file
+	grammarPath := filepath.Join(cwd, "data", source, lesson, "input", "grammar")
+	if _, err := os.Stat(grammarPath); err == nil {
+		grammar, err := grammarProcessor.Decompose(grammarPath, outDir, deckname)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		grammarProcessor.ExportCards(deckname, grammar)
 	}
 
 	// write newly ignored words
