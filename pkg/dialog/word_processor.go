@@ -114,7 +114,7 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t *translate.
 			continue
 		}
 
-		allWords = append(allWords, Word{
+		w := Word{
 			Chinese:      word.Ch,
 			English:      word.En, // this comes from openai and is only used in the components of a sentence, which itself is translated by openai
 			Cedict:       card.GetCedictEntries(cc),
@@ -127,7 +127,9 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t *translate.
 			MnemonicBase: cc.MnemonicBase,
 			Mnemonic:     cc.Mnemonic,
 			Translation:  cc.Translation,
-		})
+		}
+
+		allWords = append(allWords, p.getAudio(w))
 	}
 	return allWords
 }
