@@ -36,11 +36,10 @@ func NewAzureClient(apiKey, audioDir string, ignoreChars []string) *AzureClient 
 
 // we support 4 different voices only
 var Voices = []string{
-	"zh-CN-YunzeNeural",
-	"zh-CN-XiaobeiNeural",
-	"zh-CN-YunjieNeural",
-	"zh-CN-XiaochenNeural",
-	"zh-CN-XiaohanNeural",
+	"zh-CN-XiaoxiaoNeural", // female
+	"zh-CN-YunjianNeural",  // male
+	"zh-CN-XiaochenNeural", // female
+	"zh-CN-YinyangNeural",  // male
 }
 
 func (c *AzureClient) GetRandomVoice() string {

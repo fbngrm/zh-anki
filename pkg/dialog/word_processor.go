@@ -3,6 +3,7 @@ package dialog
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -29,7 +30,7 @@ type WordProcessor struct {
 	CardBuilder *card.Builder
 }
 
-func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t *translate.Translations) []Word {
+func (p *WordProcessor) DecomposeFromFile(path, outdir string, i ignore.Ignored, t *translate.Translations) []Word {
 	words := loadWords(path)
 
 	var newWords []Word
@@ -37,45 +38,56 @@ func (p *WordProcessor) Decompose(path, outdir string, i ignore.Ignored, t *tran
 		if word.Chinese == "" {
 			continue
 		}
-
 		if contains(p.IgnoreChars, word.Chinese) {
 			continue
 		}
-		if _, ok := i[word.Chinese]; ok {
-			slog.Warn("exists in ignore list, skip", "word", word)
-			continue
-		}
 
-		allChars := p.Chars.GetAll(word.Chinese, t)
-
-		example := ""
-		isSingleRune := utf8.RuneCountInString(word.Chinese) == 1
-		if isSingleRune {
-			example = removeRedundant(p.WordIndex.GetExamplesForHanzi(word.Chinese, 5))
-		}
-
-		cc, err := p.CardBuilder.GetWordCard(word.Chinese, t)
+		w, err := p.Decompose(word, i, t)
 		if err != nil {
 			slog.Error("decompose", "word", word, "err", err)
 			continue
 		}
 
-		newWords = append(newWords, Word{
-			Chinese:      word.Chinese,
-			Cedict:       card.GetCedictEntries(cc),
-			HSK:          card.GetHSKEntries(cc),
-			Chars:        allChars,
-			IsSingleRune: isSingleRune,
-			Components:   cc.Components,
-			Traditional:  cc.TraditionalChinese,
-			Example:      example,
-			MnemonicBase: cc.MnemonicBase,
-			Mnemonic:     cc.Mnemonic,
-			Note:         word.Note,
-			Translation:  cc.Translation,
-		})
+		newWords = append(newWords, *w)
 	}
-	return p.getAudio(newWords, i)
+	return newWords
+}
+
+func (p *WordProcessor) Decompose(w Word, i ignore.Ignored, t *translate.Translations) (*Word, error) {
+	if _, ok := i[strings.ReplaceAll(w.Chinese, " ", "")]; ok {
+		return nil, errors.New("exists in ignore list")
+	}
+
+	allChars := p.Chars.GetAll(w.Chinese, t)
+
+	example := ""
+	isSingleRune := utf8.RuneCountInString(w.Chinese) == 1
+	if isSingleRune {
+		example = removeRedundant(p.WordIndex.GetExamplesForHanzi(w.Chinese, 5))
+	}
+
+	cc, err := p.CardBuilder.GetWordCard(w.Chinese, t)
+	if err != nil {
+		return nil, err
+	}
+
+	newWord := Word{
+		Chinese:      w.Chinese,
+		Cedict:       card.GetCedictEntries(cc),
+		HSK:          card.GetHSKEntries(cc),
+		Chars:        allChars,
+		IsSingleRune: isSingleRune,
+		Components:   cc.Components,
+		Traditional:  cc.TraditionalChinese,
+		Example:      example,
+		MnemonicBase: cc.MnemonicBase,
+		Mnemonic:     cc.Mnemonic,
+		Note:         w.Note,
+		Translation:  cc.Translation,
+	}
+
+	newWord = p.getAudio(newWord)
+	return &newWord, nil
 }
 
 // used for openai data that contains the translation and pinyin; currently we still use hsk and cedict only.
@@ -117,28 +129,22 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t *translate.
 			Translation:  cc.Translation,
 		})
 	}
-	return p.getAudio(allWords, i)
+	return allWords
 }
 
-func (p *WordProcessor) getAudio(words []Word, i ignore.Ignored) []Word {
-	for y, word := range words {
-		w := strings.ReplaceAll(word.Chinese, " ", "")
-		if _, ok := i[w]; ok {
-			slog.Debug("exists in ignore list, skip audio download", "word", w)
-			continue
-		}
-		filename := hash.Sha1(w) + ".mp3"
-		text := ""
-		for _, c := range word.Chinese {
-			text += string(c)
-			text += " "
-		}
-		if err := p.Audio.Fetch(context.Background(), text, filename, false); err != nil {
-			fmt.Println(err)
-		}
-		words[y].Audio = filename
+func (p *WordProcessor) getAudio(word Word) Word {
+	w := strings.ReplaceAll(word.Chinese, " ", "")
+	filename := hash.Sha1(w) + ".mp3"
+	text := ""
+	for _, c := range word.Chinese {
+		text += string(c)
+		text += " "
 	}
-	return words
+	if err := p.Audio.Fetch(context.Background(), text, filename, false); err != nil {
+		fmt.Println(err)
+	}
+	word.Audio = filename
+	return word
 }
 
 func (p *WordProcessor) Export(words []Word, outDir, deckname string, i ignore.Ignored) {

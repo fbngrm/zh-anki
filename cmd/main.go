@@ -129,6 +129,11 @@ func main() {
 		Words:  wordProcessor,
 		Audio:  azureClient,
 	}
+	clozeProcessor := dialog.ClozeProcessor{
+		Client: openai.NewClient(openAIApiKey, cache),
+		Words:  wordProcessor,
+		Audio:  azureClient,
+	}
 	dialogProcessor := dialog.DialogProcessor{
 		Client:    openai.NewClient(openAIApiKey, cache),
 		Sentences: sentenceProcessor,
@@ -156,9 +161,19 @@ func main() {
 		sentences := sentenceProcessor.DecomposeFromFile(sentencePath, outDir, ignored, translations)
 		sentenceProcessor.ExportCards(deckname, sentences, ignored)
 	}
+	// load clozes from file
+	clozePath := filepath.Join(cwd, "data", source, lesson, "input", "clozes")
+	if _, err := os.Stat(clozePath); err == nil {
+		clozes, err := clozeProcessor.DecomposeFromFile(clozePath, outDir, ignored, translations)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		clozeProcessor.ExportCards(deckname, clozes, ignored)
+	}
 	wordPath := filepath.Join(cwd, "data", source, lesson, "input", "words")
 	if _, err := os.Stat(wordPath); err == nil {
-		words := wordProcessor.Decompose(wordPath, outDir, ignored, translations)
+		words := wordProcessor.DecomposeFromFile(wordPath, outDir, ignored, translations)
 		wordProcessor.ExportCards(deckname, words, ignored)
 	}
 	// load dialogues from file
