@@ -32,31 +32,31 @@ func (p *ClozeProcessor) DecomposeFromFile(path, outdir string, i ignore.Ignored
 
 func (p *ClozeProcessor) Decompose(clozes []cloze, outdir string, i ignore.Ignored, t *translate.Translations) []Cloze {
 	var results []Cloze
-	for _, clo := range clozes {
+	for _, cl := range clozes {
 		slog.Info("=================================")
-		slog.Info("decompose", "cloze", clo.withoutParenthesis)
+		slog.Info("decompose", "cloze", cl.withoutParenthesis)
 
-		s, err := p.Client.DecomposeSentence(clo.withoutParenthesis)
+		s, err := p.Client.DecomposeSentence(cl.withoutParenthesis)
 		if err != nil {
 			slog.Error("decompose cloze sentence", "error", err.Error())
 			continue
 		}
 
-		w, err := p.Words.Decompose(Word{Chinese: clo.word}, i, t)
+		w, err := p.Words.Decompose(Word{Chinese: cl.word}, i, t)
 		if err != nil {
 			slog.Error("decompose cloze word", "error", err.Error())
 			continue
 		}
 
 		results = append(results, Cloze{
-			SentenceFront: clo.withUnderscores,
-			SentenceBack:  clo.withoutParenthesis,
+			SentenceFront: cl.withUnderscores,
+			SentenceBack:  cl.withoutParenthesis,
 			English:       s.English,
 			Pinyin:        s.Pinyin,
-			Words:         p.Words.Get(s.Words, i, t),
-			Grammar:       clo.grammar, // this only works when supplied in the sentences file
-			Note:          clo.note,    // this only works when supplied in the sentences file
-			Word:          *w,
+			// Words:         p.Words.Get(s.Words, i, t),
+			Grammar: cl.grammar, // this only works when supplied in the sentences file
+			Note:    cl.note,    // this only works when supplied in the sentences file
+			Word:    *w,
 		})
 	}
 	return p.getAudio(results)

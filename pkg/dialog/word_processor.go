@@ -60,34 +60,76 @@ func (p *WordProcessor) Decompose(w Word, i ignore.Ignored, t *translate.Transla
 
 	allChars := p.Chars.GetAll(w.Chinese, t)
 
-	example := ""
-	isSingleRune := utf8.RuneCountInString(w.Chinese) == 1
-	if isSingleRune {
-		example = removeRedundant(p.WordIndex.GetExamplesForHanzi(w.Chinese, 5))
-	}
-
 	cc, err := p.CardBuilder.GetWordCard(w.Chinese, t)
 	if err != nil {
 		return nil, err
 	}
 
+	isSingleRune := utf8.RuneCountInString(w.Chinese) == 1
+	examples, note, examplesAudio := p.getExamplesAndNote(w, isSingleRune)
+
 	newWord := Word{
-		Chinese:      w.Chinese,
-		Cedict:       card.GetCedictEntries(cc),
-		HSK:          card.GetHSKEntries(cc),
-		Chars:        allChars,
-		IsSingleRune: isSingleRune,
-		Components:   cc.Components,
-		Traditional:  cc.TraditionalChinese,
-		Example:      example,
-		MnemonicBase: cc.MnemonicBase,
-		Mnemonic:     cc.Mnemonic,
-		Note:         w.Note,
-		Translation:  cc.Translation,
+		Chinese:       w.Chinese,
+		Cedict:        card.GetCedictEntries(cc),
+		HSK:           card.GetHSKEntries(cc),
+		Chars:         allChars,
+		IsSingleRune:  isSingleRune,
+		Components:    cc.Components,
+		Traditional:   cc.TraditionalChinese,
+		Example:       examples,
+		ExamplesAudio: examplesAudio,
+		MnemonicBase:  cc.MnemonicBase,
+		Mnemonic:      cc.Mnemonic,
+		Note:          note,
+		Translation:   cc.Translation,
+		Audio:         p.getAudio(w.Chinese),
+	}
+	return &newWord, nil
+}
+
+// We get a note on usage of the word from ChatGPT and add it to the user defined note (if any).
+func (p *WordProcessor) getExamplesAndNote(word Word, isSingleRune bool) (string, string, string) {
+	words := ""
+	if isSingleRune {
+		words = removeRedundant(p.WordIndex.GetExamplesForHanzi(word.Chinese, 5))
 	}
 
-	newWord = p.getAudio(newWord)
-	return &newWord, nil
+	n := word.Note
+	sentences, note, audio := p.getExampleSentencesAndNote(word.Chinese)
+	if n != "" {
+		n = n + "<br><br>"
+	}
+	n = n + note
+
+	if words == "" {
+		return sentences, n, audio
+	}
+
+	return words + "<br><br>" + sentences, n, audio
+}
+
+// Returns examples, note and filename of examples audio.
+func (p *WordProcessor) getExampleSentencesAndNote(word string) (string, string, string) {
+	examples, err := p.Client.GetExamples(word)
+	if err != nil {
+		slog.Error("fetch example sentences", "word", word, "err", err)
+	}
+	if examples == nil {
+		return "", "", ""
+	}
+	s := ""
+	ch := ""
+	for _, e := range examples.Examples {
+		s += e.Ch
+		s += "<br>"
+		s += e.Pi
+		s += "<br>"
+		s += e.En
+		s += "<br><br>"
+		ch += e.Ch
+		ch += " "
+	}
+	return s, examples.Note, p.getAudio(ch)
 }
 
 // used for openai data that contains the translation and pinyin; currently we still use hsk and cedict only.
@@ -127,26 +169,24 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t *translate.
 			MnemonicBase: cc.MnemonicBase,
 			Mnemonic:     cc.Mnemonic,
 			Translation:  cc.Translation,
+			Audio:        p.getAudio(word.Ch),
 		}
-
-		allWords = append(allWords, p.getAudio(w))
+		allWords = append(allWords, w)
 	}
 	return allWords
 }
 
-func (p *WordProcessor) getAudio(word Word) Word {
-	w := strings.ReplaceAll(word.Chinese, " ", "")
+func (p *WordProcessor) getAudio(s string) string {
+	w := strings.ReplaceAll(s, " ", "")
 	filename := hash.Sha1(w) + ".mp3"
-	text := ""
-	for _, c := range word.Chinese {
-		text += string(c)
-		text += " "
-	}
-	if err := p.Audio.Fetch(context.Background(), text, filename, false); err != nil {
+	// for _, c := range word.Chinese {
+	// 	text += string(c)
+	// 	text += " "
+	// }
+	if err := p.Audio.Fetch(context.Background(), s, filename, false); err != nil {
 		fmt.Println(err)
 	}
-	word.Audio = filename
-	return word
+	return filename
 }
 
 func (p *WordProcessor) Export(words []Word, outDir, deckname string, i ignore.Ignored) {

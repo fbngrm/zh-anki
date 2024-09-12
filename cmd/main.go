@@ -111,6 +111,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	openAIClient, err := openai.NewClient(openAIApiKey, cache)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 	charProcessor := char.Processor{
 		IgnoreChars: ignoreChars,
 		Audio:       gcpClient,
@@ -123,19 +129,20 @@ func main() {
 		IgnoreChars: ignoreChars,
 		WordIndex:   wordIndex,
 		CardBuilder: builder,
+		Client:      openAIClient,
 	}
 	sentenceProcessor := dialog.SentenceProcessor{
-		Client: openai.NewClient(openAIApiKey, cache),
+		Client: openAIClient,
 		Words:  wordProcessor,
 		Audio:  azureClient,
 	}
 	clozeProcessor := dialog.ClozeProcessor{
-		Client: openai.NewClient(openAIApiKey, cache),
+		Client: openAIClient,
 		Words:  wordProcessor,
 		Audio:  azureClient,
 	}
 	dialogProcessor := dialog.DialogProcessor{
-		Client:    openai.NewClient(openAIApiKey, cache),
+		Client:    openAIClient,
 		Sentences: sentenceProcessor,
 		Audio:     azureClient,
 	}
@@ -143,7 +150,7 @@ func main() {
 		Sentences: sentenceProcessor,
 	}
 	grammarProcessor := dialog.GrammarProcessor{
-		Client: openai.NewClient(openAIApiKey, cache),
+		Client: openAIClient,
 		Audio:  azureClient,
 	}
 

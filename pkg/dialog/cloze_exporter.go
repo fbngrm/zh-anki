@@ -12,11 +12,11 @@ import (
 
 func ExportCloze(deckName string, cl Cloze, i ignore.Ignored) error {
 	// add cards for all words in the cloze/sentence
-	for _, w := range cl.Words {
-		if err := ExportWord(deckName, w, i); err != nil {
-			slog.Error("exporting word when exporting cloze", "cloze", cl.Word.Chinese, "error", err)
-		}
-	}
+	// for _, w := range cl.Words {
+	// 	if err := ExportWord(deckName, w, i); err != nil {
+	// 		slog.Error("exporting word when exporting cloze", "cloze", cl.Word.Chinese, "error", err)
+	// 	}
+	// }
 	defer func() {
 		i.Update(cl.Word.Chinese)
 	}()
@@ -88,6 +88,7 @@ func ExportCloze(deckName string, cl Cloze, i ignore.Ignored) error {
 		"Components":        componentsToString(cl.Word.Components),
 		"Traditional":       cl.Word.Traditional,
 		"Examples":          cl.Word.Example,
+		"ExamplesAudio":     anki.GetAudioPath(cl.Word.ExamplesAudio),
 		"MnemonicBase":      cl.Word.MnemonicBase,
 		"Mnemonic":          cl.Word.Mnemonic,
 		"NoteHeader":        noteHeader,
