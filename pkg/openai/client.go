@@ -102,16 +102,16 @@ func NewClient(apiKey string, cache *Cache) (*Client, error) {
 	}, nil
 }
 
-func (c *Client) GetExamples(word string) (*ExampleSentences, error) {
+func (c *Client) GetExamples(word string) (ExampleSentences, error) {
 	query := fmt.Sprintf(wordExamplesMessage, word, word, word, word)
 	content := c.fetch(query, 2)
 
 	var result ExampleSentences
 	err := json.Unmarshal([]byte(content), &result)
 	if err != nil {
-		return nil, fmt.Errorf("Error parsing JSON for example sentences input %s: %v", content, err)
+		return result, fmt.Errorf("Error parsing JSON for example sentences input %s: %v", content, err)
 	}
-	return &result, nil
+	return result, nil
 }
 
 func (c *Client) DecomposeSentence(sentence string) (*Sentence, error) {

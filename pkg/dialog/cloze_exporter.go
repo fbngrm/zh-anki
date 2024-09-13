@@ -72,29 +72,61 @@ func ExportCloze(deckName string, cl Cloze, i ignore.Ignored) error {
 		trans = cl.Word.Translation + "<br>" + "<br>"
 	}
 
+	exampleWordsHeader, exampleWords := "", ""
+	if len(cl.Word.Example) >= 1 {
+		exampleWordsHeader = "Example Words" + "<br>"
+		exampleWords = cl.Word.Example + "<br>" + "<br>"
+	}
+
+	examplesSentencesHeader := ""
+	exSentence1, exSentencePi1, exSentenceEn1, exSentenceAudio1 := "", "", "", ""
+	exSentence2, exSentencePi2, exSentenceEn2, exSentenceAudio2 := "", "", "", ""
+	if len(cl.Word.Examples) >= 1 {
+		examplesSentencesHeader = "Example Sentences<br>"
+		exSentence1 = cl.Word.Examples[0].Chinese + "<br>"
+		exSentencePi1 = cl.Word.Examples[0].Pinyin + "<br>"
+		exSentenceEn1 = cl.Word.Examples[0].English + "<br>"
+		exSentenceAudio1 = cl.Word.Examples[0].Audio
+	}
+	if len(cl.Word.Examples) >= 2 {
+		exSentence2 = cl.Word.Examples[1].Chinese + "<br>"
+		exSentencePi2 = cl.Word.Examples[1].Pinyin + "<br>"
+		exSentenceEn2 = cl.Word.Examples[1].English + "<br>"
+		exSentenceAudio2 = cl.Word.Examples[1].Audio
+	}
+
 	noteFields := map[string]string{
-		"Chinese":           cl.Word.Chinese,
-		"CedictHeader":      cedictHeader,
-		"CedictPinyin1":     cedictPinyin1,
-		"CedictEnglish1":    cedictEn1,
-		"CedictPinyin2":     cedictPinyin2,
-		"CedictEnglish2":    cedictEn2,
-		"CedictPinyin3":     cedictPinyin3,
-		"CedictEnglish3":    cedictEn3,
-		"HSKHeader":         hskHeader,
-		"HSKPinyin":         hskPinyin,
-		"HSKEnglish":        hskEn,
-		"Audio":             anki.GetAudioPath(cl.Word.Audio),
-		"Components":        componentsToString(cl.Word.Components),
-		"Traditional":       cl.Word.Traditional,
-		"Examples":          cl.Word.Example,
-		"ExamplesAudio":     anki.GetAudioPath(cl.Word.ExamplesAudio),
-		"MnemonicBase":      cl.Word.MnemonicBase,
-		"Mnemonic":          cl.Word.Mnemonic,
-		"NoteHeader":        noteHeader,
-		"Note":              note,
-		"TranslationHeader": transHeader,
-		"Translation":       trans,
+		"Chinese":                cl.Word.Chinese,
+		"CedictHeader":           cedictHeader,
+		"CedictPinyin1":          cedictPinyin1,
+		"CedictEnglish1":         cedictEn1,
+		"CedictPinyin2":          cedictPinyin2,
+		"CedictEnglish2":         cedictEn2,
+		"CedictPinyin3":          cedictPinyin3,
+		"CedictEnglish3":         cedictEn3,
+		"HSKHeader":              hskHeader,
+		"HSKPinyin":              hskPinyin,
+		"HSKEnglish":             hskEn,
+		"Audio":                  anki.GetAudioPath(cl.Word.Audio),
+		"Components":             componentsToString(cl.Word.Components),
+		"Traditional":            cl.Word.Traditional,
+		"ExampleWordsHeader":     exampleWordsHeader,
+		"Examples":               exampleWords,
+		"ExampleSentencesHeader": examplesSentencesHeader,
+		"ExampleSentenceCh1":     exSentence1,
+		"ExampleSentencePi1":     exSentencePi1,
+		"ExampleSentenceEn1":     exSentenceEn1,
+		"ExampleSentenceAudio1":  anki.GetAudioPath(exSentenceAudio1) + "<br>",
+		"ExampleSentenceCh2":     exSentence2,
+		"ExampleSentencePi2":     exSentencePi2,
+		"ExampleSentenceEn2":     exSentenceEn2,
+		"ExampleSentenceAudio2":  anki.GetAudioPath(exSentenceAudio2),
+		"MnemonicBase":           cl.Word.MnemonicBase,
+		"Mnemonic":               cl.Word.Mnemonic,
+		"NoteHeader":             noteHeader,
+		"Note":                   note,
+		"TranslationHeader":      transHeader,
+		"Translation":            trans,
 		// cloze sentence fields
 		"SentenceFront":   strings.ReplaceAll(cl.SentenceFront, " ", ""),
 		"SentenceBack":    strings.ReplaceAll(cl.SentenceBack, " ", ""),

@@ -23,6 +23,13 @@ const cedictSrc = "./pkg/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
 const frequencySrc = "./pkg/frequency/global_wordfreq.release_UTF-8.txt"
 const hskSrc = "./pkg/hsk/3.0"
 
+type WordExample struct {
+	Chinese string `yaml:"chinese"`
+	Pinyin  string `yaml:"hsk_pinyin"`
+	English string `yaml:"hsk_en"`
+	Audio   string `yaml:"audio"`
+}
+
 type CedictEntry struct {
 	CedictPinyin  string `yaml:"cedict_pinyin"`
 	CedictEnglish string `yaml:"cedict_en"`

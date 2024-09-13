@@ -66,70 +66,59 @@ func (p *WordProcessor) Decompose(w Word, i ignore.Ignored, t *translate.Transla
 	}
 
 	isSingleRune := utf8.RuneCountInString(w.Chinese) == 1
-	examples, note, examplesAudio := p.getExamplesAndNote(w, isSingleRune)
+	exampleWords := ""
+	if isSingleRune {
+		exampleWords = removeRedundant(p.WordIndex.GetExamplesForHanzi(w.Chinese, 5))
+	}
+
+	examples, err := p.Client.GetExamples(w.Chinese)
+	if err != nil {
+		slog.Error("fetch example sentences", "word", w.Chinese, "err", err)
+	}
+
+	trad := ""
+	if cc.TraditionalChinese != w.Chinese {
+		trad = cc.TraditionalChinese
+	}
 
 	newWord := Word{
-		Chinese:       w.Chinese,
-		Cedict:        card.GetCedictEntries(cc),
-		HSK:           card.GetHSKEntries(cc),
-		Chars:         allChars,
-		IsSingleRune:  isSingleRune,
-		Components:    cc.Components,
-		Traditional:   cc.TraditionalChinese,
-		Example:       examples,
-		ExamplesAudio: examplesAudio,
-		MnemonicBase:  cc.MnemonicBase,
-		Mnemonic:      cc.Mnemonic,
-		Note:          note,
-		Translation:   cc.Translation,
-		Audio:         p.getAudio(w.Chinese),
+		Chinese:      w.Chinese,
+		Cedict:       card.GetCedictEntries(cc),
+		HSK:          card.GetHSKEntries(cc),
+		Chars:        allChars,
+		IsSingleRune: isSingleRune,
+		Components:   cc.Components,
+		Traditional:  trad,
+		Example:      exampleWords,
+		Examples:     p.getExampleSentences(examples.Examples),
+		MnemonicBase: cc.MnemonicBase,
+		Mnemonic:     cc.Mnemonic,
+		Note:         p.getNote(w.Note, examples.Note),
+		Translation:  cc.Translation,
+		Audio:        p.getAudio(w.Chinese),
 	}
 	return &newWord, nil
 }
 
 // We get a note on usage of the word from ChatGPT and add it to the user defined note (if any).
-func (p *WordProcessor) getExamplesAndNote(word Word, isSingleRune bool) (string, string, string) {
-	words := ""
-	if isSingleRune {
-		words = removeRedundant(p.WordIndex.GetExamplesForHanzi(word.Chinese, 5))
+func (p *WordProcessor) getNote(userNote, examplesNote string) string {
+	if userNote != "" {
+		userNote = userNote + "<br><br>"
 	}
-
-	n := word.Note
-	sentences, note, audio := p.getExampleSentencesAndNote(word.Chinese)
-	if n != "" {
-		n = n + "<br><br>"
-	}
-	n = n + note
-
-	if words == "" {
-		return sentences, n, audio
-	}
-
-	return words + "<br><br>" + sentences, n, audio
+	return userNote + examplesNote
 }
 
-// Returns examples, note and filename of examples audio.
-func (p *WordProcessor) getExampleSentencesAndNote(word string) (string, string, string) {
-	examples, err := p.Client.GetExamples(word)
-	if err != nil {
-		slog.Error("fetch example sentences", "word", word, "err", err)
+func (p *WordProcessor) getExampleSentences(examples []openai.Word) []card.WordExample {
+	results := make([]card.WordExample, len(examples))
+	for i, e := range examples {
+		results[i] = card.WordExample{
+			Chinese: e.Ch,
+			Pinyin:  e.Pi,
+			English: e.En,
+			Audio:   p.getAudio(e.Ch),
+		}
 	}
-	if examples == nil {
-		return "", "", ""
-	}
-	s := ""
-	ch := ""
-	for _, e := range examples.Examples {
-		s += e.Ch
-		s += "<br>"
-		s += e.Pi
-		s += "<br>"
-		s += e.En
-		s += "<br><br>"
-		ch += e.Ch
-		ch += " "
-	}
-	return s, examples.Note, p.getAudio(ch)
+	return results
 }
 
 // used for openai data that contains the translation and pinyin; currently we still use hsk and cedict only.

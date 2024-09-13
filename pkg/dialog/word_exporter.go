@@ -63,6 +63,11 @@ func ExportWord(deckName string, w Word, i ignore.Ignored) error {
 		trans = w.Translation + "<br>" + "<br>"
 	}
 
+	trad := ""
+	if w.Traditional != w.Chinese {
+		trad = w.Traditional
+	}
+
 	noteFields := map[string]string{
 		"Chinese":           w.Chinese,
 		"CedictHeader":      cedictHeader,
@@ -77,7 +82,7 @@ func ExportWord(deckName string, w Word, i ignore.Ignored) error {
 		"HSKEnglish":        hskEn,
 		"Audio":             anki.GetAudioPath(w.Audio),
 		"Components":        componentsToString(w.Components),
-		"Traditional":       w.Traditional,
+		"Traditional":       trad,
 		"Examples":          w.Example,
 		"MnemonicBase":      w.MnemonicBase,
 		"Mnemonic":          w.Mnemonic,
