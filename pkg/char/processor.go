@@ -31,7 +31,7 @@ func (p *Processor) GetAll(word string, t *translate.Translations) []Char {
 			example = removeRedundant(p.WordIndex.GetExamplesForHanzi(word, 5))
 		}
 
-		cc := p.CardBuilder.GetHanziCard(word, c, t)
+		cc := p.CardBuilder.GetHanziCard(c, t)
 
 		allChars = append(allChars, Char{
 			Chinese:        cc.SimplifiedChinese,
