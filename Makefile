@@ -19,14 +19,6 @@ cp-audio:
 anki: gen cp-audio
 	@echo "don't forget to commit ignore file!"
 
-.PHONY: new
-new:
-	mkdir -p $(data_dir)/input
-	touch  $(data_dir)/input/dialogues
-	touch  $(data_dir)/input/sentences
-	touch  $(data_dir)/input/words
-	touch  $(data_dir)/audio
-
 .PHONY: segment
 segment:
 	@rm /tmp/segmented || true
