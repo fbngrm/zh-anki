@@ -60,18 +60,21 @@ func (p *WordProcessor) Decompose(w Word, i ignore.Ignored, t *translate.Transla
 
 	allChars := p.Chars.GetAll(w.Chinese, t)
 
-	cc, err := p.CardBuilder.GetWordCard(w.Chinese, t)
-	if err != nil {
-		return nil, err
-	}
-
+	var cc *card.Card
+	var err error
 	isSingleRune := utf8.RuneCountInString(w.Chinese) == 1
 	exampleWords := ""
 	if isSingleRune {
 		exampleWords = removeRedundant(p.WordIndex.GetExamplesForHanzi(w.Chinese, 5))
+		cc = p.CardBuilder.GetHanziCard(w.Chinese, t)
+	} else {
+		cc, err = p.CardBuilder.GetWordCard(w.Chinese, t)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	examples, err := p.Client.GetExamples(w.Chinese)
+	examples, err := p.Client.GetExamplesForWord(w.Chinese)
 	if err != nil {
 		slog.Error("fetch example sentences", "word", w.Chinese, "err", err)
 	}
@@ -108,10 +111,10 @@ func (p *WordProcessor) getNote(userNote, examplesNote string) string {
 	return userNote + examplesNote
 }
 
-func (p *WordProcessor) getExampleSentences(examples []openai.Word) []card.WordExample {
-	results := make([]card.WordExample, len(examples))
+func (p *WordProcessor) getExampleSentences(examples []openai.Word) []card.Example {
+	results := make([]card.Example, len(examples))
 	for i, e := range examples {
-		results[i] = card.WordExample{
+		results[i] = card.Example{
 			Chinese: e.Ch,
 			Pinyin:  e.Pi,
 			English: e.En,
