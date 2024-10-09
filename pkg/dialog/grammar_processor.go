@@ -7,7 +7,6 @@ import (
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/card"
-	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/openai"
 	"golang.org/x/exp/slog"
 )
@@ -86,7 +85,7 @@ func (g *GrammarProcessor) getExampleSentences(examples []openai.Word) []card.Ex
 
 func (g *GrammarProcessor) getAudio(s string) string {
 	w := strings.ReplaceAll(s, " ", "")
-	filename := hash.Sha1(w) + ".mp3"
+	filename := w + ".mp3"
 	if err := g.Audio.Fetch(context.Background(), s, filename); err != nil {
 		slog.Error("fetch example sentences audio", "sentence", s, "err", err)
 	}

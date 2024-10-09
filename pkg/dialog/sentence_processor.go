@@ -10,7 +10,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
-	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
 	"github.com/fbngrm/zh-anki/pkg/translate"
@@ -71,7 +70,7 @@ func (p *SentenceProcessor) Get(sentences []openai.Sentence, i ignore.Ignored, t
 
 func (p *SentenceProcessor) getAudio(sentences []Sentence) []Sentence {
 	for x, sentence := range sentences {
-		filename := hash.Sha1(strings.ReplaceAll(sentence.Chinese, " ", "")) + ".mp3"
+		filename := strings.ReplaceAll(sentence.Chinese, " ", "") + ".mp3"
 		query := p.Audio.PrepareQueryWithRandomVoice(sentence.Chinese, true)
 		if err := p.Audio.Fetch(context.Background(), query, filename); err != nil {
 			slog.Error("fetching audio from azure", "error", err.Error())

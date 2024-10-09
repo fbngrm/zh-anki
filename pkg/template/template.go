@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"strings"
 	"text/template"
-
-	"github.com/fbngrm/zh-anki/pkg/hash"
 )
 
 type Processor struct {
@@ -17,7 +15,7 @@ func NewProcessor(deckname, path string, tags []string) *Processor {
 	return &Processor{
 		funcMap: template.FuncMap{
 			"audio": func(query string) string {
-				return "[sound:" + hash.Sha1(query) + ".mp3]"
+				return "[sound:" + query + ".mp3]"
 			},
 			"removeSpaces": func(s string) string {
 				return strings.ReplaceAll(s, " ", "")

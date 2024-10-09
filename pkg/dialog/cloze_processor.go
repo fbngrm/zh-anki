@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
-	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
 	"github.com/fbngrm/zh-anki/pkg/translate"
@@ -66,7 +65,7 @@ func (p *ClozeProcessor) Decompose(clozes []cloze, outdir string, i ignore.Ignor
 
 func (p *ClozeProcessor) getAudio(clozes []Cloze) []Cloze {
 	for x, c := range clozes {
-		filename := hash.Sha1(strings.ReplaceAll(c.SentenceBack, " ", "")) + ".mp3"
+		filename := strings.ReplaceAll(c.SentenceBack, " ", "") + ".mp3"
 		query := p.Audio.PrepareQueryWithRandomVoice(c.SentenceBack, true)
 		if err := p.Audio.Fetch(context.Background(), query, filename); err != nil {
 			slog.Error("fetching audio from azure", "error", err.Error())

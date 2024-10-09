@@ -9,7 +9,6 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/card"
 	"github.com/fbngrm/zh-anki/pkg/frequency"
-	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/translate"
 )
 
@@ -65,7 +64,7 @@ func removeRedundant(in []string) string {
 
 func (p *Processor) getAudio(chars []Char) []Char {
 	for y, char := range chars {
-		filename := hash.Sha1(char.Chinese) + ".mp3"
+		filename := char.Chinese + ".mp3"
 		if err := p.Audio.Fetch(context.Background(), char.Chinese, filename, false); err != nil {
 			fmt.Println(err)
 		}

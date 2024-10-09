@@ -14,7 +14,6 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/card"
 	"github.com/fbngrm/zh-anki/pkg/char"
 	"github.com/fbngrm/zh-anki/pkg/frequency"
-	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
 	"github.com/fbngrm/zh-anki/pkg/translate"
@@ -170,7 +169,7 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t *translate.
 
 func (p *WordProcessor) getAudio(s string) string {
 	w := strings.ReplaceAll(s, " ", "")
-	filename := hash.Sha1(w) + ".mp3"
+	filename := w + ".mp3"
 	// for _, c := range word.Chinese {
 	// 	text += string(c)
 	// 	text += " "

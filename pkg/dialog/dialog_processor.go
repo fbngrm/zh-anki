@@ -11,7 +11,6 @@ import (
 	"unicode"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
-	"github.com/fbngrm/zh-anki/pkg/hash"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
 	"github.com/fbngrm/zh-anki/pkg/translate"
@@ -48,7 +47,7 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Igno
 		}
 
 		chinese := getChineseText(dialog.Lines, getColorsForSpeakers(dialog.Speakers))
-		audioFilename := hash.Sha1(chinese) + ".mp3"
+		audioFilename := chinese + ".mp3"
 		d := &Dialog{
 			Deck: deckname,
 			// this determines the audio filename. it is used in the template to set the audio file name.

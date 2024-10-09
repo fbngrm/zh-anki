@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/fbngrm/zh-anki/pkg/hash"
 	"golang.org/x/exp/slog"
 )
 
@@ -178,10 +177,10 @@ func (c *Client) fetch(query string, retryCount int) string {
 	}
 
 	if content, ok := c.cache.Lookup(query); ok {
-		slog.Debug("found in cache", "file", hash.Sha1(query))
+		slog.Debug("found in cache", "file", query)
 		return content
 	}
-	slog.Debug("not found in cache", "file", hash.Sha1(query))
+	slog.Debug("not found in cache", "file", query)
 
 	messages := []Message{
 		{
