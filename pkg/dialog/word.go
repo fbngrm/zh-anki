@@ -18,7 +18,7 @@ type Word struct {
 	Kangxi       []string           `yaml:"kangxi"`
 	Equivalents  string             `yaml:"equivalents"`
 	Example      string             `yaml:"example"`
-	Examples     []card.WordExample `yaml:"examples"`
+	Examples     []card.Example     `yaml:"examples"`
 	MnemonicBase string             `yaml:"mnemonic_base"`
 	Mnemonic     string             `yaml:"mnemonic"`
 	Note         string             `yaml:"note"`
