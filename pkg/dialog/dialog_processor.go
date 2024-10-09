@@ -73,7 +73,7 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Igno
 		} else {
 			query = p.Audio.PrepareQueryWithRandomVoice(dialog.Text, false)
 		}
-		if err := p.Audio.Fetch(context.Background(), query, audioFilename, true); err != nil {
+		if err := p.Audio.Fetch(context.Background(), query, audioFilename); err != nil {
 			slog.Error("fetching audio from azure", "error", err.Error())
 		}
 	}

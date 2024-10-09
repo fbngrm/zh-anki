@@ -44,9 +44,11 @@ func (p *ClozeProcessor) Decompose(clozes []cloze, outdir string, i ignore.Ignor
 
 		w, err := p.Words.Decompose(Word{Chinese: cl.word}, i, t)
 		if err != nil {
-			slog.Error("decompose cloze word", "error", err.Error())
+			slog.Error("decompose cloze word", "word", cl.word, "error", err.Error())
 			continue
 		}
+
+		fmt.Println(w.Components)
 
 		results = append(results, Cloze{
 			SentenceFront: cl.withUnderscores,
@@ -66,7 +68,7 @@ func (p *ClozeProcessor) getAudio(clozes []Cloze) []Cloze {
 	for x, c := range clozes {
 		filename := hash.Sha1(strings.ReplaceAll(c.SentenceBack, " ", "")) + ".mp3"
 		query := p.Audio.PrepareQueryWithRandomVoice(c.SentenceBack, true)
-		if err := p.Audio.Fetch(context.Background(), query, filename, true); err != nil {
+		if err := p.Audio.Fetch(context.Background(), query, filename); err != nil {
 			slog.Error("fetching audio from azure", "error", err.Error())
 		}
 		clozes[x].Audio = filename
