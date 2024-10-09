@@ -30,6 +30,13 @@ const wordExamplesMessage = `Give me two very simple Chinese example sentences f
 
 Optionally, also add short note to the result if there is anything special to point out on the usage of the word %s. Maybe there are very similar words which could be confused with the word %s, or there are common mistakes or misunderstandings that a learner of the Chinese language should be aware of. If the word %s is frequently used in a certain grammatical context or sentence patterns, please also explain this in the most concise and short manner. Add the note to the response's JSON dict in a field called "note". If the note is empty, you do not need to add the field at all. Keep the note as simpleand short as possible. Do not add useless information like: "Pay attention to the correct usage of this word in various daily situations." or "Pay attention to the correct order of objects after the word" and the like. We can assume the user always pays attention but wants to know specific details, caveats, casual usages, formal usages, gotchas, common mistakes or hints specific to this word.
 `
+const patternExamplesMessage = `Give me three very simple Chinese example sentences for the usage of the grammar pattern %s. Use simplified Chinese characters. Also add the pinyin and the english translation. Serialize the response into a JSON dict and add the sentences in a JSON array that is referenced by the key "examples". Each example sentence in the array should be a JSON dict which has the following fields:
+1. "ch": the example sentence in simplified Chinese
+2. "pi": the piyin for the example sentence
+3. "en": the English translation of the example sentence
+
+Optionally, also add short note to the result if there is anything special to point out on the usage of the sentence pattern %s. Maybe there are very similar patterns which could be confused with the pattern %s, or there are common mistakes or misunderstandings that a learner of the Chinese language should be aware of. If the pattern %s is frequently used in a certain grammatical context, please also explain this in the most concise and short manner. Add the note to the response's JSON dict in a field called "note". If the note is empty, you do not need to add the field at all. Keep the note as simpleand short as possible. Do not add useless information like: "Pay attention to the correct usage of this word in various daily situations." or "Pay attention to the correct order of objects after the word" and the like. We can assume the user always pays attention but wants to know specific details, caveats, casual usages, formal usages, gotchas, common mistakes or hints specific to this word.
+`
 
 type Message struct {
 	Role    string `json:"role"`
@@ -102,7 +109,19 @@ func NewClient(apiKey string, cache *Cache) (*Client, error) {
 	}, nil
 }
 
-func (c *Client) GetExamples(word string) (ExampleSentences, error) {
+func (c *Client) GetExamplesForPattern(pattern string) (ExampleSentences, error) {
+	query := fmt.Sprintf(patternExamplesMessage, pattern, pattern, pattern, pattern)
+	content := c.fetch(query, 2)
+
+	var result ExampleSentences
+	err := json.Unmarshal([]byte(content), &result)
+	if err != nil {
+		return result, fmt.Errorf("Error parsing JSON for example sentences input %s: %v", content, err)
+	}
+	return result, nil
+}
+
+func (c *Client) GetExamplesForWord(word string) (ExampleSentences, error) {
 	query := fmt.Sprintf(wordExamplesMessage, word, word, word, word)
 	content := c.fetch(query, 2)
 

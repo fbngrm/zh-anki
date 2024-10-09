@@ -1,10 +1,17 @@
 package dialog
 
+import "github.com/fbngrm/zh-anki/pkg/card"
+
 type Grammar struct {
-	Head               string
-	Description        string
-	Structure          string
-	Examples           string
-	ExampleDescription string
-	Audio              string
+	Cloze           string
+	SentenceFront   string
+	SentenceBack    string
+	SentencePinyin  string
+	SentenceEnglish string
+	SentenceAudio   string
+	Pattern         string
+	Note            string
+	Structure       string
+	Examples        []card.Example
+	Summary         []string
 }

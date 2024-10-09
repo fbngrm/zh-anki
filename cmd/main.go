@@ -173,7 +173,7 @@ func main() {
 	if _, err := os.Stat(clozePath); err == nil {
 		clozes, err := clozeProcessor.DecomposeFromFile(clozePath, outDir, ignored, translations)
 		if err != nil {
-			fmt.Println(err)
+			slog.Error("decompose cloze", "error", err)
 			os.Exit(1)
 		}
 		clozeProcessor.ExportCards(deckname, clozes, ignored)
@@ -192,7 +192,7 @@ func main() {
 	// load grammar from file
 	grammarPath := filepath.Join(cwd, "data", source, lesson, "input", "grammar")
 	if _, err := os.Stat(grammarPath); err == nil {
-		grammar, err := grammarProcessor.Decompose(grammarPath, outDir, deckname)
+		grammar, err := grammarProcessor.DecomposeFromFile(grammarPath, outDir, deckname)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)

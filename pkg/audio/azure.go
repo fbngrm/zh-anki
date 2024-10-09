@@ -59,7 +59,7 @@ func (c *AzureClient) GetVoices(speakers map[string]struct{}) map[string]string 
 
 // download audio file from azure text-to-speech api if it doesn't exist in cache dir.
 // we also store a sentenceAndDialogOnlyDir to create audio loops for which we want to exclude words and chars.
-func (c *AzureClient) Fetch(ctx context.Context, query, filename string, isSentenceOrDialog bool) error {
+func (c *AzureClient) Fetch(ctx context.Context, query, filename string) error {
 	if contains(c.ignoreChars, query) {
 		return nil
 	}
@@ -67,13 +67,8 @@ func (c *AzureClient) Fetch(ctx context.Context, query, filename string, isSente
 	if err := os.MkdirAll(c.AudioDir, os.ModePerm); err != nil {
 		return err
 	}
-	sentenceAndDialogOnlyDir := filepath.Join(c.AudioDir, "sentences_and_dialogs")
-	if err := os.MkdirAll(sentenceAndDialogOnlyDir, os.ModePerm); err != nil {
-		return err
-	}
 	lessonPath := filepath.Join(c.AudioDir, filename)
 	cachePath := filepath.Join(c.AudioDir, "..", "..", "..", "audio", filename)
-	sentenceAndDialogOnlyPath := filepath.Join(sentenceAndDialogOnlyDir, filename)
 
 	// copy file from cache if exists, to lesson dir and to sentenceAndDialogOnlyDir
 	if _, err := os.Stat(cachePath); err == nil {
@@ -82,13 +77,8 @@ func (c *AzureClient) Fetch(ctx context.Context, query, filename string, isSente
 			hasErr = true
 			fmt.Printf("error copying cache file for query %s: %v\n", query, err)
 		}
-		if isSentenceOrDialog {
-			if err := copyFileContents(cachePath, sentenceAndDialogOnlyPath); err != nil {
-				hasErr = true
-				fmt.Printf("error copying cache file for query %s: %v\n", query, err)
-			}
-		}
 		if !hasErr {
+			fmt.Printf("copy audio file from cache for query %s: %v\n", query, err)
 			return nil
 		}
 	}
@@ -109,21 +99,7 @@ func (c *AzureClient) Fetch(ctx context.Context, query, filename string, isSente
 		return err
 	}
 
-	// for creating audio loops from sentences and dialogs only.
-	if isSentenceOrDialog {
-		if err := copyFileContents(lessonPath, sentenceAndDialogOnlyPath); err != nil {
-			return err
-		}
-	}
-	if err := copyFileContents(lessonPath, cachePath); err != nil {
-		return err
-	}
-
-	if isSentenceOrDialog {
-		fmt.Printf("audio content written to files:\n%s\n%s\n%s\n", lessonPath, cachePath, sentenceAndDialogOnlyPath)
-	} else {
-		fmt.Printf("audio content written to files:\n%s\n%s\n", lessonPath, cachePath)
-	}
+	fmt.Printf("audio content written to files:\n%s\n", lessonPath)
 	return nil
 }
 

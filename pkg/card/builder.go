@@ -23,7 +23,7 @@ const cedictSrc = "./pkg/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
 const frequencySrc = "./pkg/frequency/global_wordfreq.release_UTF-8.txt"
 const hskSrc = "./pkg/hsk/3.0"
 
-type WordExample struct {
+type Example struct {
 	Chinese string `yaml:"chinese"`
 	Pinyin  string `yaml:"hsk_pinyin"`
 	English string `yaml:"hsk_en"`
@@ -124,7 +124,7 @@ func (b *Builder) MustBuild(t *translate.Translations) []*Card {
 	for _, word := range b.WordIndex {
 		for _, hanzi := range word {
 			// if not hanzi is already known
-			cards = append(cards, b.GetHanziCard(word, string(hanzi), t))
+			cards = append(cards, b.GetHanziCard(string(hanzi), t))
 		}
 		if utf8.RuneCountInString(word) > 1 {
 			if c, err := b.GetWordCard(word, t); err != nil {
@@ -152,7 +152,7 @@ func (b *Builder) GetWordCard(word string, t *translate.Translations) (*Card, er
 	}, nil
 }
 
-func (b *Builder) GetHanziCard(word, hanzi string, t *translate.Translations) *Card {
+func (b *Builder) GetHanziCard(hanzi string, t *translate.Translations) *Card {
 	entries, tr, err := b.lookupDict(hanzi)
 	if err != nil {
 		slog.Error(fmt.Sprintf("ignore hanzi: %v", err))
