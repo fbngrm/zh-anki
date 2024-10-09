@@ -66,13 +66,8 @@ func (g *GCPClient) Fetch(ctx context.Context, query, filename string, isSentenc
 	if err := os.MkdirAll(g.AudioDir, os.ModePerm); err != nil {
 		return err
 	}
-	sentenceAndDialogOnlyDir := filepath.Join(g.AudioDir, "sentences_and_dialogs")
-	if err := os.MkdirAll(sentenceAndDialogOnlyDir, os.ModePerm); err != nil {
-		return err
-	}
 	lessonPath := filepath.Join(g.AudioDir, filename)
 	cachePath := filepath.Join(g.AudioDir, "..", "..", "..", "audio", filename)
-	sentenceAndDialogOnlyPath := filepath.Join(sentenceAndDialogOnlyDir, filename)
 
 	// copy file from cache to lesson dir and to sentenceAndDialogOnlyDir
 	if _, err := os.Stat(cachePath); err == nil {
@@ -80,12 +75,6 @@ func (g *GCPClient) Fetch(ctx context.Context, query, filename string, isSentenc
 		if err := copyFileContents(cachePath, lessonPath); err != nil {
 			hasErr = true
 			fmt.Printf("error copying cache file for query %s: %v\n", query, err)
-		}
-		if isSentenceOrDialog {
-			if err := copyFileContents(cachePath, sentenceAndDialogOnlyPath); err != nil {
-				hasErr = true
-				fmt.Printf("error copying cache file for query %s: %v\n", query, err)
-			}
 		}
 		if !hasErr {
 			return nil
@@ -102,24 +91,12 @@ func (g *GCPClient) Fetch(ctx context.Context, query, filename string, isSentenc
 	if err != nil {
 		return err
 	}
-	// for creating audio loops from sentences and dialogs only.
-	if isSentenceOrDialog {
-		err = ioutil.WriteFile(sentenceAndDialogOnlyPath, resp.AudioContent, os.ModePerm)
-		if err != nil {
-			return err
-		}
-	}
 	err = ioutil.WriteFile(cachePath, resp.AudioContent, os.ModePerm)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("%v\n", query)
-	if isSentenceOrDialog {
-		fmt.Printf("audio content written to files:\n%s\n%s\n%s\n", lessonPath, cachePath, sentenceAndDialogOnlyPath)
-	} else {
-		fmt.Printf("audio content written to files:\n%s\n%s\n", lessonPath, cachePath)
-	}
+	fmt.Printf("audio content written to files:\n%s\n%s\n", lessonPath, cachePath)
 	return nil
 }
 
