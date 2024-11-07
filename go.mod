@@ -1,4 +1,4 @@
-module github.com/fbngrm/zh-anki
+module github.com/fbngrm/zh-anki/v3
 
 go 1.18
 
