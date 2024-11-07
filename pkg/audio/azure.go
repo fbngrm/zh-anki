@@ -3,6 +3,7 @@ package audio
 import (
 	"bytes"
 	"context"
+	"crypto/tls"
 	"fmt"
 	"io"
 	"math/rand"
@@ -12,11 +13,14 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hajimehoshi/go-mp3"
+
 	"golang.org/x/exp/slog"
+	"golang.org/x/net/http2"
 )
 
 // speed
-const rate = "0.8"
+const rate = "0.7"
 
 type AzureClient struct {
 	endpoint    string
@@ -39,7 +43,8 @@ var Voices = []string{
 	"zh-CN-XiaoxiaoNeural", // female
 	"zh-CN-YunjianNeural",  // male
 	"zh-CN-XiaochenNeural", // female
-	"zh-CN-YinyangNeural",  // male
+	// "zh-CN-YinyangNeural",  // male / broken
+	"zh-CN-YunyiMultilingualNeural", // male
 }
 
 func (c *AzureClient) GetRandomVoice() string {
@@ -59,7 +64,12 @@ func (c *AzureClient) GetVoices(speakers map[string]struct{}) map[string]string 
 
 // download audio file from azure text-to-speech api if it doesn't exist in cache dir.
 // we also store a sentenceAndDialogOnlyDir to create audio loops for which we want to exclude words and chars.
-func (c *AzureClient) Fetch(ctx context.Context, query, filename string) error {
+func (c *AzureClient) Fetch(ctx context.Context, query, filename string, retryCount int) error {
+	time.Sleep(500 * time.Millisecond)
+	if retryCount <= 0 {
+		slog.Error("download azure audio", "error", "excceded retries", "query", query)
+		return nil
+	}
 	if contains(c.ignoreChars, query) {
 		return nil
 	}
@@ -75,10 +85,10 @@ func (c *AzureClient) Fetch(ctx context.Context, query, filename string) error {
 		var hasErr bool
 		if err := copyFileContents(cachePath, lessonPath); err != nil {
 			hasErr = true
-			fmt.Printf("error copying cache file for query %s: %v\n", query, err)
+			slog.Error("copy cache file", "query", query, "error", err)
 		}
 		if !hasErr {
-			fmt.Printf("copy audio file from cache for query %s: %v\n", query, err)
+			slog.Debug("copy cache file", "query", query)
 			return nil
 		}
 	}
@@ -99,7 +109,12 @@ func (c *AzureClient) Fetch(ctx context.Context, query, filename string) error {
 		return err
 	}
 
-	fmt.Printf("audio content written to files:\n%s\n", lessonPath)
+	if err := checkMP3Integrity(lessonPath); err != nil {
+		slog.Error("download audio file", "error", err)
+		return c.Fetch(ctx, query, filename, retryCount-1)
+	}
+
+	slog.Debug("download audio", "path", lessonPath)
 	return nil
 }
 
@@ -122,7 +137,11 @@ func (c *AzureClient) fetch(ctx context.Context, text string, retryCount int) (*
 	req.Header.Set("X-Microsoft-OutputFormat", "audio-16khz-128kbitrate-mono-mp3")
 	req.Header.Set("User-Agent", "curl")
 
-	client := &http.Client{}
+	client := &http.Client{
+		Transport: &http2.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Printf("error sending request to azure text-to-speech api: %v", err)
@@ -134,7 +153,6 @@ func (c *AzureClient) fetch(ctx context.Context, text string, retryCount int) (*
 
 func (c *AzureClient) PrepareQueryWithRandomVoice(text string, addSplitAudio bool) string {
 	speaker := c.GetRandomVoice()
-	slog.Debug("prepare azure query", "voice", speaker, "text", text)
 	return c.PrepareQuery(text, speaker, addSplitAudio)
 }
 
@@ -142,16 +160,29 @@ func (c *AzureClient) PrepareQueryWithRandomVoice(text string, addSplitAudio boo
 // whitespaces stipped off and once with whitespaces. azure api renders whitespaces as pauses in the audio.
 func (c *AzureClient) PrepareQuery(text, speaker string, addSplitAudio bool) string {
 	slog.Debug("prepare azure query", "voice", speaker, "text", text)
-	queryFmt := `
-    <voice name="%s">
-        <prosody rate="%s">
-		    %s
-        </prosody>
-    </voice>`
+	queryFmt := `<voice name="%s"><prosody rate="%s">%s</prosody></voice>`
 	query := fmt.Sprintf(queryFmt, speaker, rate, strings.ReplaceAll(text, " ", ""))
 	if addSplitAudio {
 		query += fmt.Sprintf(queryFmt, speaker, rate, text)
 	}
-
 	return query
+}
+
+// checkMP3Integrity tries to decode an MP3 file and checks for errors.
+func checkMP3Integrity(filename string) error {
+	// Open the MP3 file
+	f, err := os.Open(filename)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
+	}
+	defer f.Close()
+
+	// Attempt to decode the MP3 file
+	_, err = mp3.NewDecoder(f)
+	if err != nil {
+		return fmt.Errorf("file is not a valid MP3: %w", err)
+	}
+
+	// If no error, the MP3 file is valid
+	return nil
 }

@@ -47,8 +47,6 @@ func (p *ClozeProcessor) Decompose(clozes []cloze, outdir string, i ignore.Ignor
 			continue
 		}
 
-		fmt.Println(w.Components)
-
 		results = append(results, Cloze{
 			SentenceFront: cl.withUnderscores,
 			SentenceBack:  cl.withoutParenthesis,
@@ -67,7 +65,7 @@ func (p *ClozeProcessor) getAudio(clozes []Cloze) []Cloze {
 	for x, c := range clozes {
 		filename := strings.ReplaceAll(c.SentenceBack, " ", "") + ".mp3"
 		query := p.Audio.PrepareQueryWithRandomVoice(c.SentenceBack, true)
-		if err := p.Audio.Fetch(context.Background(), query, filename); err != nil {
+		if err := p.Audio.Fetch(context.Background(), query, filename, 3); err != nil {
 			slog.Error("fetching audio from azure", "error", err.Error())
 		}
 		clozes[x].Audio = filename

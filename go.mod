@@ -7,6 +7,7 @@ require (
 	cloud.google.com/go/translate v1.10.0
 	github.com/fbngrm/zh v1.0.4
 	github.com/fbngrm/zh-mnemonics v1.0.9
+	github.com/hajimehoshi/go-mp3 v0.3.4
 	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
 	golang.org/x/text v0.14.0
 	gopkg.in/yaml.v2 v2.4.0

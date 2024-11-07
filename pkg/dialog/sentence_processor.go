@@ -72,7 +72,7 @@ func (p *SentenceProcessor) getAudio(sentences []Sentence) []Sentence {
 	for x, sentence := range sentences {
 		filename := strings.ReplaceAll(sentence.Chinese, " ", "") + ".mp3"
 		query := p.Audio.PrepareQueryWithRandomVoice(sentence.Chinese, true)
-		if err := p.Audio.Fetch(context.Background(), query, filename); err != nil {
+		if err := p.Audio.Fetch(context.Background(), query, filename, 3); err != nil {
 			slog.Error("fetching audio from azure", "error", err.Error())
 		}
 		sentences[x].Audio = filename

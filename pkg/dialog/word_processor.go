@@ -22,7 +22,8 @@ import (
 
 type WordProcessor struct {
 	Chars       char.Processor
-	Audio       *audio.GCPClient
+	GCPAudio    *audio.GCPClient
+	AzureAudio  *audio.AzureClient
 	IgnoreChars []string
 	Client      *openai.Client
 	WordIndex   *frequency.WordIndex
@@ -114,13 +115,22 @@ func (p *WordProcessor) getExampleSentences(examples []openai.Word) []card.Examp
 	results := make([]card.Example, len(examples))
 	for i, e := range examples {
 		results[i] = card.Example{
-			Chinese: e.Ch,
+			Chinese: strings.ReplaceAll(e.Ch, " ", ""),
 			Pinyin:  e.Pi,
 			English: e.En,
-			Audio:   p.getAudio(e.Ch),
+			Audio:   p.getExampleSentenceAudio(e.Ch),
 		}
 	}
 	return results
+}
+
+func (p *WordProcessor) getExampleSentenceAudio(s string) string {
+	filename := strings.ReplaceAll(s, " ", "") + ".mp3"
+	query := p.AzureAudio.PrepareQueryWithRandomVoice(s, true)
+	if err := p.AzureAudio.Fetch(context.Background(), query, filename, 3); err != nil {
+		slog.Error("fetching audio from azure", "error", err.Error())
+	}
+	return filename
 }
 
 // used for openai data that contains the translation and pinyin; currently we still use hsk and cedict only.
@@ -174,7 +184,7 @@ func (p *WordProcessor) getAudio(s string) string {
 	// 	text += string(c)
 	// 	text += " "
 	// }
-	if err := p.Audio.Fetch(context.Background(), s, filename, false); err != nil {
+	if err := p.GCPAudio.Fetch(context.Background(), s, filename, false); err != nil {
 		fmt.Println(err)
 	}
 	return filename

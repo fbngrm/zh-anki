@@ -11,7 +11,7 @@ func ExportGrammar(deckName string, g Grammar) error {
 	syntaxHeader, syntax := "", ""
 	if len(g.Structure) >= 1 {
 		syntaxHeader = "Syntax<br>"
-		syntax = g.Structure + "<br><br>"
+		syntax = strings.Join(strings.Split(g.Structure, "\n"), "<br>") + "<br><br>"
 	}
 
 	noteHeader, note := "", ""
@@ -95,6 +95,6 @@ func ExportGrammar(deckName string, g Grammar) error {
 	if err != nil {
 		return err
 	}
-	slog.Info("note added successfully", "grammar", g.Structure)
+	slog.Info("note added successfully", "grammar", g.Pattern)
 	return nil
 }

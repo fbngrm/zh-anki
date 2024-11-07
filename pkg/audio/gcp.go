@@ -14,6 +14,7 @@ import (
 
 	texttospeech "cloud.google.com/go/texttospeech/apiv1"
 	"cloud.google.com/go/texttospeech/apiv1/texttospeechpb"
+	"golang.org/x/exp/slog"
 )
 
 type GCPClient struct {
@@ -96,7 +97,7 @@ func (g *GCPClient) Fetch(ctx context.Context, query, filename string, isSentenc
 		return err
 	}
 
-	fmt.Printf("audio content written to files:\n%s\n%s\n", lessonPath, cachePath)
+	slog.Debug("download audio", "path", lessonPath)
 	return nil
 }
 

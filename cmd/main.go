@@ -125,7 +125,8 @@ func main() {
 	}
 	wordProcessor := dialog.WordProcessor{
 		Chars:       charProcessor,
-		Audio:       gcpClient,
+		GCPAudio:    gcpClient,
+		AzureAudio:  azureClient,
 		IgnoreChars: ignoreChars,
 		WordIndex:   wordIndex,
 		CardBuilder: builder,
@@ -176,7 +177,7 @@ func main() {
 			slog.Error("decompose cloze", "error", err)
 			os.Exit(1)
 		}
-		clozeProcessor.ExportCards(deckname, clozes, ignored)
+		clozeProcessor.Export(clozes, outDir, deckname, ignored)
 	}
 	wordPath := filepath.Join(cwd, "data", source, lesson, "input", "words")
 	if _, err := os.Stat(wordPath); err == nil {

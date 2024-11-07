@@ -22,8 +22,8 @@ func (g *GrammarProcessor) DecomposeFromFile(path string, outdir, deckname strin
 	if err != nil {
 		return Grammar{}, fmt.Errorf("parse grammars: %w", err)
 	}
-	slog.Info("=================================")
-	slog.Info("decompose", "grammar", grammar.Cloze)
+	slog.Debug("=================================")
+	slog.Debug("decompose", "grammar", grammar.Cloze)
 
 	s, err := g.Client.DecomposeSentence(grammar.SentenceBack)
 	if err != nil {
@@ -33,6 +33,7 @@ func (g *GrammarProcessor) DecomposeFromFile(path string, outdir, deckname strin
 	var e []card.Example
 	if grammar.Examples != "" {
 		decompositon, err := g.Client.Decompose(grammar.Examples)
+		slog.Debug("decompose", "grammar examples", grammar.Examples)
 		if err != nil {
 			return Grammar{}, err
 		}
@@ -43,12 +44,13 @@ func (g *GrammarProcessor) DecomposeFromFile(path string, outdir, deckname strin
 				Chinese: s.Chinese,
 				English: s.English,
 				Pinyin:  s.Pinyin,
-				Audio:   g.getAudio(s.Chinese),
+				Audio:   g.getAudio(s.Chinese), // FIXME: preserve spacing for audio splitting
 			}
 		}
 		e = examples
 	} else {
 		examples, err := g.Client.GetExamplesForPattern(grammar.Pattern)
+		slog.Debug("fetch", "grammar examples", grammar.Pattern)
 		if err != nil {
 			slog.Error("fetch example sentences", "word", grammar.Cloze, "err", err)
 		}
@@ -56,7 +58,7 @@ func (g *GrammarProcessor) DecomposeFromFile(path string, outdir, deckname strin
 	}
 
 	return Grammar{
-		Cloze:           grammar.Cloze,
+		Cloze:           strings.ReplaceAll(grammar.Cloze, " ", ""),
 		SentenceFront:   grammar.SentenceFront,
 		SentenceBack:    grammar.SentenceBack,
 		SentencePinyin:  s.Pinyin,
@@ -86,7 +88,8 @@ func (g *GrammarProcessor) getExampleSentences(examples []openai.Word) []card.Ex
 func (g *GrammarProcessor) getAudio(s string) string {
 	w := strings.ReplaceAll(s, " ", "")
 	filename := w + ".mp3"
-	if err := g.Audio.Fetch(context.Background(), s, filename); err != nil {
+	query := g.Audio.PrepareQueryWithRandomVoice(w, true)
+	if err := g.Audio.Fetch(context.Background(), query, filename, 3); err != nil {
 		slog.Error("fetch example sentences audio", "sentence", s, "err", err)
 	}
 	return filename
