@@ -1,13 +1,13 @@
 package dialog
 
 type Cloze struct {
-	SentenceFront string `yaml:"chinese"`
-	SentenceBack  string `yaml:"chinese"`
-	Pinyin        string `yaml:"pinyin"`
-	English       string `yaml:"english"`
-	Audio         string `yaml:"audio"`
-	Words         []Word `yaml:"allWords"`
-	Grammar       string `yaml:"grammar"`
-	Note          string `yaml:"note"`
-	Word          Word   `yaml:"word"`
+	SentenceFront string `json:"cloze"`
+	SentenceBack  string `json:"chinese"`
+	Pinyin        string `json:"pinyin"`
+	English       string `json:"english"`
+	Audio         string `json:"audio"`
+	Words         []Word `json:"allWords"`
+	Grammar       string `json:"grammar"`
+	Note          string `json:"note"`
+	Word          Word   `json:"word"`
 }

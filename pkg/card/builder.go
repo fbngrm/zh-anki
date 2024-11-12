@@ -24,20 +24,20 @@ const frequencySrc = "./pkg/frequency/global_wordfreq.release_UTF-8.txt"
 const hskSrc = "./pkg/hsk/3.0"
 
 type Example struct {
-	Chinese string `yaml:"chinese"`
-	Pinyin  string `yaml:"hsk_pinyin"`
-	English string `yaml:"hsk_en"`
-	Audio   string `yaml:"audio"`
+	Chinese string `json:"chinese"`
+	Pinyin  string `json:"hsk_pinyin"`
+	English string `json:"hsk_en"`
+	Audio   string `json:"audio"`
 }
 
 type CedictEntry struct {
-	CedictPinyin  string `yaml:"cedict_pinyin"`
-	CedictEnglish string `yaml:"cedict_en"`
+	CedictPinyin  string `json:"cedict_pinyin"`
+	CedictEnglish string `json:"cedict_en"`
 }
 
 type HSKEntry struct {
-	HSKPinyin  string `yaml:"hsk_pinyin"`
-	HSKEnglish string `yaml:"hsk_en"`
+	HSKPinyin  string `json:"hsk_pinyin"`
+	HSKEnglish string `json:"hsk_en"`
 }
 
 type Component struct {

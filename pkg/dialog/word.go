@@ -6,21 +6,21 @@ import (
 )
 
 type Word struct {
-	Chinese      string             `yaml:"chinese"`
-	English      string             `yaml:"english"`
-	Cedict       []card.CedictEntry `yaml:"cedict"`
-	HSK          []card.HSKEntry    `yaml:"hsk"`
-	Traditional  string             `yaml:"traditional"`
-	Audio        string             `yaml:"audio"`
-	Chars        []char.Char        `yaml:"allChars"`
-	IsSingleRune bool               `yaml:"isSingleRune"`
-	Components   []card.Component   `yaml:"components"`
-	Kangxi       []string           `yaml:"kangxi"`
-	Equivalents  string             `yaml:"equivalents"`
-	Example      string             `yaml:"example"`
-	Examples     []card.Example     `yaml:"examples"`
-	MnemonicBase string             `yaml:"mnemonic_base"`
-	Mnemonic     string             `yaml:"mnemonic"`
-	Note         string             `yaml:"note"`
-	Translation  string             `yaml:"translation"` // this is coming from data/translations file
+	Chinese      string             `json:"chinese"`
+	English      string             `json:"english"`
+	Cedict       []card.CedictEntry `json:"cedict"`
+	HSK          []card.HSKEntry    `json:"hsk"`
+	Traditional  string             `json:"traditional"`
+	Audio        string             `json:"audio"`
+	Chars        []char.Char        `json:"allChars"`
+	IsSingleRune bool               `json:"isSingleRune"`
+	Components   []card.Component   `json:"components"`
+	Kangxi       []string           `json:"kangxi"`
+	Equivalents  string             `json:"equivalents"`
+	Example      string             `json:"example"`
+	Examples     []card.Example     `json:"examples"`
+	MnemonicBase string             `json:"mnemonic_base"`
+	Mnemonic     string             `json:"mnemonic"`
+	Note         string             `json:"note"`
+	Translation  string             `json:"translation"` // this is coming from data/translations file
 }
