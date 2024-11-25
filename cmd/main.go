@@ -156,7 +156,6 @@ func main() {
 	}
 
 	outDir := filepath.Join(cwd, "data", source, lesson, "output")
-	_ = os.Remove(outDir)
 
 	// load grammar from file
 	simpleGrammarPath := filepath.Join(cwd, "data", source, lesson, "input", "simple_grammar")
