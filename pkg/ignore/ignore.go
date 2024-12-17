@@ -38,15 +38,3 @@ func (i Ignored) Write(path string) {
 		os.Exit(1)
 	}
 }
-
-func writeToFile(i any, path string) {
-	data, err := yaml.Marshal(i)
-	if err != nil {
-		fmt.Printf("could not marshal ignore file: %v", err)
-		os.Exit(1)
-	}
-	if err := os.WriteFile(path, data, 0644); err != nil {
-		fmt.Printf("could not write ignore file: %v", err)
-		os.Exit(1)
-	}
-}
