@@ -23,3 +23,10 @@ segment:
 	@if [ -f $(data_dir)/input/dialogues ]; then cd ../stanford-segmenter && ./segment.sh pku ../zh-anki/$(data_dir)/input/dialogues UTF-8 0 > /tmp/segmented && cat /tmp/segmented > ../zh-anki/$(data_dir)/input/dialogues;fi
 	@if [ -f $(data_dir)/input/sentences ]; then cd ../stanford-segmenter && ./segment.sh pku ../zh-anki/$(data_dir)/input/sentences UTF-8 0 > /tmp/segmented && cat /tmp/segmented > ../zh-anki/$(data_dir)/input/sentences;fi
 	@if [ -f $(data_dir)/input/clozes ]; then cd ../stanford-segmenter && ./segment.sh pku ../zh-anki/$(data_dir)/input/clozes UTF-8 0 > /tmp/segmented && cat /tmp/segmented > ../zh-anki/$(data_dir)/input/clozes;fi
+
+.PHONY: lint
+lint:
+	@echo "Installing golangci-lint..."
+	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	@echo "Running golangci-lint..."
+	@golangci-lint run ./...

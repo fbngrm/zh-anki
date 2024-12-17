@@ -1,0 +1,16 @@
+service:
+  # use the fixed version to not introduce new linters unexpectedly
+  golangci-lint-version: '1.45.2'
+
+run:
+  go: '1.23.4'
+  timeout: 10m
+  tests: false
+  skip-dirs:
+    - client$
+    - mocks*
+    - testdata$
+    - vendor$
+
+linters:
+  enable-all: false  # Only enable the default set of linters
