@@ -75,7 +75,7 @@ func (g *GCPClient) Fetch(ctx context.Context, query, filename string, isSentenc
 		var hasErr bool
 		if err := copyFileContents(cachePath, lessonPath); err != nil {
 			hasErr = true
-			fmt.Printf("error copying cache file for query %s: %v\n", query, err)
+			slog.Error("copy cache file for query", "query", query, "error", err)
 		}
 		if !hasErr {
 			return nil
@@ -97,7 +97,7 @@ func (g *GCPClient) Fetch(ctx context.Context, query, filename string, isSentenc
 		return err
 	}
 
-	slog.Debug("download audio", "path", lessonPath)
+	slog.Debug("download GCP audio", "path", lessonPath)
 	return nil
 }
 
@@ -108,18 +108,6 @@ func (g *GCPClient) FetchTmpAudioWithVoice(ctx context.Context, query, filename 
 	if err != nil {
 		return "", fmt.Errorf("could not create tmp file: %v", err)
 	}
-
-	// copy file from cache to tmp dir
-	// if _, err := os.Stat(cachePath); err == nil {
-	// 	var hasErr bool
-	// 	if err := copyFileContents(cachePath, tmpFile.Name()); err != nil {
-	// 		hasErr = true
-	// 		fmt.Printf("error copying cache file for query %s: %v\n", query, err)
-	// 	}
-	// 	if !hasErr {
-	// 		return tmpFile.Name(), nil
-	// 	}
-	// }
 
 	resp, err := fetch(ctx, query, voice)
 	if err != nil {
