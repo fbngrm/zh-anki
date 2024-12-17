@@ -3,8 +3,6 @@ audio_dir=./data/$(source)/$(lesson)/audio
 
 .PHONY: gen
 gen:
-	rm -r -f $(data_dir)/output/
-	mkdir $(data_dir)/output/
 	mkdir -p $(audio_dir) || true
 	go run cmd/main.go -l $(lesson) -src $(source) -tgt $(target) -t $(tags)
 
