@@ -2,14 +2,10 @@ package audio
 
 import (
 	"context"
-	"fmt"
-	"io"
 	"io/ioutil"
 	"math/rand"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"strings"
 	"time"
 
 	texttospeech "cloud.google.com/go/texttospeech/apiv1"
@@ -68,19 +64,6 @@ func (g *GCPClient) Fetch(ctx context.Context, query, filename string, isSentenc
 		return err
 	}
 	lessonPath := filepath.Join(g.AudioDir, filename)
-	cachePath := filepath.Join(g.AudioDir, "..", "..", "..", "audio", filename)
-
-	// copy file from cache to lesson dir and to sentenceAndDialogOnlyDir
-	if _, err := os.Stat(cachePath); err == nil {
-		var hasErr bool
-		if err := copyFileContents(cachePath, lessonPath); err != nil {
-			hasErr = true
-			slog.Error("copy cache file for query", "query", query, "error", err)
-		}
-		if !hasErr {
-			return nil
-		}
-	}
 
 	resp, err := fetch(ctx, query, nil)
 	if err != nil {
@@ -92,76 +75,7 @@ func (g *GCPClient) Fetch(ctx context.Context, query, filename string, isSentenc
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(cachePath, resp.AudioContent, os.ModePerm)
-	if err != nil {
-		return err
-	}
-
 	slog.Debug("download GCP audio", "path", lessonPath)
-	return nil
-}
-
-func (g *GCPClient) FetchTmpAudioWithVoice(ctx context.Context, query, filename string, voice *texttospeechpb.VoiceSelectionParams) (string, error) {
-	filename = filename + ".mp3"
-	// cachePath := filepath.Join(p.AudioDir, "..", "..", "..", "audio", filename)
-	tmpFile, err := os.CreateTemp("", "zh")
-	if err != nil {
-		return "", fmt.Errorf("could not create tmp file: %v", err)
-	}
-
-	resp, err := fetch(ctx, query, voice)
-	if err != nil {
-		return "", err
-	}
-
-	// The resp's AudioContent is binary.
-	err = ioutil.WriteFile(tmpFile.Name(), resp.AudioContent, os.ModePerm)
-	if err != nil {
-		return "", err
-	}
-
-	fmt.Printf("%v\n", query)
-	return tmpFile.Name(), nil
-}
-
-func (g *GCPClient) JoinAndSaveDialogAudio(filename string, partsPaths []string) error {
-	if err := os.MkdirAll(g.AudioDir, os.ModePerm); err != nil {
-		return err
-	}
-	sentenceAndDialogOnlyDir := filepath.Join(g.AudioDir, "sentences_and_dialogs")
-	if err := os.MkdirAll(sentenceAndDialogOnlyDir, os.ModePerm); err != nil {
-		return err
-	}
-	lessonPath := filepath.Join(g.AudioDir, filename)
-	cachePath := filepath.Join(g.AudioDir, "..", "..", "..", "audio", filename)
-	sentenceAndDialogOnlyPath := filepath.Join(sentenceAndDialogOnlyDir, filename)
-
-	if err := joinMP3Files(partsPaths, cachePath); err != nil {
-		return err
-	}
-	if err := joinMP3Files(partsPaths, lessonPath); err != nil {
-		return err
-	}
-	if err := joinMP3Files(partsPaths, sentenceAndDialogOnlyPath); err != nil {
-		return err
-	}
-	return nil
-}
-
-func joinMP3Files(inputPaths []string, outputPath string) error {
-	// Generate a FFmpeg command to join the MP3 files
-	ffmpegArgs := []string{"-i", "concat:" + strings.Join(inputPaths, "|"), "-c", "copy", "-y", outputPath}
-
-	// Execute the FFmpeg command
-	cmd := exec.Command("ffmpeg", ffmpegArgs...)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to join MP3 files: %v", err)
-	}
-
-	fmt.Printf("audio content written to files:\n%s\n", outputPath)
 	return nil
 }
 
@@ -204,27 +118,4 @@ func contains[T comparable](s []T, e T) bool {
 		}
 	}
 	return false
-}
-
-func copyFileContents(src, dst string) (err error) {
-	in, err := os.Open(src)
-	if err != nil {
-		return
-	}
-	defer in.Close()
-	out, err := os.Create(dst)
-	if err != nil {
-		return
-	}
-	defer func() {
-		cerr := out.Close()
-		if err == nil {
-			err = cerr
-		}
-	}()
-	if _, err = io.Copy(out, in); err != nil {
-		return
-	}
-	err = out.Sync()
-	return
 }
