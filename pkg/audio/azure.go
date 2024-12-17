@@ -13,8 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/hajimehoshi/go-mp3"
-
 	"golang.org/x/exp/slog"
 	"golang.org/x/net/http2"
 )
@@ -78,20 +76,6 @@ func (c *AzureClient) Fetch(ctx context.Context, query, filename string, retryCo
 		return err
 	}
 	lessonPath := filepath.Join(c.AudioDir, filename)
-	cachePath := filepath.Join(c.AudioDir, "..", "..", "..", "audio", filename)
-
-	// copy file from cache if exists, to lesson dir and to sentenceAndDialogOnlyDir
-	if _, err := os.Stat(cachePath); err == nil {
-		var hasErr bool
-		if err := copyFileContents(cachePath, lessonPath); err != nil {
-			hasErr = true
-			slog.Error("copy cache file", "query", query, "error", err)
-		}
-		if !hasErr {
-			slog.Debug("copy cache file", "query", query)
-			return nil
-		}
-	}
 
 	resp, err := c.fetch(ctx, query, 3)
 	if err != nil {
@@ -107,11 +91,6 @@ func (c *AzureClient) Fetch(ctx context.Context, query, filename string, retryCo
 
 	if _, err := io.Copy(out, resp.Body); err != nil {
 		return err
-	}
-
-	if err := checkMP3Integrity(lessonPath); err != nil {
-		slog.Error("download audio file", "error", err)
-		return c.Fetch(ctx, query, filename, retryCount-1)
 	}
 
 	slog.Debug("download audio", "path", lessonPath)
@@ -166,23 +145,4 @@ func (c *AzureClient) PrepareQuery(text, speaker string, addSplitAudio bool) str
 		query += fmt.Sprintf(queryFmt, speaker, rate, text)
 	}
 	return query
-}
-
-// checkMP3Integrity tries to decode an MP3 file and checks for errors.
-func checkMP3Integrity(filename string) error {
-	// Open the MP3 file
-	f, err := os.Open(filename)
-	if err != nil {
-		return fmt.Errorf("failed to open file: %w", err)
-	}
-	defer f.Close()
-
-	// Attempt to decode the MP3 file
-	_, err = mp3.NewDecoder(f)
-	if err != nil {
-		return fmt.Errorf("file is not a valid MP3: %w", err)
-	}
-
-	// If no error, the MP3 file is valid
-	return nil
 }
