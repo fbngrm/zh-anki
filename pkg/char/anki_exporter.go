@@ -15,7 +15,7 @@ func Export(deckName string, c Char, i ignore.Ignored) error {
 		i.Update(c.Chinese)
 	}()
 	if _, ok := i[c.Chinese]; ok {
-		slog.Debug("export char, exists in ignore list", "char", c.Chinese)
+		slog.Debug("exists in ignore list", "char", c.Chinese)
 		return nil
 	}
 	cedictHeader := ""

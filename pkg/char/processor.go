@@ -19,7 +19,7 @@ type Processor struct {
 	CardBuilder *card.Builder
 }
 
-func (p *Processor) GetAll(word string, t *translate.Translations) []Char {
+func (p *Processor) GetAll(word string, getAudio bool, t *translate.Translations) []Char {
 	allChars := make([]Char, 0)
 	for _, ch := range word {
 		c := string(ch)
@@ -45,6 +45,9 @@ func (p *Processor) GetAll(word string, t *translate.Translations) []Char {
 			Pronounciation: cc.Pronounciation,
 			Translation:    cc.Translation,
 		})
+	}
+	if !getAudio {
+		return allChars
 	}
 	return p.getAudio(allChars)
 }
