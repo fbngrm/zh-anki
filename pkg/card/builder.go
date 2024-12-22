@@ -17,10 +17,8 @@ import (
 
 const idsSrc = "./pkg/heisig/heisig_decomp.json"
 const dictSrc = "./pkg/heisig/traditional.txt"
-const loachSrc = "./pkg/loach/loach_word_order.json"
 const cjkviSrc = "./pkg/cjkvi/ids.txt"
 const cedictSrc = "./pkg/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
-const frequencySrc = "./pkg/frequency/global_wordfreq.release_UTF-8.txt"
 const hskSrc = "./pkg/hsk/3.0"
 
 type Example struct {
@@ -153,7 +151,7 @@ func (b *Builder) GetWordCard(word string, t *translate.Translations) (*Card, er
 }
 
 func (b *Builder) GetHanziCard(hanzi string, t *translate.Translations) *Card {
-	entries, tr, err := b.lookupDict(hanzi)
+	entries, trad, err := b.lookupDict(hanzi)
 	if err != nil {
 		slog.Error(fmt.Sprintf("ignore hanzi: %v", err))
 	}
@@ -168,7 +166,7 @@ func (b *Builder) GetHanziCard(hanzi string, t *translate.Translations) *Card {
 	}
 	return &Card{
 		SimplifiedChinese:  hanzi,
-		TraditionalChinese: tr,
+		TraditionalChinese: trad,
 		DictEntries:        entries,
 		Components:         b.getHanziComponents(hanzi),
 		MnemonicBase:       mnemonicBase,
