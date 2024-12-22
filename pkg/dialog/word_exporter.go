@@ -19,10 +19,6 @@ func ExportWord(deckName string, w Word, i ignore.Ignored) error {
 			slog.Error("export char for word", "word", w.Chinese, "char", c.Chinese, "error", err)
 		}
 	}
-	if _, ok := i[w.Chinese]; ok {
-		slog.Debug("export word, exists in ignore list", "word", w.Chinese)
-		return nil
-	}
 	cedictHeader := ""
 	cedictEn1, cedictPinyin1 := "", ""
 	cedictEn2, cedictPinyin2 := "", ""
@@ -68,28 +64,60 @@ func ExportWord(deckName string, w Word, i ignore.Ignored) error {
 		trad = w.Traditional
 	}
 
+	examplesHeader := ""
+	if len(w.Example) >= 1 {
+		examplesHeader = "Examples" + "<br>"
+	}
+
+	examplesSentencesHeader := ""
+	exSentence1, exSentencePi1, exSentenceEn1, exSentenceAudio1 := "", "", "", ""
+	exSentence2, exSentencePi2, exSentenceEn2, exSentenceAudio2 := "", "", "", ""
+	if len(w.Examples) >= 1 {
+		examplesSentencesHeader = "Example Sentences<br>"
+		exSentence1 = w.Examples[0].Chinese + "<br>"
+		exSentencePi1 = w.Examples[0].Pinyin + "<br>"
+		exSentenceEn1 = w.Examples[0].English + "<br>"
+		exSentenceAudio1 = w.Examples[0].Audio
+	}
+	if len(w.Examples) >= 2 {
+		exSentence2 = w.Examples[1].Chinese + "<br>"
+		exSentencePi2 = w.Examples[1].Pinyin + "<br>"
+		exSentenceEn2 = w.Examples[1].English + "<br>"
+		exSentenceAudio2 = w.Examples[1].Audio
+	}
+
 	noteFields := map[string]string{
-		"Chinese":           w.Chinese,
-		"CedictHeader":      cedictHeader,
-		"CedictPinyin1":     cedictPinyin1,
-		"CedictEnglish1":    cedictEn1,
-		"CedictPinyin2":     cedictPinyin2,
-		"CedictEnglish2":    cedictEn2,
-		"CedictPinyin3":     cedictPinyin3,
-		"CedictEnglish3":    cedictEn3,
-		"HSKHeader":         hskHeader,
-		"HSKPinyin":         hskPinyin,
-		"HSKEnglish":        hskEn,
-		"Audio":             anki.GetAudioPath(w.Audio),
-		"Components":        componentsToString(w.Components),
-		"Traditional":       trad,
-		"Examples":          w.Example,
-		"MnemonicBase":      w.MnemonicBase,
-		"Mnemonic":          w.Mnemonic,
-		"NoteHeader":        noteHeader,
-		"Note":              note,
-		"TranslationHeader": transHeader,
-		"Translation":       trans,
+		"Chinese":                w.Chinese,
+		"CedictHeader":           cedictHeader,
+		"CedictPinyin1":          cedictPinyin1,
+		"CedictEnglish1":         cedictEn1,
+		"CedictPinyin2":          cedictPinyin2,
+		"CedictEnglish2":         cedictEn2,
+		"CedictPinyin3":          cedictPinyin3,
+		"CedictEnglish3":         cedictEn3,
+		"HSKHeader":              hskHeader,
+		"HSKPinyin":              hskPinyin,
+		"HSKEnglish":             hskEn,
+		"Audio":                  anki.GetAudioPath(w.Audio),
+		"Components":             componentsToString(w.Components),
+		"Traditional":            trad,
+		"ExamplesHeader":         examplesHeader,
+		"Examples":               w.Example,
+		"MnemonicBase":           w.MnemonicBase,
+		"Mnemonic":               w.Mnemonic,
+		"NoteHeader":             noteHeader,
+		"Note":                   note,
+		"TranslationHeader":      transHeader,
+		"Translation":            trans,
+		"ExampleSentencesHeader": examplesSentencesHeader,
+		"ExampleSentenceCh1":     exSentence1,
+		"ExampleSentencePi1":     exSentencePi1,
+		"ExampleSentenceEn1":     exSentenceEn1,
+		"ExampleSentenceAudio1":  anki.GetAudioPath(exSentenceAudio1) + "<br>",
+		"ExampleSentenceCh2":     exSentence2,
+		"ExampleSentencePi2":     exSentencePi2,
+		"ExampleSentenceEn2":     exSentenceEn2,
+		"ExampleSentenceAudio2":  anki.GetAudioPath(exSentenceAudio2),
 	}
 	_, err := anki.AddNoteToDeck(deckName, "word_cedict3", noteFields)
 	if err != nil {

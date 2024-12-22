@@ -3,7 +3,6 @@ package dialog
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -30,7 +29,7 @@ type WordProcessor struct {
 	CardBuilder *card.Builder
 }
 
-func (p *WordProcessor) DecomposeFromFile(path, outdir string, i ignore.Ignored, t *translate.Translations) []Word {
+func (p *WordProcessor) DecomposeFromFile(path, outdir string, t *translate.Translations) []Word {
 	words := loadWords(path)
 
 	var newWords []Word
@@ -42,7 +41,7 @@ func (p *WordProcessor) DecomposeFromFile(path, outdir string, i ignore.Ignored,
 			continue
 		}
 
-		w, err := p.Decompose(word, i, t)
+		w, err := p.Decompose(word, t)
 		if err != nil {
 			slog.Error("decompose", "word", word, "err", err)
 			continue
@@ -53,12 +52,8 @@ func (p *WordProcessor) DecomposeFromFile(path, outdir string, i ignore.Ignored,
 	return newWords
 }
 
-func (p *WordProcessor) Decompose(w Word, i ignore.Ignored, t *translate.Translations) (*Word, error) {
-	if _, ok := i[strings.ReplaceAll(w.Chinese, " ", "")]; ok {
-		return nil, errors.New("exists in ignore list")
-	}
-
-	allChars := p.Chars.GetAll(w.Chinese, t)
+func (p *WordProcessor) Decompose(w Word, t *translate.Translations) (*Word, error) {
+	allChars := p.Chars.GetAll(w.Chinese, false, t)
 
 	var cc *card.Card
 	var err error
@@ -135,7 +130,7 @@ func (p *WordProcessor) getExampleSentenceAudio(s string) string {
 
 // used for openai data that contains the translation and pinyin; currently we still use hsk and cedict only.
 // TODO: add fallback with openai in case hsk and cedict don't know the word.
-func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t *translate.Translations) []Word {
+func (p *WordProcessor) Get(words []openai.Word, t *translate.Translations) []Word {
 	var allWords []Word
 	for _, word := range words {
 		if word.Ch == "" {
@@ -162,7 +157,7 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t *translate.
 			English:      word.En, // this comes from openai and is only used in the components of a sentence, which itself is translated by openai
 			Cedict:       card.GetCedictEntries(cc),
 			HSK:          card.GetHSKEntries(cc),
-			Chars:        p.Chars.GetAll(word.Ch, t),
+			Chars:        p.Chars.GetAll(word.Ch, false, t),
 			IsSingleRune: isSingleRune,
 			Components:   cc.Components,
 			Traditional:  cc.TraditionalChinese,
@@ -178,14 +173,9 @@ func (p *WordProcessor) Get(words []openai.Word, i ignore.Ignored, t *translate.
 }
 
 func (p *WordProcessor) getAudio(s string) string {
-	w := strings.ReplaceAll(s, " ", "")
-	filename := w + ".mp3"
-	// for _, c := range word.Chinese {
-	// 	text += string(c)
-	// 	text += " "
-	// }
+	filename := strings.ReplaceAll(s, " ", "") + ".mp3"
 	if err := p.GCPAudio.Fetch(context.Background(), s, filename, false); err != nil {
-		fmt.Println(err)
+		slog.Error("download GCP audio", "error", err, "word", s)
 	}
 	return filename
 }
