@@ -35,7 +35,6 @@ func NewDict(sourceFilePath string) (map[string]Entry, error) {
 		}
 		parts := strings.Fields(line)
 		if len(parts) < 4 {
-			slog.Warn(fmt.Sprintf("heisig dict: line too short [len=%d]: %s", len(parts), line))
 			continue
 		}
 
