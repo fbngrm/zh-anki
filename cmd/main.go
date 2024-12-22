@@ -16,7 +16,6 @@ import (
 	ignore_dict "github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
 	"github.com/fbngrm/zh-anki/pkg/translate"
-	"github.com/fbngrm/zh/lib/cedict"
 	"golang.org/x/exp/slog"
 )
 
@@ -31,12 +30,9 @@ var target string
 var tags string
 var tagList []string
 var deckname string
-var path string
 
 // by default, skip rendering separate cards for all sentences in a dialog
 var renderSentences bool
-
-var cedictDict map[string][]cedict.Entry
 
 func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
@@ -64,7 +60,6 @@ func main() {
 	if target != "" {
 		deckname = target
 	}
-	path = source
 	if strings.Contains(tags, ",") {
 		tagList = strings.Split(tags, ",")
 	} else if len(tags) > 0 {
@@ -202,5 +197,4 @@ func main() {
 
 	// write newly ignored words
 	ignored.Write(ignorePath)
-	// write translations(translations, translationsPath)
 }
