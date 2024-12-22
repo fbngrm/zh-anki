@@ -22,11 +22,11 @@ type SentenceProcessor struct {
 	Audio  *audio.AzureClient
 }
 
-func (p *SentenceProcessor) DecomposeFromFile(path, outdir string, i ignore.Ignored, t *translate.Translations) []Sentence {
-	return p.Decompose(loadSentences(path), outdir, i, t)
+func (p *SentenceProcessor) DecomposeFromFile(path, outdir string, t *translate.Translations) []Sentence {
+	return p.Decompose(loadSentences(path), outdir, t)
 }
 
-func (p *SentenceProcessor) Decompose(sentences []sentence, outdir string, i ignore.Ignored, t *translate.Translations) []Sentence {
+func (p *SentenceProcessor) Decompose(sentences []sentence, outdir string, t *translate.Translations) []Sentence {
 	var results []Sentence
 	for _, sen := range sentences {
 		slog.Info("=================================")
@@ -42,7 +42,7 @@ func (p *SentenceProcessor) Decompose(sentences []sentence, outdir string, i ign
 			Chinese:      sen.text,
 			English:      s.English,
 			Pinyin:       s.Pinyin,
-			Words:        p.Words.Get(s.Words, i, t),
+			Words:        p.Words.Get(s.Words, t),
 			IsSingleRune: utf8.RuneCountInString(s.Chinese) == 1,
 			UniqueChars:  getUniqueChars(s.Chinese),
 			Grammar:      sen.grammar, // this only works when supplied in the sentences file
@@ -54,14 +54,14 @@ func (p *SentenceProcessor) Decompose(sentences []sentence, outdir string, i ign
 	return p.getAudio(results)
 }
 
-func (p *SentenceProcessor) Get(sentences []openai.Sentence, i ignore.Ignored, t *translate.Translations) []Sentence {
+func (p *SentenceProcessor) Get(sentences []openai.Sentence, t *translate.Translations) []Sentence {
 	var results []Sentence
 	for _, s := range sentences {
 		results = append(results, Sentence{
 			Chinese:      s.Chinese,
 			English:      s.English,
 			Pinyin:       s.Pinyin,
-			Words:        p.Words.Get(s.Words, i, t),
+			Words:        p.Words.Get(s.Words, t),
 			IsSingleRune: utf8.RuneCountInString(s.Chinese) == 1,
 		})
 	}

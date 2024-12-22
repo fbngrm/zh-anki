@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
@@ -21,15 +22,15 @@ type ClozeProcessor struct {
 	Audio  *audio.AzureClient
 }
 
-func (p *ClozeProcessor) DecomposeFromFile(path, outdir string, i ignore.Ignored, t *translate.Translations) ([]Cloze, error) {
+func (p *ClozeProcessor) DecomposeFromFile(path, outdir string, t *translate.Translations) ([]Cloze, error) {
 	clozes, err := loadClozes(path)
 	if err != nil {
 		return nil, err
 	}
-	return p.Decompose(clozes, outdir, i, t), nil
+	return p.Decompose(clozes, outdir, t), nil
 }
 
-func (p *ClozeProcessor) Decompose(clozes []cloze, outdir string, i ignore.Ignored, t *translate.Translations) []Cloze {
+func (p *ClozeProcessor) Decompose(clozes []cloze, outdir string, t *translate.Translations) []Cloze {
 	var results []Cloze
 	for _, cl := range clozes {
 		slog.Info("=================================")
@@ -41,7 +42,7 @@ func (p *ClozeProcessor) Decompose(clozes []cloze, outdir string, i ignore.Ignor
 			continue
 		}
 
-		w, err := p.Words.Decompose(Word{Chinese: cl.word}, i, t)
+		w, err := p.Words.Decompose(Word{Chinese: cl.word}, t)
 		if err != nil {
 			slog.Error("decompose cloze word", "word", cl.word, "error", err.Error())
 			continue
@@ -80,7 +81,7 @@ func (p *ClozeProcessor) Export(clozes []Cloze, outDir, deckname string, i ignor
 
 func (p *ClozeProcessor) ExportJSON(clozes []Cloze, outDir string) {
 	os.Mkdir(outDir, os.ModePerm)
-	outPath := filepath.Join(outDir, "clozes.json")
+	outPath := filepath.Join(outDir, time.Now().Format("2006-01-02 15:04")+"_clozes.json")
 	b, err := json.Marshal(clozes)
 	if err != nil {
 		fmt.Println(err)

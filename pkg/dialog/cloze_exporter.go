@@ -11,12 +11,6 @@ import (
 )
 
 func ExportCloze(deckName string, cl Cloze, i ignore.Ignored) error {
-	// add cards for all words in the cloze/sentence
-	// for _, w := range cl.Words {
-	// 	if err := ExportWord(deckName, w, i); err != nil {
-	// 		slog.Error("exporting word when exporting cloze", "cloze", cl.Word.Chinese, "error", err)
-	// 	}
-	// }
 	defer func() {
 		i.Update(cl.Word.Chinese)
 	}()
@@ -26,12 +20,6 @@ func ExportCloze(deckName string, cl Cloze, i ignore.Ignored) error {
 			slog.Error("export char for word", "word", cl.Word.Chinese, "char", c.Chinese, "error", err)
 		}
 	}
-	// do not add if we already learnded the word
-	if _, ok := i[cl.Word.Chinese]; ok {
-		slog.Debug("export word, exists in ignore list", "word", cl.Word.Chinese)
-		// return nil
-	}
-
 	cedictHeader := ""
 	cedictEn1, cedictPinyin1 := "", ""
 	cedictEn2, cedictPinyin2 := "", ""

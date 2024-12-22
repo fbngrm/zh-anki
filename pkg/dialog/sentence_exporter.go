@@ -5,14 +5,17 @@ import (
 	"strings"
 
 	"github.com/fbngrm/zh-anki/pkg/anki"
+	"github.com/fbngrm/zh-anki/pkg/char"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
 	"golang.org/x/exp/slog"
 )
 
 func ExportSentence(deckName string, s Sentence, i ignore.Ignored) error {
 	for _, w := range s.Words {
-		if err := ExportWord(deckName, w, i); err != nil {
-			slog.Error("exporting word when exporting sentence", "sentence", w.Chinese, "error", err)
+		for _, c := range w.Chars {
+			if err := char.Export(deckName, c, i); err != nil {
+				slog.Error("export char for word in sentence", "sentence", s, "word", w.Chinese, "char", c.Chinese, "error", err)
+			}
 		}
 	}
 	noteFields := map[string]string{

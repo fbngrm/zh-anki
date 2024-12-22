@@ -23,7 +23,7 @@ type DialogProcessor struct {
 	Audio     *audio.AzureClient
 }
 
-func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Ignored, t *translate.Translations) []*Dialog {
+func (p *DialogProcessor) Decompose(path, outdir, deckname string, t *translate.Translations) []*Dialog {
 	// note, dialogues with a speaker must use `：` (unicode) to separate speaker and text.
 	// this is not the same as `:` (ascii)!
 	dialogues := loadDialogues(path)
@@ -55,7 +55,7 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, i ignore.Igno
 			English:     english,
 			Audio:       audioFilename,
 			Pinyin:      pinyin,
-			Sentences:   p.Sentences.Get(decompositon.Sentences, i, t),
+			Sentences:   p.Sentences.Get(decompositon.Sentences, t),
 			UniqueChars: getUniqueChars(chinese),
 			Note:        dialog.Note,
 		}
