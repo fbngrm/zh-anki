@@ -14,11 +14,26 @@ func ExportWord(deckName string, w Word, i ignore.Ignored) error {
 	defer func() {
 		i.Update(w.Chinese)
 	}()
-	for _, c := range w.Chars {
-		if err := char.Export(deckName, c, i); err != nil {
-			slog.Error("export char for word", "word", w.Chinese, "char", c.Chinese, "error", err)
+
+	isChar := false
+	// HSK does not contain translations for characters, except they are considered words
+	if w.IsSingleRune && len(w.HSK) == 0 {
+		isChar = true
+	}
+
+	if isChar || !w.IsSingleRune {
+		for _, c := range w.Chars {
+			if err := char.Export(deckName, c, i); err != nil {
+				slog.Error("export char for word", "word", w.Chinese, "char", c.Chinese, "error", err)
+			}
 		}
 	}
+
+	// the word is a single character and we already exported a card for it
+	if isChar {
+		return nil
+	}
+
 	cedictHeader := ""
 	cedictEn1, cedictPinyin1 := "", ""
 	cedictEn2, cedictPinyin2 := "", ""
