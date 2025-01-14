@@ -176,7 +176,7 @@ func main() {
 	wordPath := filepath.Join(cwd, "data", source, lesson, "input", "words")
 	if _, err := os.Stat(wordPath); err == nil {
 		words := wordProcessor.DecomposeFromFile(wordPath, outDir, translations)
-		wordProcessor.ExportCards(deckname, words, ignored)
+		wordProcessor.Export(words, outDir, deckname, ignored)
 	}
 	// load dialogues from file
 	dialogPath := filepath.Join(cwd, "data", source, lesson, "input", "dialogues")

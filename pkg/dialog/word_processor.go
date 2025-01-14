@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
@@ -94,6 +95,7 @@ func (p *WordProcessor) Decompose(w Word, t *translate.Translations) (*Word, err
 		Note:         p.getNote(w.Note, examples.Note),
 		Translation:  cc.Translation,
 		Audio:        p.getAudio(w.Chinese),
+		Tones:        card.Tones,
 	}
 	return &newWord, nil
 }
@@ -185,10 +187,18 @@ func (p *WordProcessor) Export(words []Word, outDir, deckname string, i ignore.I
 	p.ExportJSON(words, outDir)
 }
 
-func (p *WordProcessor) ExportJSON(words []Word, outDir string) {
+func (p *WordProcessor) ExportJSON(wordsOrChars []Word, outDir string) {
 	os.Mkdir(outDir, os.ModePerm)
-	outPath := filepath.Join(outDir, "words.json")
-	b, err := json.Marshal(words)
+	outPath := filepath.Join(outDir, time.Now().Format("2006-01-02 15:04")+"_words.json")
+	onlyWords := make([]Word, 0)
+	for _, w := range wordsOrChars {
+		// HSK does not contain translations for characters, except they are considered words
+		if w.IsSingleRune && len(w.HSK) == 0 {
+			continue
+		}
+		onlyWords = append(onlyWords, w)
+	}
+	b, err := json.Marshal(onlyWords)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

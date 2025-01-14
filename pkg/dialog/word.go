@@ -23,4 +23,5 @@ type Word struct {
 	Mnemonic     string             `json:"mnemonic"`
 	Note         string             `json:"note"`
 	Translation  string             `json:"translation"` // this is coming from data/translations file
+	Tones        []string           `json:"tones"`
 }

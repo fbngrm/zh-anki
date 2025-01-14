@@ -61,6 +61,7 @@ type Card struct {
 	Mnemonic           string
 	Pronounciation     string
 	Translation        string // this is supposed to come from data/translations file
+	Tones              []string
 }
 
 type Builder struct {
@@ -147,6 +148,7 @@ func (b *Builder) GetWordCard(word string, t *translate.Translations) (*Card, er
 		DictEntries:        d,
 		Components:         b.getWordComponents(word),
 		Translation:        t.Lookup(word),
+		Tones:              getTones(word),
 	}, nil
 }
 
@@ -173,6 +175,7 @@ func (b *Builder) GetHanziCard(hanzi string, t *translate.Translations) *Card {
 		Mnemonic:           b.MnemonicsBuilder.Lookup(hanzi),
 		Pronounciation:     pronounciation,
 		Translation:        t.Lookup(hanzi),
+		Tones:              getTones(hanzi),
 	}
 }
 
@@ -240,7 +243,6 @@ func (b *Builder) getHanziComponents(hanzi string) []Component {
 }
 
 func (b *Builder) lookupDict(word string) (map[string]map[string]DictEntry, string, error) {
-	// map[dict_name]map[pinyin]DictEntry
 	entries := map[string]map[string]DictEntry{}
 	t := ""
 
@@ -361,4 +363,63 @@ func GetCedictEntries(card *Card) []CedictEntry {
 		}
 	}
 	return cedictEntries
+}
+
+// Map tone-marked vowels to their respective tone numbers
+var toneMap = map[rune]string{
+	'ā': "first", 'á': "second", 'ǎ': "third", 'à': "fourth",
+	'ō': "first", 'ó': "second", 'ǒ': "third", 'ò': "fourth",
+	'ē': "first", 'é': "second", 'ě': "third", 'è': "fourth",
+	'ī': "first", 'í': "second", 'ǐ': "third", 'ì': "fourth",
+	'ū': "first", 'ú': "second", 'ǔ': "third", 'ù': "fourth",
+	'ǖ': "first", 'ǘ': "second", 'ǚ': "third", 'ǜ': "fourth",
+}
+
+// Check if a rune is a vowel
+func isVowel(char rune) bool {
+	vowels := "aeiouāáǎàōóǒòēéěèīíǐìūúǔùǖüǘǚǜ"
+	return strings.ContainsRune(vowels, char)
+}
+
+// Check if a rune is a consonant
+func isConsonant(char rune) bool {
+	consonants := "bcdfghjklmnpqrstvwxyz"
+	return strings.ContainsRune(consonants, char)
+}
+
+func getTones(word string) []string {
+	tones := []string{}
+	lastToneIndex := -1
+
+	for i, char := range word {
+		if tone, exists := toneMap[char]; exists {
+			tones = append(tones, tone)
+			lastToneIndex = i
+		}
+	}
+
+	// Check for neutral tone at the end
+	if len(word) > 1 {
+		neutralToneValid := false
+		foundConsonant := false
+
+		for i := lastToneIndex + 1; i < len(word); i++ {
+			char := rune(word[i])
+			if isConsonant(char) {
+				foundConsonant = true
+			} else if isVowel(char) {
+				if foundConsonant {
+					neutralToneValid = true
+				}
+				if !foundConsonant {
+					neutralToneValid = false
+				}
+			}
+		}
+		if neutralToneValid && foundConsonant {
+			tones = append(tones, "neutral")
+		}
+	}
+
+	return tones
 }

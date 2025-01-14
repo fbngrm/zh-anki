@@ -21,6 +21,9 @@ func ExportWord(deckName string, w Word, i ignore.Ignored) error {
 		isChar = true
 	}
 
+	// for multi-character words, we export a card for each character
+	// for single-character words, we export a single card and return so we don't add
+	// it a second time as a word
 	if isChar || !w.IsSingleRune {
 		for _, c := range w.Chars {
 			if err := char.Export(deckName, c, i); err != nil {
