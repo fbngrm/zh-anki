@@ -2,6 +2,7 @@ package dialog
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/fbngrm/zh-anki/pkg/anki"
 	"github.com/fbngrm/zh-anki/pkg/card"
@@ -22,7 +23,7 @@ func ExportWord(deckName string, w Word, i ignore.Ignored) error {
 	}
 
 	// for multi-character words, we export a card for each character
-	// for single-character words, we export a single card and return so we don't add
+	// for single-characters, we export a single card and return so we don't add
 	// it a second time as a word
 	if isChar || !w.IsSingleRune {
 		for _, c := range w.Chars {
@@ -92,13 +93,13 @@ func ExportWord(deckName string, w Word, i ignore.Ignored) error {
 	exSentence2, exSentencePi2, exSentenceEn2, exSentenceAudio2 := "", "", "", ""
 	if len(w.Examples) >= 1 {
 		examplesSentencesHeader = "Example Sentences<br>"
-		exSentence1 = w.Examples[0].Chinese + "<br>"
+		exSentence1 = strings.ReplaceAll(w.Examples[0].Chinese, " ", "") + "<br>"
 		exSentencePi1 = w.Examples[0].Pinyin + "<br>"
 		exSentenceEn1 = w.Examples[0].English + "<br>"
 		exSentenceAudio1 = w.Examples[0].Audio
 	}
 	if len(w.Examples) >= 2 {
-		exSentence2 = w.Examples[1].Chinese + "<br>"
+		exSentence2 = strings.ReplaceAll(w.Examples[1].Chinese, " ", "") + "<br>"
 		exSentencePi2 = w.Examples[1].Pinyin + "<br>"
 		exSentenceEn2 = w.Examples[1].English + "<br>"
 		exSentenceAudio2 = w.Examples[1].Audio

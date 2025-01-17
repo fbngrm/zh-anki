@@ -12,16 +12,16 @@ type Word struct {
 	HSK          []card.HSKEntry    `json:"hsk"`
 	Traditional  string             `json:"traditional"`
 	Audio        string             `json:"audio"`
-	Chars        []char.Char        `json:"allChars"`
-	IsSingleRune bool               `json:"isSingleRune"`
-	Components   []card.Component   `json:"components"`
-	Kangxi       []string           `json:"kangxi"`
-	Equivalents  string             `json:"equivalents"`
-	Example      string             `json:"example"`
-	Examples     []card.Example     `json:"examples"`
-	MnemonicBase string             `json:"mnemonic_base"`
-	Mnemonic     string             `json:"mnemonic"`
-	Note         string             `json:"note"`
-	Translation  string             `json:"translation"` // this is coming from data/translations file
-	Tones        []string           `json:"tones"`
+	Chars        []char.Char
+	IsSingleRune bool             `json:"isSingleRune"`
+	Components   []card.Component `json:"components"`
+	Kangxi       []string
+	Equivalents  string
+	Example      string         `json:"example"`
+	Examples     []card.Example `json:"examples"`
+	MnemonicBase string         `json:"mnemonic_base"`
+	Mnemonic     string         `json:"mnemonic"`
+	Note         string         `json:"note"`
+	Translation  string         `json:"translation"` // this is coming from data/translations file
+	Tones        []string       `json:"tones"`
 }

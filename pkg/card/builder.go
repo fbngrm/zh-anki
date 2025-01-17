@@ -142,13 +142,22 @@ func (b *Builder) GetWordCard(word string, t *translate.Translations) (*Card, er
 		return nil, err
 	}
 
+	// we need the hsk pinyin to get the tones
+	tones := []string{}
+	if entries, ok := d["hsk"]; ok {
+		for pinyin := range entries {
+			tones = getTones(pinyin)
+			break
+		}
+	}
+
 	return &Card{
 		SimplifiedChinese:  word,
 		TraditionalChinese: tr,
 		DictEntries:        d,
 		Components:         b.getWordComponents(word),
 		Translation:        t.Lookup(word),
-		Tones:              getTones(word),
+		Tones:              tones,
 	}, nil
 }
 
@@ -166,6 +175,15 @@ func (b *Builder) GetHanziCard(hanzi string, t *translate.Translations) *Card {
 			pronounciation = fmt.Sprintf("%s - %s<br>", result.Pinyin, result.Pronounciation)
 		}
 	}
+
+	// we need the hsk pinyin to get the tones
+	tones := []string{}
+	if hskEntries, ok := entries["hsk"]; ok {
+		for pinyin := range hskEntries {
+			tones = getTones(pinyin)
+			break
+		}
+	}
 	return &Card{
 		SimplifiedChinese:  hanzi,
 		TraditionalChinese: trad,
@@ -175,7 +193,7 @@ func (b *Builder) GetHanziCard(hanzi string, t *translate.Translations) *Card {
 		Mnemonic:           b.MnemonicsBuilder.Lookup(hanzi),
 		Pronounciation:     pronounciation,
 		Translation:        t.Lookup(hanzi),
-		Tones:              getTones(hanzi),
+		Tones:              tones,
 	}
 }
 

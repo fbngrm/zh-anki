@@ -95,7 +95,7 @@ func (p *WordProcessor) Decompose(w Word, t *translate.Translations) (*Word, err
 		Note:         p.getNote(w.Note, examples.Note),
 		Translation:  cc.Translation,
 		Audio:        p.getAudio(w.Chinese),
-		Tones:        card.Tones,
+		Tones:        cc.Tones,
 	}
 	return &newWord, nil
 }
@@ -112,7 +112,7 @@ func (p *WordProcessor) getExampleSentences(examples []openai.Word) []card.Examp
 	results := make([]card.Example, len(examples))
 	for i, e := range examples {
 		results[i] = card.Example{
-			Chinese: strings.ReplaceAll(e.Ch, " ", ""),
+			Chinese: e.Ch,
 			Pinyin:  e.Pi,
 			English: e.En,
 			Audio:   p.getExampleSentenceAudio(e.Ch),
@@ -192,13 +192,14 @@ func (p *WordProcessor) ExportJSON(wordsOrChars []Word, outDir string) {
 	outPath := filepath.Join(outDir, time.Now().Format("2006-01-02 15:04")+"_words.json")
 	onlyWords := make([]Word, 0)
 	for _, w := range wordsOrChars {
+		// we want to export single character words but not single characters
 		// HSK does not contain translations for characters, except they are considered words
 		if w.IsSingleRune && len(w.HSK) == 0 {
 			continue
 		}
 		onlyWords = append(onlyWords, w)
 	}
-	b, err := json.Marshal(onlyWords)
+	b, err := json.MarshalIndent(onlyWords, "", "    ")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)

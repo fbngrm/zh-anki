@@ -71,13 +71,13 @@ func ExportCloze(deckName string, cl Cloze, i ignore.Ignored) error {
 	exSentence2, exSentencePi2, exSentenceEn2, exSentenceAudio2 := "", "", "", ""
 	if len(cl.Word.Examples) >= 1 {
 		examplesSentencesHeader = "Example Sentences<br>"
-		exSentence1 = cl.Word.Examples[0].Chinese + "<br>"
+		exSentence1 = strings.ReplaceAll(cl.Word.Examples[0].Chinese, " ", "") + "<br>"
 		exSentencePi1 = cl.Word.Examples[0].Pinyin + "<br>"
 		exSentenceEn1 = cl.Word.Examples[0].English + "<br>"
 		exSentenceAudio1 = cl.Word.Examples[0].Audio
 	}
 	if len(cl.Word.Examples) >= 2 {
-		exSentence2 = cl.Word.Examples[1].Chinese + "<br>"
+		exSentence2 = strings.ReplaceAll(cl.Word.Examples[1].Chinese, " ", "") + "<br>"
 		exSentencePi2 = cl.Word.Examples[1].Pinyin + "<br>"
 		exSentenceEn2 = cl.Word.Examples[1].English + "<br>"
 		exSentenceAudio2 = cl.Word.Examples[1].Audio
