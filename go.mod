@@ -1,8 +1,6 @@
 module github.com/fbngrm/zh-anki
 
-go 1.22.1
-
-toolchain go1.23.4
+go 1.23
 
 require (
 	cloud.google.com/go/texttospeech v1.7.5
@@ -50,5 +48,4 @@ require (
 	google.golang.org/grpc v1.61.0 // indirect
 	google.golang.org/protobuf v1.32.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	honnef.co/go/tools v0.5.1 // indirect
 )
