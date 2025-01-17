@@ -15,12 +15,15 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/frequency"
 	ignore_dict "github.com/fbngrm/zh-anki/pkg/ignore"
 	"github.com/fbngrm/zh-anki/pkg/openai"
+	"github.com/fbngrm/zh-anki/pkg/segment"
 	"github.com/fbngrm/zh-anki/pkg/translate"
 	"golang.org/x/exp/slog"
 )
 
 const wordFrequencySrc = "./pkg/frequency/global_wordfreq.release_UTF-8.txt"
 const mnemonicsSrc = "/home/f/Dropbox/notes/chinese/mnemonics/mnemonics.txt"
+const segmenterCmd = "/home/f/work/src/github.com/fbngrm/stanford-segmenter/segment.sh"
+const segmenterModel = "pku"
 
 var ignoreChars = []string{"!", "！", "？", "?", "，", ",", ".", "。", "", " ", "、"}
 
@@ -106,7 +109,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	openAIClient, err := openai.NewClient(openAIApiKey, cache)
+	segmenter := &segment.Segmenter{
+		Cmd:   segmenterCmd,
+		Model: segmenterModel,
+	}
+	openAIClient, err := openai.NewClient(openAIApiKey, cache, segmenter)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
