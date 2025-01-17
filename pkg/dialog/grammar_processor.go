@@ -3,7 +3,6 @@ package dialog
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/card"
@@ -44,7 +43,7 @@ func (g *GrammarProcessor) DecomposeFromFile(path string, outdir, deckname strin
 				Chinese: s.Chinese,
 				English: s.English,
 				Pinyin:  s.Pinyin,
-				Audio:   g.getAudio(s.Chinese), // FIXME: preserve spacing for audio splitting
+				Audio:   g.getAudio(s.Chinese),
 			}
 		}
 		e = examples
@@ -58,7 +57,7 @@ func (g *GrammarProcessor) DecomposeFromFile(path string, outdir, deckname strin
 	}
 
 	return Grammar{
-		Cloze:           strings.ReplaceAll(grammar.Cloze, " ", ""),
+		Cloze:           grammar.Cloze,
 		SentenceFront:   grammar.SentenceFront,
 		SentenceBack:    grammar.SentenceBack,
 		SentencePinyin:  s.Pinyin,
@@ -86,9 +85,8 @@ func (g *GrammarProcessor) getExampleSentences(examples []openai.Word) []card.Ex
 }
 
 func (g *GrammarProcessor) getAudio(s string) string {
-	w := strings.ReplaceAll(s, " ", "")
-	filename := w + ".mp3"
-	query := g.Audio.PrepareQueryWithRandomVoice(w, true)
+	filename := s + ".mp3"
+	query := g.Audio.PrepareQueryWithRandomVoice(s, true)
 	if err := g.Audio.Fetch(context.Background(), query, filename, 3); err != nil {
 		slog.Error("fetch example sentences audio", "sentence", s, "err", err)
 	}

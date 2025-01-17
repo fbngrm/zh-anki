@@ -119,10 +119,14 @@ func (c *Client) GetExamplesForPattern(pattern string) (ExampleSentences, error)
 	if err != nil {
 		return result, fmt.Errorf("Error parsing JSON for example sentences input %s: %v", content, err)
 	}
-	result, err = c.segmentExamples(result)
+
+	// segment chinese text
+	examples, err := c.segmentExamples(result.Examples)
 	if err != nil {
-		slog.Error("Segment pattern example sentences", "pattern", pattern, "error", err)
+		slog.Error("Segment word example sentences", "pattern", pattern, "error", err)
 	}
+	result.Examples = examples
+
 	return result, nil
 }
 
@@ -134,10 +138,11 @@ func (c *Client) GetExamplesForWord(word string) (ExampleSentences, error) {
 	if err != nil {
 		return result, fmt.Errorf("Error parsing JSON for example sentences input %s: %v", content, err)
 	}
-	result, err = c.segmentExamples(result)
+	examples, err := c.segmentExamples(result.Examples)
 	if err != nil {
 		slog.Error("Segment word example sentences", "word", word, "error", err)
 	}
+	result.Examples = examples
 	return result, nil
 }
 
@@ -154,20 +159,36 @@ func (c *Client) DecomposeSentence(sentence string) (*Sentence, error) {
 func (c *Client) Decompose(dialog string) (*Decomposition, error) {
 	content := c.fetch(dialog, decomposeDialogMessage, 2)
 
+	var sentences []Sentence
 	if strings.Contains(content, "\"sentences\": [") {
 		var decomp Decomposition
 		err := json.Unmarshal([]byte(content), &decomp)
 		if err != nil {
 			return nil, fmt.Errorf("Error parsing JSON sentences for dialog input %s: %v", content, err)
 		}
-		return &decomp, nil
+		sentences = decomp.Sentences
+	} else {
+		err := json.Unmarshal([]byte(content), &sentences)
+		if err != nil {
+			log.Printf("Error parsing JSON for dialog input %s: %v", content, err)
+		}
 	}
 
-	var sentences []Sentence
-	err := json.Unmarshal([]byte(content), &sentences)
-	if err != nil {
-		log.Printf("Error parsing JSON for dialog input %s: %v", content, err)
+	// segment sentences
+	words := make([]Word, len(sentences))
+	for i, s := range sentences {
+		words[i] = Word{Ch: s.Chinese}
 	}
+	var err error
+	words, err = c.segmentExamples(words)
+	if err != nil {
+		slog.Error("Segment dialog sentences", "dialog", dialog, "error", err)
+	}
+	// note, we rely on the segmenter func to check boundaries
+	for i, w := range words {
+		sentences[i].Chinese = w.Ch
+	}
+
 	return &Decomposition{
 		Sentences: sentences,
 	}, nil
@@ -255,12 +276,12 @@ func (c *Client) fetch(query, message string, retryCount int) string {
 	return content
 }
 
-func (c *Client) segmentExamples(sentences ExampleSentences) (ExampleSentences, error) {
+func (c *Client) segmentExamples(in []Word) ([]Word, error) {
 	// segment chinese examples
 	examples := ""
-	for i, e := range sentences.Examples {
+	for i, e := range in {
 		examples += e.Ch
-		if i < len(sentences.Examples)-1 {
+		if i < len(in)-1 {
 			examples += "\n"
 		}
 	}
@@ -269,7 +290,7 @@ func (c *Client) segmentExamples(sentences ExampleSentences) (ExampleSentences, 
 		var err error
 		examples, err = c.segmenter.SegmentChinese(examples)
 		if err != nil {
-			return sentences, err
+			return in, err
 		}
 	}
 
@@ -280,12 +301,12 @@ func (c *Client) segmentExamples(sentences ExampleSentences) (ExampleSentences, 
 		segmented = segmented[:len(segmented)-1]
 	}
 
-	if len(segmented) != len(sentences.Examples) {
-		return sentences, fmt.Errorf("expected %d segmented sentences but got %d", len(sentences.Examples), len(segmented))
+	if len(segmented) != len(in) {
+		return in, fmt.Errorf("expected %d segmented sentences but got %d", len(in), len(segmented))
 	}
 
 	for i, s := range segmented {
-		sentences.Examples[i].Ch = s
+		in[i].Ch = s
 	}
-	return sentences, nil
+	return in, nil
 }

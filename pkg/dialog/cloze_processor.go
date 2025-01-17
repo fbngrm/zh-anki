@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
@@ -64,7 +63,7 @@ func (p *ClozeProcessor) Decompose(clozes []cloze, outdir string, t *translate.T
 
 func (p *ClozeProcessor) getAudio(clozes []Cloze) []Cloze {
 	for x, c := range clozes {
-		filename := strings.ReplaceAll(c.SentenceBack, " ", "") + ".mp3"
+		filename := c.SentenceBack + ".mp3"
 		query := p.Audio.PrepareQueryWithRandomVoice(c.SentenceBack, true)
 		if err := p.Audio.Fetch(context.Background(), query, filename, 3); err != nil {
 			slog.Error("fetching audio from azure", "error", err.Error())
@@ -82,7 +81,7 @@ func (p *ClozeProcessor) Export(clozes []Cloze, outDir, deckname string, i ignor
 func (p *ClozeProcessor) ExportJSON(clozes []Cloze, outDir string) {
 	os.Mkdir(outDir, os.ModePerm)
 	outPath := filepath.Join(outDir, time.Now().Format("2006-01-02 15:04")+"_clozes.json")
-	b, err := json.Marshal(clozes)
+	b, err := json.MarshalIndent(clozes, "", "    ")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
