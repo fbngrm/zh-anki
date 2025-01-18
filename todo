@@ -1,1 +1,15 @@
-remove sentence/dialog path
+## features
+- use python lib for pinyin
+- use stanford segmenter everywhere
+- fallback for word translations on sentence cards if chatgpt translations are missing
+- export patterns as json to import in audio generator
+- do not generate audio example sentences for character cards
+- add tongue position
+- support tone sandhi hints
+- server / fe
+
+## qa
+- better automation
+- tests / linter
+- better error handling
+- add missing components in heisig
