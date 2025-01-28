@@ -21,15 +21,15 @@ type ClozeProcessor struct {
 	Audio  *audio.AzureClient
 }
 
-func (p *ClozeProcessor) DecomposeFromFile(path, outdir string, t *translate.Translations) ([]Cloze, error) {
+func (p *ClozeProcessor) DecomposeFromFile(path, outdir string, t *translate.Translations, dry bool) ([]Cloze, error) {
 	clozes, err := loadClozes(path)
 	if err != nil {
 		return nil, err
 	}
-	return p.Decompose(clozes, outdir, t), nil
+	return p.Decompose(clozes, outdir, t, dry), nil
 }
 
-func (p *ClozeProcessor) Decompose(clozes []cloze, outdir string, t *translate.Translations) []Cloze {
+func (p *ClozeProcessor) Decompose(clozes []cloze, outdir string, t *translate.Translations, dry bool) []Cloze {
 	var results []Cloze
 	for _, cl := range clozes {
 		slog.Info("=================================")
@@ -41,7 +41,7 @@ func (p *ClozeProcessor) Decompose(clozes []cloze, outdir string, t *translate.T
 			continue
 		}
 
-		w, err := p.Words.Decompose(Word{Chinese: cl.word}, t)
+		w, err := p.Words.Decompose(Word{Chinese: cl.word}, t, dry)
 		if err != nil {
 			slog.Error("decompose cloze word", "word", cl.word, "error", err.Error())
 			continue
@@ -58,15 +58,17 @@ func (p *ClozeProcessor) Decompose(clozes []cloze, outdir string, t *translate.T
 			Word:    *w,
 		})
 	}
-	return p.getAudio(results)
+	return p.getAudio(results, dry)
 }
 
-func (p *ClozeProcessor) getAudio(clozes []Cloze) []Cloze {
+func (p *ClozeProcessor) getAudio(clozes []Cloze, dry bool) []Cloze {
 	for x, c := range clozes {
 		filename := c.SentenceBack + ".mp3"
-		query := p.Audio.PrepareQueryWithRandomVoice(c.SentenceBack, true)
-		if err := p.Audio.Fetch(context.Background(), query, filename, 3); err != nil {
-			slog.Error("fetching audio from azure", "error", err.Error())
+		if !dry {
+			query := p.Audio.PrepareQueryWithRandomVoice(c.SentenceBack, true)
+			if err := p.Audio.Fetch(context.Background(), query, filename, 3); err != nil {
+				slog.Error("fetching audio from azure", "error", err.Error())
+			}
 		}
 		clozes[x].Audio = filename
 	}

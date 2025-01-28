@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
+	"path"
 	"strings"
 	"unicode/utf8"
 
@@ -22,11 +22,11 @@ type SentenceProcessor struct {
 	Audio  *audio.AzureClient
 }
 
-func (p *SentenceProcessor) DecomposeFromFile(path, outdir string, t *translate.Translations) []Sentence {
-	return p.Decompose(loadSentences(path), outdir, t)
+func (p *SentenceProcessor) DecomposeFromFile(path, outdir string, t *translate.Translations, dry bool) []Sentence {
+	return p.Decompose(loadSentences(path), outdir, t, dry)
 }
 
-func (p *SentenceProcessor) Decompose(sentences []sentence, outdir string, t *translate.Translations) []Sentence {
+func (p *SentenceProcessor) Decompose(sentences []sentence, outdir string, t *translate.Translations, dry bool) []Sentence {
 	var results []Sentence
 	for _, sen := range sentences {
 		slog.Info("=================================")
@@ -51,10 +51,10 @@ func (p *SentenceProcessor) Decompose(sentences []sentence, outdir string, t *tr
 		results = append(results, *sentence)
 
 	}
-	return p.getAudio(results)
+	return p.getAudio(results, dry)
 }
 
-func (p *SentenceProcessor) Get(sentences []openai.Sentence, t *translate.Translations) []Sentence {
+func (p *SentenceProcessor) Get(sentences []openai.Sentence, t *translate.Translations, dry bool) []Sentence {
 	var results []Sentence
 	for _, s := range sentences {
 		results = append(results, Sentence{
@@ -65,15 +65,17 @@ func (p *SentenceProcessor) Get(sentences []openai.Sentence, t *translate.Transl
 			IsSingleRune: utf8.RuneCountInString(s.Chinese) == 1,
 		})
 	}
-	return p.getAudio(results)
+	return p.getAudio(results, dry)
 }
 
-func (p *SentenceProcessor) getAudio(sentences []Sentence) []Sentence {
+func (p *SentenceProcessor) getAudio(sentences []Sentence, dry bool) []Sentence {
 	for x, sentence := range sentences {
 		filename := strings.ReplaceAll(sentence.Chinese, " ", "") + ".mp3"
-		query := p.Audio.PrepareQueryWithRandomVoice(sentence.Chinese, true)
-		if err := p.Audio.Fetch(context.Background(), query, filename, 3); err != nil {
-			slog.Error("fetching audio from azure", "error", err.Error())
+		if !dry {
+			query := p.Audio.PrepareQueryWithRandomVoice(sentence.Chinese, true)
+			if err := p.Audio.Fetch(context.Background(), query, filename, 3); err != nil {
+				slog.Error("fetching audio from azure", "error", err.Error())
+			}
 		}
 		sentences[x].Audio = filename
 	}
@@ -86,16 +88,21 @@ func (p *SentenceProcessor) Export(sentences []Sentence, outDir, deckname string
 }
 
 func (p *SentenceProcessor) ExportJSON(sentences []Sentence, outDir string) {
-	os.Mkdir(outDir, os.ModePerm)
-	outPath := filepath.Join(outDir, "sentences.json")
-	b, err := json.Marshal(sentences)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	outDir = path.Join(outDir, "sentences")
+	if err := os.MkdirAll(outDir, os.ModePerm); err != nil {
+		fmt.Println("create sentence export dir: ", err.Error())
 	}
-	if err := os.WriteFile(outPath, b, 0644); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	for _, s := range sentences {
+		b, err := json.MarshalIndent(s, "", "    ")
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		outPath := path.Join(outDir, s.Chinese+".json")
+		if err := os.WriteFile(outPath, b, 0644); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	}
 }
 

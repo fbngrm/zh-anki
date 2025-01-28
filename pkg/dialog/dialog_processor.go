@@ -23,7 +23,7 @@ type DialogProcessor struct {
 	Audio     *audio.AzureClient
 }
 
-func (p *DialogProcessor) Decompose(path, outdir, deckname string, t *translate.Translations) []*Dialog {
+func (p *DialogProcessor) Decompose(path, outdir, deckname string, t *translate.Translations, dry bool) []*Dialog {
 	// note, dialogues with a speaker must use `：` (unicode) to separate speaker and text.
 	// this is not the same as `:` (ascii)!
 	dialogues := loadDialogues(path)
@@ -55,7 +55,7 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, t *translate.
 			English:     english,
 			Audio:       audioFilename,
 			Pinyin:      pinyin,
-			Sentences:   p.Sentences.Get(decompositon.Sentences, t),
+			Sentences:   p.Sentences.Get(decompositon.Sentences, t, dry),
 			UniqueChars: getUniqueChars(chinese),
 			Note:        dialog.Note,
 		}
@@ -66,14 +66,16 @@ func (p *DialogProcessor) Decompose(path, outdir, deckname string, t *translate.
 			return results
 		}
 
-		query := ""
-		if len(dialog.Speakers) != 0 {
-			query = p.prepareQuery(dialog)
-		} else {
-			query = p.Audio.PrepareQueryWithRandomVoice(dialog.Text, false)
-		}
-		if err := p.Audio.Fetch(context.Background(), query, audioFilename, 3); err != nil {
-			slog.Error("fetching audio from azure", "error", err.Error())
+		if !dry {
+			query := ""
+			if len(dialog.Speakers) != 0 {
+				query = p.prepareQuery(dialog)
+			} else {
+				query = p.Audio.PrepareQueryWithRandomVoice(dialog.Text, false)
+			}
+			if err := p.Audio.Fetch(context.Background(), query, audioFilename, 3); err != nil {
+				slog.Error("fetching audio from azure", "error", err.Error())
+			}
 		}
 	}
 	return results

@@ -1,6 +1,8 @@
 data_dir=./data/$(source)/$(lesson)
 audio_dir=./data/$(source)/$(lesson)/audio
 
+JSON_CACHE=/home/f/Dropbox/data/zh/cache/json
+
 .PHONY: gen
 gen:
 	mkdir -p $(audio_dir) || true
@@ -20,6 +22,9 @@ anki: gen cp-audio
 .PHONY: anki-dry
 anki-dry:
 	go run cmd/main.go -l $(lesson) -src $(source) -dryrun
+	mkdir -p $(JSON_CACHE)/words $(JSON_CACHE)/sentences
+	cp $(data_dir)/output/words/* $(JSON_CACHE)/words || true
+	cp $(data_dir)/output/sentences/* $(JSON_CACHE)/sentences || true
 
 .PHONY: segment
 segment:

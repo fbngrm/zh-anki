@@ -5,9 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
+	"path"
 	"strings"
-	"time"
 	"unicode/utf8"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
@@ -30,7 +29,7 @@ type WordProcessor struct {
 	CardBuilder *card.Builder
 }
 
-func (p *WordProcessor) DecomposeFromFile(path, outdir string, t *translate.Translations) []Word {
+func (p *WordProcessor) DecomposeFromFile(path, outdir string, t *translate.Translations, dry bool) []Word {
 	words := loadWords(path)
 
 	var newWords []Word
@@ -42,7 +41,7 @@ func (p *WordProcessor) DecomposeFromFile(path, outdir string, t *translate.Tran
 			continue
 		}
 
-		w, err := p.Decompose(word, t)
+		w, err := p.Decompose(word, t, dry)
 		if err != nil {
 			slog.Error("decompose", "word", word, "err", err)
 			continue
@@ -53,7 +52,7 @@ func (p *WordProcessor) DecomposeFromFile(path, outdir string, t *translate.Tran
 	return newWords
 }
 
-func (p *WordProcessor) Decompose(w Word, t *translate.Translations) (*Word, error) {
+func (p *WordProcessor) Decompose(w Word, t *translate.Translations, dry bool) (*Word, error) {
 	allChars := p.Chars.GetAll(w.Chinese, false, t)
 
 	var cc *card.Card
@@ -89,12 +88,12 @@ func (p *WordProcessor) Decompose(w Word, t *translate.Translations) (*Word, err
 		Components:   cc.Components,
 		Traditional:  trad,
 		Example:      exampleWords,
-		Examples:     p.getExampleSentences(examples.Examples),
+		Examples:     p.getExampleSentences(examples.Examples, dry),
 		MnemonicBase: cc.MnemonicBase,
 		Mnemonic:     cc.Mnemonic,
 		Note:         p.getNote(w.Note, examples.Note),
 		Translation:  cc.Translation,
-		Audio:        p.getAudio(w.Chinese),
+		Audio:        p.getAudio(w.Chinese, dry),
 		Tones:        cc.Tones,
 	}
 	return &newWord, nil
@@ -108,24 +107,26 @@ func (p *WordProcessor) getNote(userNote, examplesNote string) string {
 	return userNote + examplesNote
 }
 
-func (p *WordProcessor) getExampleSentences(examples []openai.Word) []card.Example {
+func (p *WordProcessor) getExampleSentences(examples []openai.Word, dry bool) []card.Example {
 	results := make([]card.Example, len(examples))
 	for i, e := range examples {
 		results[i] = card.Example{
 			Chinese: e.Ch,
 			Pinyin:  e.Pi,
 			English: e.En,
-			Audio:   p.getExampleSentenceAudio(e.Ch),
+			Audio:   p.getExampleSentenceAudio(e.Ch, dry),
 		}
 	}
 	return results
 }
 
-func (p *WordProcessor) getExampleSentenceAudio(s string) string {
+func (p *WordProcessor) getExampleSentenceAudio(s string, dry bool) string {
 	filename := strings.ReplaceAll(s, " ", "") + ".mp3"
-	query := p.AzureAudio.PrepareQueryWithRandomVoice(s, true)
-	if err := p.AzureAudio.Fetch(context.Background(), query, filename, 3); err != nil {
-		slog.Error("fetching audio from azure", "error", err.Error())
+	if !dry {
+		query := p.AzureAudio.PrepareQueryWithRandomVoice(s, true)
+		if err := p.AzureAudio.Fetch(context.Background(), query, filename, 3); err != nil {
+			slog.Error("fetching audio from azure", "error", err.Error())
+		}
 	}
 	return filename
 }
@@ -142,11 +143,11 @@ func (p *WordProcessor) Get(words []openai.Word, t *translate.Translations) []Wo
 			continue
 		}
 
-		example := ""
-		isSingleRune := utf8.RuneCountInString(word.Ch) == 1
-		if isSingleRune {
-			example = strings.Join(p.WordIndex.GetExamplesForHanzi(word.Ch, 5), ", ")
-		}
+		// example := ""
+		// isSingleRune := utf8.RuneCountInString(word.Ch) == 1
+		// if isSingleRune {
+		// 	example = strings.Join(p.WordIndex.GetExamplesForHanzi(word.Ch, 5), ", ")
+		// }
 
 		cc, err := p.CardBuilder.GetWordCard(word.Ch, t)
 		if err != nil {
@@ -155,29 +156,31 @@ func (p *WordProcessor) Get(words []openai.Word, t *translate.Translations) []Wo
 		}
 
 		w := Word{
-			Chinese:      word.Ch,
-			English:      word.En, // this comes from openai and is only used in the components of a sentence, which itself is translated by openai
-			Cedict:       card.GetCedictEntries(cc),
-			HSK:          card.GetHSKEntries(cc),
-			Chars:        p.Chars.GetAll(word.Ch, false, t),
-			IsSingleRune: isSingleRune,
-			Components:   cc.Components,
-			Traditional:  cc.TraditionalChinese,
-			Example:      example,
-			MnemonicBase: cc.MnemonicBase,
-			Mnemonic:     cc.Mnemonic,
-			Translation:  cc.Translation,
-			Audio:        p.getAudio(word.Ch),
+			Chinese:     word.Ch,
+			English:     word.En, // this comes from openai and is only used in the components of a sentence, which itself is translated by openai
+			Cedict:      card.GetCedictEntries(cc),
+			HSK:         card.GetHSKEntries(cc),
+			Translation: cc.Translation,
+			Chars:       p.Chars.GetAll(word.Ch, false, t),
+			// IsSingleRune: isSingleRune,
+			// Components:   cc.Components,
+			// Traditional:  cc.TraditionalChinese,
+			// Example:      example,
+			// MnemonicBase: cc.MnemonicBase,
+			// Mnemonic:     cc.Mnemonic,
+			// Audio:        p.getAudio(word.Ch), // we don't want to download any audio for words that are added via openai
 		}
 		allWords = append(allWords, w)
 	}
 	return allWords
 }
 
-func (p *WordProcessor) getAudio(s string) string {
+func (p *WordProcessor) getAudio(s string, dry bool) string {
 	filename := strings.ReplaceAll(s, " ", "") + ".mp3"
-	if err := p.GCPAudio.Fetch(context.Background(), s, filename, false); err != nil {
-		slog.Error("download GCP audio", "error", err, "word", s)
+	if !dry {
+		if err := p.GCPAudio.Fetch(context.Background(), s, filename, false); err != nil {
+			slog.Error("download GCP audio", "error", err, "word", s)
+		}
 	}
 	return filename
 }
@@ -188,8 +191,10 @@ func (p *WordProcessor) Export(words []Word, outDir, deckname string, i ignore.I
 }
 
 func (p *WordProcessor) ExportJSON(wordsOrChars []Word, outDir string) {
-	os.Mkdir(outDir, os.ModePerm)
-	outPath := filepath.Join(outDir, time.Now().Format("2006-01-02 15:04")+"_words.json")
+	outDir = path.Join(outDir, "words")
+	if err := os.MkdirAll(outDir, os.ModePerm); err != nil {
+		fmt.Println("create sentence export dir: ", err.Error())
+	}
 	onlyWords := make([]Word, 0)
 	for _, w := range wordsOrChars {
 		// we want to export single character words but not single characters
@@ -199,14 +204,17 @@ func (p *WordProcessor) ExportJSON(wordsOrChars []Word, outDir string) {
 		}
 		onlyWords = append(onlyWords, w)
 	}
-	b, err := json.MarshalIndent(onlyWords, "", "    ")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	if err := os.WriteFile(outPath, b, 0644); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	for _, w := range onlyWords {
+		b, err := json.MarshalIndent(w, "", "    ")
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		outPath := path.Join(outDir, w.Chinese+".json")
+		if err := os.WriteFile(outPath, b, 0644); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	}
 }
 

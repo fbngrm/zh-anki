@@ -169,17 +169,17 @@ func main() {
 	// load sentences from file
 	sentencePath := filepath.Join(cwd, "data", source, lesson, "input", "sentences")
 	if _, err := os.Stat(sentencePath); err == nil {
-		sentences := sentenceProcessor.DecomposeFromFile(sentencePath, outdir, translations)
+		sentences := sentenceProcessor.DecomposeFromFile(sentencePath, outdir, translations, dryrun)
 		if dryrun {
-			sentenceProcessor.Export(sentences, outdir, deckname, ignored)
+			sentenceProcessor.ExportJSON(sentences, outdir)
 		} else {
-			sentenceProcessor.ExportCards(deckname, sentences, ignored)
+			sentenceProcessor.Export(sentences, outdir, deckname, ignored)
 		}
 	}
 	// load clozes from file
 	clozePath := filepath.Join(cwd, "data", source, lesson, "input", "clozes")
 	if _, err := os.Stat(clozePath); err == nil {
-		clozes, err := clozeProcessor.DecomposeFromFile(clozePath, outdir, translations)
+		clozes, err := clozeProcessor.DecomposeFromFile(clozePath, outdir, translations, dryrun)
 		if err != nil {
 			slog.Error("decompose cloze", "error", err)
 			os.Exit(1)
@@ -193,7 +193,7 @@ func main() {
 	}
 	wordPath := filepath.Join(cwd, "data", source, lesson, "input", "words")
 	if _, err := os.Stat(wordPath); err == nil {
-		words := wordProcessor.DecomposeFromFile(wordPath, outdir, translations)
+		words := wordProcessor.DecomposeFromFile(wordPath, outdir, translations, dryrun)
 		if dryrun {
 			wordProcessor.ExportJSON(words, outdir)
 		} else {
@@ -203,7 +203,7 @@ func main() {
 	// load dialogues from file
 	dialogPath := filepath.Join(cwd, "data", source, lesson, "input", "dialogues")
 	if _, err := os.Stat(dialogPath); err == nil {
-		dialogues := dialogProcessor.Decompose(dialogPath, outdir, deckname, translations)
+		dialogues := dialogProcessor.Decompose(dialogPath, outdir, deckname, translations, dryrun)
 		dialogProcessor.ExportCards(deckname, dialogues, renderSentences, ignored)
 	}
 	// load grammar from file
