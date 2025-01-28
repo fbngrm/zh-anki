@@ -39,9 +39,9 @@ func main() {
 	cards := fetchCardInfo(cardIDs)
 	classifyAndStoreCards(cards, "due")
 
-	// cardIDs = fetchNewCards()
-	// cards = fetchCardInfo(cardIDs)
-	// classifyAndStoreCards(cards, "new")
+	cardIDs = fetchNewCards()
+	cards = fetchCardInfo(cardIDs)
+	classifyAndStoreCards(cards, "new")
 }
 
 // fetchNewCards retrieves up to `limit` due cards from Anki.
