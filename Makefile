@@ -26,6 +26,10 @@ anki-dry:
 	cp $(data_dir)/output/words/* $(JSON_CACHE)/words || true
 	cp $(data_dir)/output/sentences/* $(JSON_CACHE)/sentences || true
 
+.PHONY: fetch-daily
+fetch-daily:
+	go run cmd/anki-connect/fetch-due/main.go
+
 .PHONY: segment
 segment:
 	@rm /tmp/segmented || true
