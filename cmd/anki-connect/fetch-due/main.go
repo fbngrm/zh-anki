@@ -7,10 +7,12 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path"
 	"strings"
 	"unicode/utf8"
 )
 
+const outputDir = "/home/f/work/src/github.com/fbngrm/zh-anki/data/daily/"
 const ankiConnectURL = "http://127.0.0.1:8765"
 
 // AnkiRequest represents the request body for AnkiConnect.
@@ -33,21 +35,40 @@ type CardInfo struct {
 }
 
 func main() {
-	cardIDs := fetchDueCards(100)
+	cardIDs := fetchDueCards()
 	cards := fetchCardInfo(cardIDs)
-	classifyAndStoreCards(cards)
+	classifyAndStoreCards(cards, "due")
+
+	// cardIDs = fetchNewCards()
+	// cards = fetchCardInfo(cardIDs)
+	// classifyAndStoreCards(cards, "new")
 }
 
-// fetchDueCards retrieves up to `limit` due cards from Anki.
-func fetchDueCards(limit int) []int {
+// fetchNewCards retrieves up to `limit` due cards from Anki.
+func fetchNewCards() []int {
 	requestBody := AnkiRequest{
 		Action:  "findCards",
 		Version: 6,
 		Params: map[string]string{
-			"query": fmt.Sprintf("is:due"),
+			"query": fmt.Sprintf(`deck:"chinese::zh" is:new`),
 		},
 	}
+	return fetch(requestBody)
+}
 
+// fetchDueCards retrieves up to `limit` due cards from Anki.
+func fetchDueCards() []int {
+	requestBody := AnkiRequest{
+		Action:  "findCards",
+		Version: 6,
+		Params: map[string]string{
+			"query": fmt.Sprintf(`deck:"chinese::zh" is:due`),
+		},
+	}
+	return fetch(requestBody)
+}
+
+func fetch(requestBody AnkiRequest) []int {
 	response := sendRequest(requestBody)
 	cardIDs, ok := response.Result.([]interface{})
 	if !ok {
@@ -90,10 +111,16 @@ func fetchCardInfo(cardIDs []int) []CardInfo {
 }
 
 // classifyAndStoreCards processes cards and stores them in respective files.
-func classifyAndStoreCards(cards []CardInfo) {
-	wordFile, _ := os.Create("words.txt")
-	clozeFile, _ := os.Create("clozes.txt")
-	sentenceFile, _ := os.Create("sentences.txt")
+func classifyAndStoreCards(cards []CardInfo, prefix string) {
+	outDir := path.Join(outputDir, prefix, "input")
+	fmt.Println("outDir:", outDir)
+	if err := os.MkdirAll(outDir, os.ModePerm); err != nil {
+		fmt.Println("create dir:", err)
+	}
+
+	wordFile, _ := os.Create(path.Join(outDir, "words"))
+	clozeFile, _ := os.Create(path.Join(outDir, "clozes"))
+	sentenceFile, _ := os.Create(path.Join(outDir, "sentences"))
 	defer wordFile.Close()
 	defer clozeFile.Close()
 	defer sentenceFile.Close()
@@ -127,7 +154,7 @@ func classifyAndStoreCards(cards []CardInfo) {
 }
 
 // processRemainingTypes handles classification of cards not matching the predefined types.
-func processRemainingTypes(noteType, field string, wordFile, sentenceFile *os.File) {
+func processRemainingTypes(field string, wordFile, sentenceFile *os.File) {
 	runeCount := utf8.RuneCountInString(field)
 	if runeCount == 1 {
 		// Ignore single-rune fields

@@ -17,6 +17,10 @@ cp-audio:
 anki: gen cp-audio
 	@echo "don't forget to commit ignore file!"
 
+.PHONY: anki-dry
+anki-dry:
+	go run cmd/main.go -l $(lesson) -src $(source) -dryrun
+
 .PHONY: segment
 segment:
 	@rm /tmp/segmented || true
