@@ -20,14 +20,20 @@ import (
 )
 
 const wordFrequencySrc = "./pkg/frequency/global_wordfreq.release_UTF-8.txt"
-const mnemonicsSrc = "/home/f/Dropbox/notes/chinese/mnemonics/mnemonics.txt"
+
+const mnemonicsSrc = "/home/f/Dropbox/zh/mnemonics/mnemonics.txt"
+
 const segmenterCmd = "/home/f/work/src/github.com/fbngrm/stanford-segmenter/segment.sh"
 const segmenterModel = "pku"
 
+// here we store responses from openai, the tmp output dir will be copied here in the Make target
+const openaiCacheDir = "/home/f/Dropbox/zh/cache/openai"
+
+// here we store generated audio, the tmp output dir will be copied here in the Make target
+const audioCacheDir = "/home/f/Dropbox/zh/cache/audio"
+
 var ignoreChars = []string{"!", "！", "？", "?", "，", ",", ".", "。", "", " ", "、"}
 
-var source string
-var target string
 var deckname string
 var dryrun bool
 
@@ -46,15 +52,9 @@ func main() {
 		log.Fatal("Environment variable SPEECH_KEY is not set")
 	}
 
-	flag.StringVar(&source, "src", "", "source folder name (and anki deck name if target is empty)")
-	flag.StringVar(&target, "tgt", "", "anki target deck name (if empty, use source)")
+	flag.StringVar(&deckname, "src", "", "deckname folder name (and anki deck name if target is empty)")
 	flag.BoolVar(&dryrun, "dryrun", false, "perform a dry run (no actual export, only JSON export)")
 	flag.Parse()
-
-	deckname = source
-	if target != "" {
-		deckname = target
-	}
 
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -72,16 +72,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	audioDir := filepath.Join(cwd, "data", source, "audio")
-	azureClient := audio.NewAzureClient(azureApiKey, audioDir, ignoreChars)
-	gcpClient := &audio.GCPClient{
-		IgnoreChars: ignoreChars,
-		AudioDir:    audioDir,
+	// here we store generated audio files, that are then copied to anki media dir and the audio cache
+	tmpAudioDir := filepath.Join(cwd, "data", deckname, "audio")
+	audioCache := &audio.Cache{
+		SrcDir: audioCacheDir,
+		DstDir: tmpAudioDir,
 	}
-
-	// we cache responses from openai api and google text-to-speech
-	cacheDir := filepath.Join(cwd, "data", "cache")
-	cache := openai.NewCache(cacheDir)
+	azureClient := audio.NewAzureClient(azureApiKey, tmpAudioDir, ignoreChars, audioCache)
+	gcpClient := &audio.GCPClient{
+		Cache:       audioCache,
+		IgnoreChars: ignoreChars,
+		AudioDir:    tmpAudioDir,
+	}
 
 	wordIndex, err := frequency.NewWordIndex(wordFrequencySrc)
 	if err != nil {
@@ -99,7 +101,10 @@ func main() {
 		Cmd:   segmenterCmd,
 		Model: segmenterModel,
 	}
-	openAIClient, err := openai.NewClient(openAIApiKey, cache, segmenter)
+
+	// we cache responses from openai api
+	openaiCache := openai.NewCache(openaiCacheDir)
+	openAIClient, err := openai.NewClient(openAIApiKey, openaiCache, segmenter)
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -135,51 +140,51 @@ func main() {
 		Audio:  azureClient,
 	}
 
-	outdir := filepath.Join(cwd, "data", source, "output")
+	tmpOutdir := filepath.Join(cwd, "data", deckname, "output")
 
 	// load sentences from file
-	sentencePath := filepath.Join(cwd, "data", source, "input", "sentences")
+	sentencePath := filepath.Join(cwd, "data", deckname, "sentences")
 	if _, err := os.Stat(sentencePath); err == nil {
-		sentences := sentenceProcessor.DecomposeFromFile(sentencePath, outdir, translations, dryrun)
+		sentences := sentenceProcessor.DecomposeFromFile(sentencePath, tmpOutdir, translations, dryrun)
 		if dryrun {
-			sentenceProcessor.ExportJSON(sentences, outdir)
+			sentenceProcessor.ExportJSON(sentences, tmpOutdir)
 		} else {
-			sentenceProcessor.Export(sentences, outdir, deckname, ignored)
+			sentenceProcessor.Export(sentences, tmpOutdir, deckname, ignored)
 		}
 	}
 	// load clozes from file
-	clozePath := filepath.Join(cwd, "data", source, "input", "clozes")
+	clozePath := filepath.Join(cwd, "data", deckname, "clozes")
 	if _, err := os.Stat(clozePath); err == nil {
-		clozes, err := clozeProcessor.DecomposeFromFile(clozePath, outdir, translations, dryrun)
+		clozes, err := clozeProcessor.DecomposeFromFile(clozePath, tmpOutdir, translations, dryrun)
 		if err != nil {
 			slog.Error("decompose cloze", "error", err)
 			os.Exit(1)
 		}
 		if dryrun {
-			clozeProcessor.ExportJSON(clozes, outdir)
+			clozeProcessor.ExportJSON(clozes, tmpOutdir)
 		} else {
-			clozeProcessor.Export(clozes, outdir, deckname, ignored)
+			clozeProcessor.Export(clozes, tmpOutdir, deckname, ignored)
 		}
 
 	}
-	wordPath := filepath.Join(cwd, "data", source, "input", "words")
+	wordPath := filepath.Join(cwd, "data", deckname, "words")
 	if _, err := os.Stat(wordPath); err == nil {
-		words := wordProcessor.DecomposeFromFile(wordPath, outdir, translations, dryrun)
+		words := wordProcessor.DecomposeFromFile(wordPath, tmpOutdir, translations, dryrun)
 		if dryrun {
-			wordProcessor.ExportJSON(words, outdir)
+			wordProcessor.ExportJSON(words, tmpOutdir)
 		} else {
-			wordProcessor.Export(words, outdir, deckname, ignored)
+			wordProcessor.Export(words, tmpOutdir, deckname, ignored)
 		}
 	}
 	// load grammar from file
-	grammarPath := filepath.Join(cwd, "data", source, "input", "grammar")
+	grammarPath := filepath.Join(cwd, "data", deckname, "grammar")
 	if _, err := os.Stat(grammarPath); err == nil {
-		grammar, err := grammarProcessor.DecomposeFromFile(grammarPath, outdir, deckname)
+		grammar, err := grammarProcessor.DecomposeFromFile(grammarPath, tmpOutdir, deckname)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		grammarProcessor.Export(grammar, outdir, deckname)
+		grammarProcessor.Export(grammar, tmpOutdir, deckname)
 	}
 	// write newly ignored words
 	ignored.Write(ignorePath)

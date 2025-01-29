@@ -14,6 +14,7 @@ import (
 )
 
 type GCPClient struct {
+	Cache       *Cache
 	IgnoreChars []string
 	AudioDir    string
 }
@@ -56,15 +57,12 @@ func (g *GCPClient) GetVoices(
 
 // download audio file from google text-to-speech api if it doesn't exist in cache dir.
 // we also store a sentenceAndDialogOnlyDir to create audio loops for which we want to exclude words and chars.
-func (g *GCPClient) Fetch(ctx context.Context, query, filename string, isSentenceOrDialog bool) error {
-	if contains(g.IgnoreChars, query) {
+func (g *GCPClient) Fetch(ctx context.Context, query, filename string) error {
+	if g.Cache.Get(filename) {
 		return nil
 	}
-	if err := os.MkdirAll(g.AudioDir, os.ModePerm); err != nil {
-		return err
-	}
-	lessonPath := filepath.Join(g.AudioDir, filename)
 
+	lessonPath := filepath.Join(g.AudioDir, filename)
 	resp, err := fetch(ctx, query, nil)
 	if err != nil {
 		return err
@@ -109,13 +107,4 @@ func fetch(ctx context.Context, query string, voice *texttospeechpb.VoiceSelecti
 		},
 	}
 	return client.SynthesizeSpeech(ctx, &req)
-}
-
-func contains[T comparable](s []T, e T) bool {
-	for _, v := range s {
-		if v == e {
-			return true
-		}
-	}
-	return false
 }

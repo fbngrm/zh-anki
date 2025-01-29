@@ -21,18 +21,20 @@ import (
 const rate = "0.7"
 
 type AzureClient struct {
+	cache       *Cache
 	endpoint    string
 	apiKey      string
 	AudioDir    string
 	ignoreChars []string
 }
 
-func NewAzureClient(apiKey, audioDir string, ignoreChars []string) *AzureClient {
+func NewAzureClient(apiKey, audioDir string, ignoreChars []string, cache *Cache) *AzureClient {
 	return &AzureClient{
 		endpoint:    "https://germanywestcentral.tts.speech.microsoft.com/cognitiveservices/v1",
 		apiKey:      apiKey,
 		AudioDir:    audioDir,
 		ignoreChars: ignoreChars,
+		cache:       cache,
 	}
 }
 
@@ -63,9 +65,13 @@ func (c *AzureClient) GetVoices(speakers map[string]struct{}) map[string]string 
 // download audio file from azure text-to-speech api if it doesn't exist in cache dir.
 // we also store a sentenceAndDialogOnlyDir to create audio loops for which we want to exclude words and chars.
 func (c *AzureClient) Fetch(ctx context.Context, query, filename string, retryCount int) error {
-	time.Sleep(500 * time.Millisecond)
+	if c.cache.Get(filename) {
+		return nil
+	}
+
+	time.Sleep(200 * time.Millisecond)
 	if retryCount <= 0 {
-		slog.Error("download azure audio", "error", "excceded retries", "query", query)
+		slog.Error("download azure audio", "error", "exceeded retries", "query", query)
 		return nil
 	}
 	if contains(c.ignoreChars, query) {
@@ -145,4 +151,13 @@ func (c *AzureClient) PrepareQuery(text, speaker string, addSplitAudio bool) str
 		query += fmt.Sprintf(queryFmt, speaker, rate, text)
 	}
 	return query
+}
+
+func contains[T comparable](s []T, e T) bool {
+	for _, v := range s {
+		if v == e {
+			return true
+		}
+	}
+	return false
 }
