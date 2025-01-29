@@ -37,11 +37,11 @@ type CardInfo struct {
 func main() {
 	cardIDs := fetchDueCards()
 	cards := fetchCardInfo(cardIDs)
-	classifyAndStoreCards(cards, "due")
+	classifyAndStoreCards(cards[:100], "due")
 
 	cardIDs = fetchNewCards()
 	cards = fetchCardInfo(cardIDs)
-	classifyAndStoreCards(cards, "new")
+	classifyAndStoreCards(cards[:10], "new")
 }
 
 // fetchNewCards retrieves up to `limit` due cards from Anki.
@@ -104,7 +104,9 @@ func fetchCardInfo(cardIDs []int) []CardInfo {
 	for _, cardInfo := range cardInfoList {
 		var card CardInfo
 		cardData, _ := json.Marshal(cardInfo)
-		_ = json.Unmarshal(cardData, &card)
+		if err := json.Unmarshal(cardData, &card); err != nil {
+			fmt.Printf("unmarshal card %v: %v\n", cardData, err)
+		}
 		cards = append(cards, card)
 	}
 	return cards
@@ -113,7 +115,6 @@ func fetchCardInfo(cardIDs []int) []CardInfo {
 // classifyAndStoreCards processes cards and stores them in respective files.
 func classifyAndStoreCards(cards []CardInfo, prefix string) {
 	outDir := path.Join(outputDir, prefix, "input")
-	fmt.Println("outDir:", outDir)
 	if err := os.MkdirAll(outDir, os.ModePerm); err != nil {
 		fmt.Println("create dir:", err)
 	}
@@ -127,8 +128,10 @@ func classifyAndStoreCards(cards []CardInfo, prefix string) {
 
 	num := 0
 	for _, card := range cards {
+		// fmt.Println("type:", card.NoteType)
 		noteType := card.NoteType
 		chineseField := getFieldCaseInsensitive(card.Fields, "Chinese")
+		// fmt.Println("ch:", chineseField)
 		if chineseField == "" {
 			continue
 		}
