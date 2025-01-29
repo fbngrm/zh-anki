@@ -178,7 +178,7 @@ func (p *WordProcessor) Get(words []openai.Word, t *translate.Translations) []Wo
 func (p *WordProcessor) getAudio(s string, dry bool) string {
 	filename := strings.ReplaceAll(s, " ", "") + ".mp3"
 	if !dry {
-		if err := p.GCPAudio.Fetch(context.Background(), s, filename, false); err != nil {
+		if err := p.GCPAudio.Fetch(context.Background(), s, filename); err != nil {
 			slog.Error("download GCP audio", "error", err, "word", s)
 		}
 	}
