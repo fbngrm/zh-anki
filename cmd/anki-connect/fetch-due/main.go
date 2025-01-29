@@ -12,7 +12,7 @@ import (
 	"unicode/utf8"
 )
 
-const outputDir = "/home/f/work/src/github.com/fbngrm/zh-anki/data/daily/"
+const outputDir = "/home/f/work/src/github.com/fbngrm/zh-anki/data/zh/"
 const ankiConnectURL = "http://127.0.0.1:8765"
 
 // AnkiRequest represents the request body for AnkiConnect.
@@ -114,7 +114,7 @@ func fetchCardInfo(cardIDs []int) []CardInfo {
 
 // classifyAndStoreCards processes cards and stores them in respective files.
 func classifyAndStoreCards(cards []CardInfo, prefix string) {
-	outDir := path.Join(outputDir, prefix, "input")
+	outDir := path.Join(outputDir, prefix)
 	if err := os.MkdirAll(outDir, os.ModePerm); err != nil {
 		fmt.Println("create dir:", err)
 	}
