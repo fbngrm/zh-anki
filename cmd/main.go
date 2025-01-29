@@ -151,9 +151,6 @@ func main() {
 		Sentences: sentenceProcessor,
 		Audio:     azureClient,
 	}
-	simpleGrammarProcessor := dialog.SimpleGrammarProcessor{
-		Sentences: sentenceProcessor,
-	}
 	grammarProcessor := dialog.GrammarProcessor{
 		Client: openAIClient,
 		Audio:  azureClient,
@@ -161,11 +158,6 @@ func main() {
 
 	outdir := filepath.Join(cwd, "data", source, lesson, "output")
 
-	// load grammar from file
-	simpleGrammarPath := filepath.Join(cwd, "data", source, lesson, "input", "simple_grammar")
-	if _, err := os.Stat(simpleGrammarPath); err == nil {
-		simpleGrammarProcessor.Decompose(simpleGrammarPath, outdir, deckname, ignored, translations)
-	}
 	// load sentences from file
 	sentencePath := filepath.Join(cwd, "data", source, lesson, "input", "sentences")
 	if _, err := os.Stat(sentencePath); err == nil {
