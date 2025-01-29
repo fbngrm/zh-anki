@@ -146,11 +146,6 @@ func main() {
 		Words:  wordProcessor,
 		Audio:  azureClient,
 	}
-	dialogProcessor := dialog.DialogProcessor{
-		Client:    openAIClient,
-		Sentences: sentenceProcessor,
-		Audio:     azureClient,
-	}
 	grammarProcessor := dialog.GrammarProcessor{
 		Client: openAIClient,
 		Audio:  azureClient,
@@ -191,12 +186,6 @@ func main() {
 		} else {
 			wordProcessor.Export(words, outdir, deckname, ignored)
 		}
-	}
-	// load dialogues from file
-	dialogPath := filepath.Join(cwd, "data", source, lesson, "input", "dialogues")
-	if _, err := os.Stat(dialogPath); err == nil {
-		dialogues := dialogProcessor.Decompose(dialogPath, outdir, deckname, translations, dryrun)
-		dialogProcessor.ExportCards(deckname, dialogues, renderSentences, ignored)
 	}
 	// load grammar from file
 	grammarPath := filepath.Join(cwd, "data", source, lesson, "input", "grammar")

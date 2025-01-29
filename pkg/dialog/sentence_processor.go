@@ -44,7 +44,6 @@ func (p *SentenceProcessor) Decompose(sentences []sentence, outdir string, t *tr
 			Pinyin:       s.Pinyin,
 			Words:        p.Words.Get(s.Words, t),
 			IsSingleRune: utf8.RuneCountInString(s.Chinese) == 1,
-			UniqueChars:  getUniqueChars(s.Chinese),
 			Grammar:      sen.grammar, // this only works when supplied in the sentences file
 			Note:         sen.note,    // this only works when supplied in the sentences file
 		}
