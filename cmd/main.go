@@ -35,9 +35,6 @@ var tagList []string
 var deckname string
 var dryrun bool
 
-// by default, skip rendering separate cards for all sentences in a dialog
-var renderSentences bool
-
 func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
 		Level: slog.LevelDebug,
@@ -54,7 +51,6 @@ func main() {
 	}
 
 	flag.StringVar(&lesson, "l", "", "lesson name")
-	flag.BoolVar(&renderSentences, "s", true, "render sentences")
 	flag.StringVar(&source, "src", "", "source folder name (and anki deck name if target is empty)")
 	flag.StringVar(&target, "tgt", "", "anki target deck name (if empty, use source)")
 	flag.StringVar(&tags, "t", "", "comma separated list of anki tags")
