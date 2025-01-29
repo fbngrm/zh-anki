@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/card"
@@ -27,11 +26,8 @@ const segmenterModel = "pku"
 
 var ignoreChars = []string{"!", "！", "？", "?", "，", ",", ".", "。", "", " ", "、"}
 
-var lesson string
 var source string
 var target string
-var tags string
-var tagList []string
 var deckname string
 var dryrun bool
 
@@ -50,10 +46,8 @@ func main() {
 		log.Fatal("Environment variable SPEECH_KEY is not set")
 	}
 
-	flag.StringVar(&lesson, "l", "", "lesson name")
 	flag.StringVar(&source, "src", "", "source folder name (and anki deck name if target is empty)")
 	flag.StringVar(&target, "tgt", "", "anki target deck name (if empty, use source)")
-	flag.StringVar(&tags, "t", "", "comma separated list of anki tags")
 	flag.BoolVar(&dryrun, "dryrun", false, "perform a dry run (no actual export, only JSON export)")
 	flag.Parse()
 
@@ -61,12 +55,6 @@ func main() {
 	if target != "" {
 		deckname = target
 	}
-	if strings.Contains(tags, ",") {
-		tagList = strings.Split(tags, ",")
-	} else if len(tags) > 0 {
-		tagList = append(tagList, tags)
-	}
-	tagList = append(tagList, deckname)
 
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -84,7 +72,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	audioDir := filepath.Join(cwd, "data", source, lesson, "audio")
+	audioDir := filepath.Join(cwd, "data", source, "audio")
 	azureClient := audio.NewAzureClient(azureApiKey, audioDir, ignoreChars)
 	gcpClient := &audio.GCPClient{
 		IgnoreChars: ignoreChars,
@@ -147,10 +135,10 @@ func main() {
 		Audio:  azureClient,
 	}
 
-	outdir := filepath.Join(cwd, "data", source, lesson, "output")
+	outdir := filepath.Join(cwd, "data", source, "output")
 
 	// load sentences from file
-	sentencePath := filepath.Join(cwd, "data", source, lesson, "input", "sentences")
+	sentencePath := filepath.Join(cwd, "data", source, "input", "sentences")
 	if _, err := os.Stat(sentencePath); err == nil {
 		sentences := sentenceProcessor.DecomposeFromFile(sentencePath, outdir, translations, dryrun)
 		if dryrun {
@@ -160,7 +148,7 @@ func main() {
 		}
 	}
 	// load clozes from file
-	clozePath := filepath.Join(cwd, "data", source, lesson, "input", "clozes")
+	clozePath := filepath.Join(cwd, "data", source, "input", "clozes")
 	if _, err := os.Stat(clozePath); err == nil {
 		clozes, err := clozeProcessor.DecomposeFromFile(clozePath, outdir, translations, dryrun)
 		if err != nil {
@@ -174,7 +162,7 @@ func main() {
 		}
 
 	}
-	wordPath := filepath.Join(cwd, "data", source, lesson, "input", "words")
+	wordPath := filepath.Join(cwd, "data", source, "input", "words")
 	if _, err := os.Stat(wordPath); err == nil {
 		words := wordProcessor.DecomposeFromFile(wordPath, outdir, translations, dryrun)
 		if dryrun {
@@ -184,7 +172,7 @@ func main() {
 		}
 	}
 	// load grammar from file
-	grammarPath := filepath.Join(cwd, "data", source, lesson, "input", "grammar")
+	grammarPath := filepath.Join(cwd, "data", source, "input", "grammar")
 	if _, err := os.Stat(grammarPath); err == nil {
 		grammar, err := grammarProcessor.DecomposeFromFile(grammarPath, outdir, deckname)
 		if err != nil {
