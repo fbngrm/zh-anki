@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 type Cache struct {
@@ -21,7 +22,7 @@ func NewCache(dir string) *Cache {
 }
 
 func (c *Cache) Lookup(key string) (string, bool) {
-	filename := key + ".yaml"
+	filename := strings.ReplaceAll(key, " ", "") + ".yaml"
 	if _, ok := c.index[filename]; ok {
 		f, err := os.Open(filepath.Join(c.dir, filename))
 		if err != nil {
