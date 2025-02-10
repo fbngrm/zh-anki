@@ -11,6 +11,7 @@ import (
 type cloze struct {
 	withUnderscores    string
 	withoutParenthesis string
+	filename           string
 	word               string
 	grammar            string
 	note               string
@@ -49,6 +50,7 @@ func loadClozes(path string) ([]cloze, error) {
 			clozes = append(clozes, cloze{
 				withUnderscores:    withUnderscores,
 				withoutParenthesis: withoutParenthesis,
+				filename:           strings.ReplaceAll(parts[0], " ", ""),
 				word:               word,
 				note:               parts[1],
 			})
@@ -70,6 +72,7 @@ func loadClozes(path string) ([]cloze, error) {
 			clozes = append(clozes, cloze{
 				withUnderscores:    withUnderscores,
 				withoutParenthesis: withoutParenthesis,
+				filename:           strings.ReplaceAll(parts[0], " ", ""),
 				word:               word,
 				note:               parts[1],
 			})
@@ -89,6 +92,7 @@ func loadClozes(path string) ([]cloze, error) {
 			clozes = append(clozes, cloze{
 				withUnderscores:    withUnderscores,
 				withoutParenthesis: withoutParenthesis,
+				filename:           strings.ReplaceAll(parts[0], " ", ""),
 				word:               word,
 				note:               parts[1],
 			})
@@ -102,6 +106,7 @@ func loadClozes(path string) ([]cloze, error) {
 		clozes = append(clozes, cloze{
 			withUnderscores:    withUnderscores,
 			withoutParenthesis: withoutParenthesis,
+			filename:           strings.ReplaceAll(s, " ", ""),
 			word:               word,
 		})
 	}

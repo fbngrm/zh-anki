@@ -5,8 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
-	"time"
+	"path"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/ignore"
@@ -50,6 +49,7 @@ func (p *ClozeProcessor) Decompose(clozes []cloze, outdir string, t *translate.T
 		results = append(results, Cloze{
 			SentenceFront: cl.withUnderscores,
 			SentenceBack:  cl.withoutParenthesis,
+			FileName:      cl.filename,
 			English:       s.English,
 			Pinyin:        s.Pinyin,
 			// Words:         p.Words.Get(s.Words, i, t),
@@ -81,16 +81,21 @@ func (p *ClozeProcessor) Export(clozes []Cloze, outDir, deckname string, i ignor
 }
 
 func (p *ClozeProcessor) ExportJSON(clozes []Cloze, outDir string) {
-	os.Mkdir(outDir, os.ModePerm)
-	outPath := filepath.Join(outDir, time.Now().Format("2006-01-02 15:04")+"_clozes.json")
-	b, err := json.MarshalIndent(clozes, "", "    ")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	outDir = path.Join(outDir, "clozes")
+	if err := os.MkdirAll(outDir, os.ModePerm); err != nil {
+		fmt.Println("create clozes export dir: ", err.Error())
 	}
-	if err := os.WriteFile(outPath, b, 0644); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	for _, c := range clozes {
+		b, err := json.MarshalIndent(c, "", "    ")
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		outPath := path.Join(outDir, c.FileName+".json")
+		if err := os.WriteFile(outPath, b, 0644); err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	}
 }
 

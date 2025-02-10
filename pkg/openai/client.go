@@ -194,6 +194,7 @@ func (c *Client) Decompose(dialog string) (*Decomposition, error) {
 	}, nil
 }
 
+// FIXME: use filename for cloze cache lookup
 // implements a very simple retry. openai api sometimes fails to deliver a result or returns a invalid json
 // sub-sequent requests might succeed so we naively just try `retryCount` times.
 func (c *Client) fetch(query, message string, retryCount int) string {
