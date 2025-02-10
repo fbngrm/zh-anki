@@ -62,6 +62,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	targetdeck := "chinese::" + deckname
+
 	ignorePath := filepath.Join(cwd, "data", "ignore")
 	ignored := ignore_dict.Load(ignorePath)
 
@@ -149,7 +151,7 @@ func main() {
 		if dryrun {
 			sentenceProcessor.ExportJSON(sentences, tmpOutdir)
 		} else {
-			sentenceProcessor.Export(sentences, tmpOutdir, deckname, ignored)
+			sentenceProcessor.Export(sentences, tmpOutdir, targetdeck, ignored)
 		}
 	}
 	// load clozes from file
@@ -163,7 +165,7 @@ func main() {
 		if dryrun {
 			clozeProcessor.ExportJSON(clozes, tmpOutdir)
 		} else {
-			clozeProcessor.Export(clozes, tmpOutdir, deckname, ignored)
+			clozeProcessor.Export(clozes, tmpOutdir, targetdeck, ignored)
 		}
 
 	}
@@ -173,7 +175,7 @@ func main() {
 		if dryrun {
 			wordProcessor.ExportJSON(words, tmpOutdir)
 		} else {
-			wordProcessor.Export(words, tmpOutdir, deckname, ignored)
+			wordProcessor.Export(words, tmpOutdir, targetdeck, ignored)
 		}
 	}
 	// load grammar from file
@@ -184,7 +186,7 @@ func main() {
 			fmt.Println(err)
 			os.Exit(1)
 		}
-		grammarProcessor.Export(grammar, tmpOutdir, deckname)
+		grammarProcessor.Export(grammar, tmpOutdir, targetdeck)
 	}
 	// write newly ignored words
 	ignored.Write(ignorePath)

@@ -53,20 +53,22 @@ func (p *WordProcessor) DecomposeFromFile(path, outdir string, t *translate.Tran
 }
 
 func (p *WordProcessor) Decompose(w Word, t *translate.Translations, dry bool) (*Word, error) {
-	allChars := p.Chars.GetAll(w.Chinese, false, t)
 
 	var cc *card.Card
 	var err error
 	isSingleRune := utf8.RuneCountInString(w.Chinese) == 1
 	exampleWords := ""
+	allChars := []char.Char{}
 	if isSingleRune {
 		exampleWords = removeRedundant(p.WordIndex.GetExamplesForHanzi(w.Chinese, 5))
 		cc = p.CardBuilder.GetHanziCard(w.Chinese, t)
+		allChars = p.Chars.GetAll(w.Chinese, true, t)
 	} else {
 		cc, err = p.CardBuilder.GetWordCard(w.Chinese, t)
 		if err != nil {
 			return nil, err
 		}
+		allChars = p.Chars.GetAll(w.Chinese, true, t)
 	}
 
 	examples, err := p.Client.GetExamplesForWord(w.Chinese)
@@ -168,7 +170,7 @@ func (p *WordProcessor) Get(words []openai.Word, t *translate.Translations) []Wo
 			// Example:      example,
 			// MnemonicBase: cc.MnemonicBase,
 			// Mnemonic:     cc.Mnemonic,
-			// Audio:        p.getAudio(word.Ch), // we don't want to download any audio for words that are added via openai
+			// Audio: p.getAudio(word.Ch, true), // we don't want to download any audio for words that are added via openai
 		}
 		allWords = append(allWords, w)
 	}
@@ -193,7 +195,7 @@ func (p *WordProcessor) Export(words []Word, outDir, deckname string, i ignore.I
 func (p *WordProcessor) ExportJSON(wordsOrChars []Word, outDir string) {
 	outDir = path.Join(outDir, "words")
 	if err := os.MkdirAll(outDir, os.ModePerm); err != nil {
-		fmt.Println("create sentence export dir: ", err.Error())
+		fmt.Println("create words export dir: ", err.Error())
 	}
 	onlyWords := make([]Word, 0)
 	for _, w := range wordsOrChars {
