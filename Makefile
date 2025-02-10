@@ -1,8 +1,8 @@
 data_dir=./data/$(source)
 audio_dir=./data/$(source)/audio
 
-JSON_CACHE=/home/f/Dropbox/data/zh/cache/cards
-AUDIO_CACHE=/home/f/Dropbox/data/zh/cache/audio
+JSON_CACHE=/home/f/Dropbox/zh/cache/cards
+AUDIO_CACHE=/home/f/Dropbox/zh/cache/audio
 
 .PHONY: clean
 clean:
@@ -45,9 +45,10 @@ fetch-daily:
 .PHONY: segment
 segment:
 	@rm /tmp/segmented || true
-	@if [ -f $(data_dir)/input/dialogues ]; then cd ../stanford-segmenter && ./segment.sh pku ../zh-anki/$(data_dir)/input/dialogues UTF-8 0 > /tmp/segmented && cat /tmp/segmented > ../zh-anki/$(data_dir)/input/dialogues;fi
-	@if [ -f $(data_dir)/input/sentences ]; then cd ../stanford-segmenter && ./segment.sh pku ../zh-anki/$(data_dir)/input/sentences UTF-8 0 > /tmp/segmented && cat /tmp/segmented > ../zh-anki/$(data_dir)/input/sentences;fi
-	@if [ -f $(data_dir)/input/clozes ]; then cd ../stanford-segmenter && ./segment.sh pku ../zh-anki/$(data_dir)/input/clozes UTF-8 0 > /tmp/segmented && cat /tmp/segmented > ../zh-anki/$(data_dir)/input/clozes;fi
+	@if [ -f $(data_dir)/dialogues ]; then cd ../stanford-segmenter && ./segment.sh pku ../zh-anki/$(data_dir)/dialogues UTF-8 0 > /tmp/segmented && cat /tmp/segmented > ../zh-anki/$(data_dir)/dialogues;fi
+	@if [ -f $(data_dir)/sentences ]; then cd ../stanford-segmenter && ./segment.sh pku ../zh-anki/$(data_dir)/sentences UTF-8 0 > /tmp/segmented && cat /tmp/segmented > ../zh-anki/$(data_dir)/sentences;fi
+	@if [ -f $(data_dir)/clozes ]; then cd ../stanford-segmenter && ./segment.sh pku ../zh-anki/$(data_dir)/clozes UTF-8 0 > /tmp/segmented && cat /tmp/segmented > ../zh-anki/$(data_dir)/clozes;fi
+	@if [ -f $(data_dir)/patterns ]; then cd ../stanford-segmenter && ./segment.sh pku ../zh-anki/$(data_dir)/patterns UTF-8 0 > /tmp/segmented && cat /tmp/segmented > ../zh-anki/$(data_dir)/patterns;fi
 
 .PHONY: lint
 lint:
