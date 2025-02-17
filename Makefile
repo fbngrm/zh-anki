@@ -23,11 +23,11 @@ cp-audio:
 	$(shell cp $(audio_dir)/* $(AUDIO_CACHE))
 
 .PHONY: anki
-anki: gen cp-audio
+anki: segment gen cp-audio cp-json
 	@echo "don't forget to commit ignore file!"
 
 .PHONY: anki-dry
-anki-dry: clean
+anki-dry: segment cp-json clean
 	go run cmd/main.go -src $(source) -dryrun
 
 .PHONY: cp-json
