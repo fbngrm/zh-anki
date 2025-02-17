@@ -9,10 +9,6 @@ clean:
 	rm -r $(data_dir)/output || true
 	rm -r $(audio_dir) || true
 
-.PHONY: gen
-gen: clean
-	go run cmd/main.go -src $(source)
-
 anki_audio_dir="/home/f/.local/share/Anki2/User 1/collection.media/"
 .PHONY: cp-audio
 cp-audio:
@@ -26,8 +22,15 @@ cp-audio:
 anki: segment gen cp-audio cp-json
 	@echo "don't forget to commit ignore file!"
 
+.PHONY: gen
+gen: clean
+	go run cmd/main.go -src $(source)
+
 .PHONY: anki-dry
-anki-dry: segment cp-json clean
+anki-dry: segment gen-dry cp-json
+
+.PHONY: gen-dry
+gen-dry: clean
 	go run cmd/main.go -src $(source) -dryrun
 
 .PHONY: cp-json
