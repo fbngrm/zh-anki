@@ -7,6 +7,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/exp/slog"
 )
 
 type Cache struct {
@@ -40,12 +42,13 @@ func (c *Cache) Lookup(key string) (string, bool) {
 }
 
 func (c *Cache) Add(key, val string) {
-	key = key + ".yaml"
+	key = strings.ReplaceAll(key, " ", "") + ".yaml"
 	path := filepath.Join(c.dir, key)
 	if err := os.WriteFile(path, []byte(val), 0644); err != nil {
 		fmt.Printf("could not write cache file: %v", err)
 		os.Exit(1)
 	}
+	slog.Debug("add openai result to file cache", "file", key)
 	c.index[key] = struct{}{}
 }
 
@@ -60,7 +63,8 @@ func read(dir string) map[string]struct{} {
 
 	filenames := make(map[string]struct{})
 	for _, file := range files {
-		filenames[file.Name()] = struct{}{}
+		name := strings.ReplaceAll(file.Name(), " ", "")
+		filenames[name] = struct{}{}
 	}
 	return filenames
 }
