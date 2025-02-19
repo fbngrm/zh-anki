@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"time"
+	"strings"
 
 	"github.com/fbngrm/zh-anki/pkg/audio"
 	"github.com/fbngrm/zh-anki/pkg/card"
@@ -111,7 +111,7 @@ func (g *GrammarProcessor) ExportCards(deckname string, gr Grammar) {
 
 func (g *GrammarProcessor) ExportJSON(gr Grammar, outDir string) {
 	os.Mkdir(outDir, os.ModePerm)
-	outPath := filepath.Join(outDir, time.Now().Format("2006-01-02 15:04")+"_pattern.json")
+	outPath := filepath.Join(outDir, strings.ReplaceAll(gr.Pattern, " ", "")+".json")
 	b, err := json.MarshalIndent(gr, "", "    ")
 	if err != nil {
 		fmt.Println(err)

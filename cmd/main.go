@@ -51,6 +51,10 @@ func main() {
 	if azureApiKey == "" {
 		log.Fatal("Environment variable SPEECH_KEY is not set")
 	}
+	azureEndpoint := os.Getenv("AZURE_ENDPOINT")
+	if azureEndpoint == "" {
+		log.Fatal("Environment variable AZURE_ENDPOINT is not set")
+	}
 
 	flag.StringVar(&deckname, "src", "", "deckname folder name (and anki deck name if target is empty)")
 	flag.BoolVar(&dryrun, "dryrun", false, "perform a dry run (no actual export, only JSON export)")
@@ -80,7 +84,8 @@ func main() {
 		SrcDir: audioCacheDir,
 		DstDir: tmpAudioDir,
 	}
-	azureClient := audio.NewAzureClient(azureApiKey, tmpAudioDir, ignoreChars, audioCache)
+	azureClient := audio.NewAzureClient(
+		azureEndpoint, azureApiKey, tmpAudioDir, ignoreChars, audioCache)
 	gcpClient := &audio.GCPClient{
 		Cache:       audioCache,
 		IgnoreChars: ignoreChars,

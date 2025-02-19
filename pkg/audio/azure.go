@@ -19,6 +19,7 @@ import (
 
 // speed
 const rate = "0.7"
+const maxRetries = 10
 
 type AzureClient struct {
 	cache       *Cache
@@ -28,9 +29,9 @@ type AzureClient struct {
 	ignoreChars []string
 }
 
-func NewAzureClient(apiKey, audioDir string, ignoreChars []string, cache *Cache) *AzureClient {
+func NewAzureClient(endpoint, apiKey, audioDir string, ignoreChars []string, cache *Cache) *AzureClient {
 	return &AzureClient{
-		endpoint:    "https://germanywestcentral.tts.speech.microsoft.com/cognitiveservices/v1",
+		endpoint:    endpoint,
 		apiKey:      apiKey,
 		AudioDir:    audioDir,
 		ignoreChars: ignoreChars,
@@ -65,10 +66,12 @@ func (c *AzureClient) GetVoices(speakers map[string]struct{}) map[string]string 
 // download audio file from azure text-to-speech api if it doesn't exist in cache dir.
 // we also store a sentenceAndDialogOnlyDir to create audio loops for which we want to exclude words and chars.
 func (c *AzureClient) Fetch(ctx context.Context, query, filename string, retryCount int) error {
+	filename = strings.ReplaceAll(filename, " ", "")
 	if c.cache.Get(filename) {
+		slog.Debug("fetch azure audio, query found in cache")
 		return nil
 	}
-	time.Sleep(2000 * time.Millisecond)
+	// time.Sleep(2000 * time.Millisecond)
 	if retryCount <= 0 {
 		slog.Error("download azure audio", "error", "exceeded retries", "query", query)
 		return nil
@@ -82,7 +85,7 @@ func (c *AzureClient) Fetch(ctx context.Context, query, filename string, retryCo
 	}
 	lessonPath := filepath.Join(c.AudioDir, filename)
 
-	resp, err := c.fetch(ctx, query, 10)
+	resp, err := c.fetch(ctx, query, maxRetries)
 	if err != nil {
 		return err
 	}
@@ -106,16 +109,16 @@ func (c *AzureClient) fetch(ctx context.Context, query string, retryCount int) (
 	if retryCount == -1 {
 		return nil, fmt.Errorf("excceded retries for query: %s", query)
 	}
-	if retryCount == 0 {
+	if retryCount == maxRetries {
 		query = fmt.Sprintf(`<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="https://www.w3.org/2001/mstts" xml:lang="zh-CN">%s</speak>`, query)
 	}
-
 	req, err := http.NewRequest("POST", c.endpoint, bytes.NewBuffer([]byte(query)))
 	if err != nil {
 		fmt.Printf("error creating request: %v", err)
 		fmt.Println("retry...")
 		return c.fetch(ctx, query, retryCount-1)
 	}
+
 	req.Header.Set("Ocp-Apim-Subscription-Key", c.apiKey)
 	req.Header.Set("Content-Type", "application/ssml+xml")
 	req.Header.Set("X-Microsoft-OutputFormat", "audio-16khz-128kbitrate-mono-mp3")
@@ -144,6 +147,7 @@ func (c *AzureClient) fetch(ctx context.Context, query string, retryCount int) (
 			time.Sleep(5000 * time.Millisecond)
 			return c.fetch(ctx, query, retryCount-1)
 		}
+		return nil, fmt.Errorf("status code: %d", resp.StatusCode)
 	}
 
 	return resp, nil

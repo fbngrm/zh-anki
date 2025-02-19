@@ -72,8 +72,9 @@ func (p *SentenceProcessor) getAudio(sentences []Sentence, dry bool) []Sentence 
 		filename := strings.ReplaceAll(sentence.Chinese, " ", "") + ".mp3"
 		if !dry {
 			query := p.Audio.PrepareQueryWithRandomVoice(sentence.Chinese, true)
+			slog.Debug("fetch azure audio", "sentence", sentence.Chinese)
 			if err := p.Audio.Fetch(context.Background(), query, filename, 3); err != nil {
-				slog.Error("fetching audio from azure", "error", err.Error())
+				slog.Error("fetch audio from azure", "error", err.Error())
 			}
 		}
 		sentences[x].Audio = filename
@@ -82,7 +83,7 @@ func (p *SentenceProcessor) getAudio(sentences []Sentence, dry bool) []Sentence 
 }
 
 func (p *SentenceProcessor) Export(sentences []Sentence, outDir, deckname string, i ignore.Ignored) {
-	p.ExportCards(deckname, sentences, i)
+	// p.ExportCards(deckname, sentences, i)
 	p.ExportJSON(sentences, outDir)
 }
 
