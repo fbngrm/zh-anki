@@ -8,15 +8,12 @@ import (
 	"github.com/fbngrm/zh-anki/pkg/cedict"
 	"github.com/fbngrm/zh-anki/pkg/cjkvi"
 	"github.com/fbngrm/zh-anki/pkg/components"
-	"github.com/fbngrm/zh-anki/pkg/heisig"
 	"github.com/fbngrm/zh-anki/pkg/hsk"
 	"github.com/fbngrm/zh-anki/pkg/translate"
 	"github.com/fbngrm/zh-mnemonics/mnemonic"
 	"golang.org/x/exp/slog"
 )
 
-const idsSrc = "./pkg/heisig/heisig_decomp.json"
-const dictSrc = "./pkg/heisig/traditional.txt"
 const cjkviSrc = "./pkg/cjkvi/ids.txt"
 const cedictSrc = "./pkg/cedict/cedict_1_0_ts_utf-8_mdbg.txt"
 const hskSrc = "./pkg/hsk/3.0"
@@ -65,9 +62,7 @@ type Card struct {
 }
 
 type Builder struct {
-	HeisigDecomp     map[string][]string
 	CJKVIDecomp      map[string][]string
-	HeisigDict       map[string]heisig.Entry
 	CedictDict       map[string][]cedict.Entry
 	ComponentsDict   map[string]components.Component
 	WordIndex        []string
@@ -76,15 +71,7 @@ type Builder struct {
 }
 
 func NewBuilder(mnemonicsSrc string) (*Builder, error) {
-	heisigDecomp, err := heisig.NewDecompositionIndex(idsSrc)
-	if err != nil {
-		return nil, err
-	}
 	cjkviDecomp, err := cjkvi.NewDecompositionIndex(cjkviSrc)
-	if err != nil {
-		return nil, err
-	}
-	heisigDict, err := heisig.NewDict(dictSrc)
 	if err != nil {
 		return nil, err
 	}
@@ -107,9 +94,7 @@ func NewBuilder(mnemonicsSrc string) (*Builder, error) {
 	}
 
 	return &Builder{
-		HeisigDecomp:     heisigDecomp,
 		CJKVIDecomp:      cjkviDecomp,
-		HeisigDict:       heisigDict,
 		CedictDict:       cedictDict,
 		ComponentsDict:   componentsDict,
 		WordIndex:        hsk.GetByLevel(hskDict, 1),
@@ -223,12 +208,7 @@ func (b *Builder) getWordComponents(word string) []Component {
 }
 
 func (b *Builder) getHanziComponents(hanzi string) []Component {
-	decomp := b.HeisigDecomp[hanzi]
-	if len(decomp) == 0 {
-		if d, ok := b.CJKVIDecomp[hanzi]; ok {
-			decomp = d
-		}
-	}
+	decomp := b.CJKVIDecomp[hanzi]
 	components := []Component{}
 	if len(decomp) == 0 {
 		// FIXME: try cjkvi decomp here
@@ -249,7 +229,7 @@ func (b *Builder) getHanziComponents(hanzi string) []Component {
 				}
 			}
 			if len(e) == 0 {
-				slog.Warn(fmt.Sprintf("component meaning is empty in heisig: %s", d))
+				slog.Warn(fmt.Sprintf("component meaning is empty: %s", d))
 			}
 			components = append(components, Component{
 				SimplifiedChinese: d,
@@ -283,28 +263,6 @@ func (b *Builder) lookupDict(word string) (map[string]map[string]DictEntry, stri
 			Pronounciation: m.Pronounciation,
 		}
 		entries["hsk"] = r
-	}
-
-	// lookup in heisig dict
-	if h, ok := b.HeisigDict[word]; ok {
-		m := mnemonic.Mnemonic{}
-		var err error
-		if utf8.RuneCountInString(word) == 1 {
-			m, err = b.MnemonicsBuilder.Get(h.Pinyin)
-			if err != nil {
-				slog.Warn(fmt.Sprintf("heisig: get mnemonic base for: %s", h.Pinyin))
-			}
-		}
-		r := map[string]DictEntry{}
-		r[h.Pinyin] = DictEntry{
-			Src:            "heisig",
-			English:        h.Meaning,
-			Pinyin:         h.Pinyin,
-			MnemonicBase:   m.Mnemonic,
-			Pronounciation: m.Pronounciation,
-		}
-		entries["heisig"] = r
-		t = h.TraditionalChinese
 	}
 
 	// lookup in cedict

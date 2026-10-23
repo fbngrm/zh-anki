@@ -397,7 +397,7 @@ var data = map[string]string{
 	"𠂇": "left hand",
 	// added
 	"𠂉": "person",
-	"𤴓": "mending", //heisig
+	"𤴓": "mending",
 	"肀": "brush",
 	"龷": "salad",
 	"龰": "foot",

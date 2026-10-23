@@ -20,10 +20,9 @@ own license, and its rights stay with its owners.
 
 It includes:
 
-- CC-CEDICT (`pkg/cedict/`), by MDBG and contributors: Creative Commons Attribution-ShareAlike 4.0, https://cc-cedict.org/wiki/
-- cjkvi-ids (`pkg/cjkvi/`), based on the CHISE IDS database: GNU General Public License v2, https://github.com/cjkvi/cjkvi-ids
-- Heisig character data (`pkg/heisig/`), from James W. Heisig's *Remembering the Hanzi*
-- HSK word lists (`pkg/hsk/`), from the syllabus by the Center for Language Education and Cooperation / Chinese Testing International
-- BCC corpus word frequencies (`pkg/frequency/`), Beijing Language and Culture University
+- CC-CEDICT (`pkg/cedict/cedict_1_0_ts_utf-8_mdbg.txt`), © MDBG and CC-CEDICT contributors, licensed under Creative Commons Attribution-ShareAlike 4.0 International (https://creativecommons.org/licenses/by-sa/4.0/). Source: https://cc-cedict.org/wiki/. Release of 2022-05-21 with four entries added at the end (an adaptation under the same license); the file header carries the original notice.
+- cjkvi-ids (`pkg/cjkvi/ids.txt`), © 2014-2017 CJKVI Database, based on the CHISE IDS Database (http://www.chise.org/), licensed under the GNU General Public License v2: `licenses/cjkvi-ids-GPL-2.0.txt`. Source: https://github.com/cjkvi/cjkvi-ids. The file is identical to upstream.
+- HSK word lists (`pkg/hsk/`), from the syllabus by the Center for Language Education and Cooperation / Chinese Testing International; rights stay with their owners.
+- BCC corpus word frequencies (`pkg/frequency/`), Beijing Language and Culture University (BLCU). No license was found for this list; rights stay with BLCU.
 
 Any other third-party material keeps its own license as stated in its source.
